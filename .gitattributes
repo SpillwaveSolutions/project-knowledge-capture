@@ -1,1 +1,3 @@
 * text=auto eol=lf
+.work/todo.jsonl merge=union
+.work/done.jsonl merge=union
