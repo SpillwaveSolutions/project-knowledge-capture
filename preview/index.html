@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Project Knowledge Capture</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0f1419;
+      --bg-elevated: #1a222c;
+      --bg-soft: #151c24;
+      --border: #2a3544;
+      --text: #e8eef6;
+      --muted: #8b9bb0;
+      --accent: #3d9cf0;
+      --accent-dim: #1e4a72;
+      --green: #3ecf8e;
+      --amber: #e6b84d;
+      --violet: #a78bfa;
+      --radius: 12px;
+      --font: "DM Sans", system-ui, sans-serif;
+      --mono: "JetBrains Mono", ui-monospace, monospace;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: var(--font); }
+    body { min-height: 100dvh; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .app { display: grid; grid-template-columns: 280px 1fr; min-height: 100dvh; }
+    @media (max-width: 860px) {
+      .app { grid-template-columns: 1fr; }
+      .sidebar { border-right: none; border-bottom: 1px solid var(--border); max-height: 42vh; overflow: auto; }
+    }
+    .sidebar {
+      background: var(--bg-soft);
+      border-right: 1px solid var(--border);
+      padding: 1.25rem 1rem 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+    .brand { display: flex; flex-direction: column; gap: 0.25rem; padding: 0 0.35rem; }
+    .brand h1 { margin: 0; font-size: 1.05rem; font-weight: 700; letter-spacing: -0.02em; }
+    .brand .ver { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); }
+    .brand p { margin: 0.4rem 0 0; font-size: 0.8rem; color: var(--muted); line-height: 1.4; }
+    .badge-row { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.5rem; }
+    .badge {
+      font-size: 0.68rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;
+      padding: 0.2rem 0.45rem; border-radius: 999px; border: 1px solid var(--border);
+      color: var(--muted); background: var(--bg-elevated);
+    }
+    .badge.ok { color: var(--green); border-color: #245a40; }
+    .badge.cc { color: var(--accent); border-color: var(--accent-dim); }
+    .badge.gb { color: var(--violet); border-color: #4c3d7a; }
+    nav section h2 {
+      margin: 0 0 0.45rem; padding: 0 0.35rem;
+      font-size: 0.68rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--muted);
+    }
+    nav ul { list-style: none; margin: 0; padding: 0; }
+    nav li button {
+      width: 100%; text-align: left; background: transparent; border: none; color: var(--text);
+      font: inherit; font-size: 0.86rem; padding: 0.45rem 0.55rem; border-radius: 8px;
+      cursor: pointer; display: flex; align-items: center; gap: 0.45rem;
+    }
+    nav li button:hover { background: var(--bg-elevated); }
+    nav li button.active { background: var(--accent-dim); color: #dcefff; }
+    .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .dot.meeting { background: var(--accent); }
+    .dot.experiment { background: var(--amber); }
+    .dot.decision { background: var(--violet); }
+    .dot.feature { background: var(--green); }
+    .dot.other { background: var(--muted); }
+    main { display: flex; flex-direction: column; min-width: 0; }
+    .topbar {
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+      padding: 0.9rem 1.5rem; border-bottom: 1px solid var(--border); background: rgba(15,20,25,0.9);
+      position: sticky; top: 0; backdrop-filter: blur(8px); z-index: 2;
+    }
+    .topbar h2 { margin: 0; font-size: 0.95rem; font-weight: 600; }
+    .topbar .path { font-family: var(--mono); font-size: 0.75rem; color: var(--muted); }
+    .content { padding: 1.5rem 1.75rem 3rem; max-width: 860px; }
+    .hero {
+      background: linear-gradient(145deg, #1a2838 0%, #151c24 55%, #1a222c 100%);
+      border: 1px solid var(--border); border-radius: calc(var(--radius) + 4px);
+      padding: 1.5rem 1.6rem; margin-bottom: 1.5rem;
+    }
+    .hero h2 { margin: 0 0 0.5rem; font-size: 1.45rem; letter-spacing: -0.03em; }
+    .hero p { margin: 0; color: var(--muted); line-height: 1.55; font-size: 0.95rem; }
+    .chain {
+      display: flex; flex-wrap: wrap; gap: 0.45rem; align-items: center; margin-top: 1.1rem;
+      font-family: var(--mono); font-size: 0.72rem;
+    }
+    .chain span {
+      padding: 0.3rem 0.55rem; border-radius: 6px; background: var(--bg); border: 1px solid var(--border);
+      cursor: pointer; color: var(--text);
+    }
+    .chain span:hover { border-color: var(--accent); color: var(--accent); }
+    .chain .arrow { border: none; background: none; color: var(--muted); padding: 0; cursor: default; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.75rem; margin-bottom: 1.5rem; }
+    .card {
+      background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 0.9rem 1rem; cursor: pointer; transition: border-color 0.15s, transform 0.15s;
+    }
+    .card:hover { border-color: var(--accent); transform: translateY(-1px); }
+    .card h3 { margin: 0 0 0.3rem; font-size: 0.88rem; }
+    .card p { margin: 0; font-size: 0.75rem; color: var(--muted); line-height: 1.4; }
+    .md {
+      background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 1.25rem 1.4rem; line-height: 1.6; font-size: 0.92rem;
+    }
+    .md h1 { font-size: 1.35rem; margin: 0 0 0.75rem; letter-spacing: -0.02em; }
+    .md h2 { font-size: 1.05rem; margin: 1.4rem 0 0.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.3rem; }
+    .md h3 { font-size: 0.95rem; margin: 1.1rem 0 0.4rem; }
+    .md p { margin: 0.5rem 0; color: #d0dae6; }
+    .md ul, .md ol { padding-left: 1.25rem; color: #d0dae6; }
+    .md code {
+      font-family: var(--mono); font-size: 0.82em; background: var(--bg); padding: 0.1rem 0.35rem;
+      border-radius: 4px; border: 1px solid var(--border);
+    }
+    .md pre {
+      font-family: var(--mono); font-size: 0.78rem; background: var(--bg); border: 1px solid var(--border);
+      border-radius: 8px; padding: 0.85rem 1rem; overflow-x: auto; color: #c5d4e6;
+    }
+    .md pre code { background: none; border: none; padding: 0; }
+    .md table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin: 0.75rem 0; }
+    .md th, .md td { border: 1px solid var(--border); padding: 0.4rem 0.55rem; text-align: left; }
+    .md th { background: var(--bg); color: var(--muted); font-weight: 600; }
+    .md blockquote {
+      margin: 0.75rem 0; padding: 0.5rem 0.9rem; border-left: 3px solid var(--accent);
+      color: var(--muted); background: rgba(61,156,240,0.06);
+    }
+    .frontmatter {
+      font-family: var(--mono); font-size: 0.72rem; color: var(--muted);
+      background: var(--bg); border: 1px dashed var(--border); border-radius: 8px;
+      padding: 0.75rem 0.9rem; margin-bottom: 1rem; white-space: pre-wrap;
+    }
+    .skills-list { display: flex; flex-direction: column; gap: 0.4rem; }
+    .skill-chip {
+      display: flex; justify-content: space-between; gap: 0.5rem; align-items: center;
+      padding: 0.55rem 0.7rem; background: var(--bg-elevated); border: 1px solid var(--border);
+      border-radius: 8px; font-size: 0.82rem;
+    }
+    .skill-chip code { font-family: var(--mono); font-size: 0.78rem; color: var(--accent); }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <h1>Project Knowledge Capture</h1>
+        <span class="ver" id="version">v0.1.0</span>
+        <p>Claude Code + Grok Build plugin. Capture meetings, experiments & WikiTicket work into an OKF knowledge graph.</p>
+        <div class="badge-row">
+          <span class="badge cc">Claude Code</span>
+          <span class="badge gb">Grok Build</span>
+          <span class="badge ok">OKF native</span>
+        </div>
+      </div>
+      <nav>
+        <section>
+          <h2>Explorer</h2>
+          <ul>
+            <li><button type="button" class="active" data-view="home">Overview</button></li>
+            <li><button type="button" data-view="skills">Skills & commands</button></li>
+            <li><button type="button" data-view="readme">README</button></li>
+          </ul>
+        </section>
+        <section>
+          <h2>Sample knowledge</h2>
+          <ul id="tree"></ul>
+        </section>
+      </nav>
+    </aside>
+    <main>
+      <div class="topbar">
+        <h2 id="title">Overview</h2>
+        <span class="path" id="path-label">plugin · dual-host</span>
+      </div>
+      <div class="content" id="content"></div>
+    </main>
+  </div>
+  <script>
+    const content = document.getElementById("content");
+    const titleEl = document.getElementById("title");
+    const pathEl = document.getElementById("path-label");
+    let meta = { skills: [], commands: [], version: "0.1.0" };
+    let tree = [];
+
+    const CHAIN = [
+      { label: "Discovery", path: "discoveries/auth-competitor-scan.md" },
+      { label: "Experiment", path: "experiments/jwt-vs-cookie.md" },
+      { label: "Meeting", path: "meetings/2026-08-03-auth-design.md" },
+      { label: "Decision", path: "decisions/use-jwt-for-session.md" },
+      { label: "Feature", path: "features/user-authentication.md" },
+    ];
+
+    function kindFor(path) {
+      if (path.startsWith("meetings/")) return "meeting";
+      if (path.startsWith("experiments/")) return "experiment";
+      if (path.startsWith("decisions/")) return "decision";
+      if (path.startsWith("features/")) return "feature";
+      return "other";
+    }
+
+    function esc(s) {
+      return String(s)
+        .replace(/&/g, "&")
+        .replace(/</g, "<")
+        .replace(/>/g, ">")
+        .replace(/"/g, """);
+    }
+
+    function inline(text) {
+      let t = esc(text);
+      t = t.replace(/`([^`]+)`/g, "<code>$1</code>");
+      t = t.replace(/\[([^\]]+)\]\(([^)]+)\)/g, function (_, label, href) {
+        if (href.startsWith("/")) {
+          const p = href.replace(/^\//, "");
+          return '<a href="#" data-open="' + esc(p) + '">' + label + "</a>";
+        }
+        return '<a href="' + esc(href) + '" target="_blank" rel="noopener">' + label + "</a>";
+      });
+      t = t.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+      return t;
+    }
+
+    function renderMarkdown(src) {
+      let fm = "";
+      let body = src;
+      if (src.startsWith("---")) {
+        const parts = src.split("---");
+        if (parts.length >= 3) {
+          fm = parts[1].trim();
+          body = parts.slice(2).join("---").replace(/^\n+/, "");
+        }
+      }
+      let html = "";
+      if (fm) html += '<div class="frontmatter">' + esc(fm) + "</div>";
+
+      const lines = body.split("\n");
+      let i = 0, inCode = false, codeBuf = [], inList = false;
+      const flushList = () => { if (inList) { html += "</ul>"; inList = false; } };
+      const flushCode = () => {
+        if (inCode) {
+          html += "<pre><code>" + esc(codeBuf.join("\n")) + "</code></pre>";
+          codeBuf = [];
+          inCode = false;
+        }
+      };
+      while (i < lines.length) {
+        const line = lines[i];
+        if (line.startsWith("```")) {
+          if (inCode) flushCode();
+          else { flushList(); inCode = true; codeBuf = []; }
+          i++; continue;
+        }
+        if (inCode) { codeBuf.push(line); i++; continue; }
+        if (line.trim() === "") { flushList(); i++; continue; }
+        if (line.startsWith("# ")) { flushList(); html += "<h1>" + inline(line.slice(2)) + "</h1>"; i++; continue; }
+        if (line.startsWith("## ")) { flushList(); html += "<h2>" + inline(line.slice(3)) + "</h2>"; i++; continue; }
+        if (line.startsWith("### ")) { flushList(); html += "<h3>" + inline(line.slice(4)) + "</h3>"; i++; continue; }
+        if (line.startsWith("> ")) { flushList(); html += "<blockquote>" + inline(line.slice(2)) + "</blockquote>"; i++; continue; }
+        if (line.startsWith("- ") || line.startsWith("* ")) {
+          if (!inList) { html += "<ul>"; inList = true; }
+          html += "<li>" + inline(line.slice(2)) + "</li>";
+          i++; continue;
+        }
+        if (line.includes("|") && line.trim().startsWith("|")) {
+          flushList();
+          const rows = [];
+          while (i < lines.length && lines[i].includes("|")) {
+            const raw = lines[i];
+            if (!/^\s*\|?\s*[:\-| ]+\s*$/.test(raw)) {
+              const cells = raw.split("|").slice(1, -1).map(function (c) { return c.trim(); });
+              rows.push(cells);
+            }
+            i++;
+          }
+          if (rows.length) {
+            html += "<table><thead><tr>" + rows[0].map(function (c) { return "<th>" + inline(c) + "</th>"; }).join("") + "</tr></thead><tbody>";
+            for (let r = 1; r < rows.length; r++) {
+              html += "<tr>" + rows[r].map(function (c) { return "<td>" + inline(c) + "</td>"; }).join("") + "</tr>";
+            }
+            html += "</tbody></table>";
+          }
+          continue;
+        }
+        flushList();
+        html += "<p>" + inline(line) + "</p>";
+        i++;
+      }
+      flushList();
+      flushCode();
+      return html;
+    }
+
+    function setActive(btn) {
+      document.querySelectorAll("nav button").forEach(function (b) { b.classList.remove("active"); });
+      if (btn) btn.classList.add("active");
+    }
+
+    function wireOpeners() {
+      content.querySelectorAll("[data-open]").forEach(function (el) {
+        el.addEventListener("click", function (e) {
+          e.preventDefault();
+          openSample(el.getAttribute("data-open"));
+        });
+      });
+    }
+
+    function showHome() {
+      titleEl.textContent = "Overview";
+      pathEl.textContent = "plugin · dual-host";
+      setActive(document.querySelector('[data-view="home"]'));
+      content.innerHTML =
+        '<div class="hero">' +
+        "<h2>Institutional memory as an OKF graph</h2>" +
+        "<p>PKC captures meetings, experiments, discoveries, and decisions — and materializes WikiTicket work — into portable Markdown concepts that okf-plugin can impact-analyze and pack for agents.</p>" +
+        '<div class="chain" id="chain"></div></div>' +
+        '<div class="grid">' +
+        '<div class="card" data-open="features/user-authentication.md"><h3>Feature</h3><p>User authentication — shaped by meeting, experiment, decision</p></div>' +
+        '<div class="card" data-open="decisions/use-jwt-for-session.md"><h3>Decision</h3><p>Use JWT for session management (accepted ADR)</p></div>' +
+        '<div class="card" data-open="meetings/2026-08-03-auth-design.md"><h3>Meeting</h3><p>Auth design discussion with extracted decisions</p></div>' +
+        '<div class="card" data-open="experiments/jwt-vs-cookie.md"><h3>Experiment</h3><p>JWT vs session-cookie spike results</p></div>' +
+        "</div>" +
+        '<div class="md"><h2>Install</h2>' +
+        "<pre><code>claude plugin marketplace add SpillwaveSolutions/project-knowledge-capture\nclaude plugin install project-knowledge-capture@pkc-plugin-marketplace</code></pre>" +
+        "<p>Grok Build loads the same Claude plugin tree with zero extra configuration.</p>" +
+        "<h2>Slash commands</h2>" +
+        "<p><code>/pkc-init</code> · <code>/pkc-capture-meeting</code> · <code>/pkc-capture-experiment</code> · <code>/pkc-capture-discovery</code> · <code>/pkc-capture-decision</code> · <code>/pkc-materialize</code> · <code>/pkc-promote</code> · <code>/pkc-link</code></p></div>";
+
+      const chain = document.getElementById("chain");
+      CHAIN.forEach(function (c, idx) {
+        const span = document.createElement("span");
+        span.textContent = c.label;
+        span.onclick = function () { openSample(c.path); };
+        chain.appendChild(span);
+        if (idx < CHAIN.length - 1) {
+          const a = document.createElement("span");
+          a.className = "arrow";
+          a.textContent = "→";
+          chain.appendChild(a);
+        }
+      });
+      wireOpeners();
+    }
+
+    function showSkills() {
+      titleEl.textContent = "Skills & commands";
+      pathEl.textContent = "skills/ · commands/";
+      setActive(document.querySelector('[data-view="skills"]'));
+      const skills = meta.skills || [];
+      content.innerHTML =
+        '<div class="md"><h1>Plugin surface</h1>' +
+        "<p>Eight skills with matching slash commands. Deterministic helpers live in <code>scripts/pkc_*.py</code>.</p>" +
+        '<div class="skills-list" id="skills"></div>' +
+        "<h2>Agent</h2>" +
+        "<p><strong>knowledge-capturer</strong> — specialist for capture, materialization, and provenance wiring.</p>" +
+        "<h2>Companion plugins</h2>" +
+        "<ul><li><code>okf-graph-eng</code> — impact, pack, validate</li>" +
+        "<li><code>wiki_ticket_sdd</code> — worklog + wiki publish</li></ul></div>";
+      const list = document.getElementById("skills");
+      skills.forEach(function (s) {
+        const row = document.createElement("div");
+        row.className = "skill-chip";
+        row.innerHTML = "<code>/" + esc(s) + "</code><span>" + esc(s) + "</span>";
+        list.appendChild(row);
+      });
+    }
+
+    async function showReadme() {
+      titleEl.textContent = "README";
+      pathEl.textContent = "README.md";
+      setActive(document.querySelector('[data-view="readme"]'));
+      const text = await fetch("/README.md").then(function (r) { return r.text(); });
+      content.innerHTML = '<div class="md">' + renderMarkdown(text) + "</div>";
+      wireOpeners();
+    }
+
+    async function openSample(rel) {
+      const name = rel.split("/").pop().replace(/\.md$/, "").replace(/-/g, " ");
+      titleEl.textContent = name;
+      pathEl.textContent = "sample-knowledge/" + rel;
+      document.querySelectorAll("nav button").forEach(function (b) { b.classList.remove("active"); });
+      const text = await fetch("/sample-knowledge/" + rel).then(function (r) { return r.text(); });
+      content.innerHTML = '<div class="md">' + renderMarkdown(text) + "</div>";
+      wireOpeners();
+    }
+
+    function buildTree() {
+      const ul = document.getElementById("tree");
+      ul.innerHTML = "";
+      const files = tree.filter(function (f) {
+        return f !== "index.md" && f !== "log.md" && !f.endsWith("/index.md");
+      });
+      const preferred = [
+        "features/user-authentication.md",
+        "decisions/use-jwt-for-session.md",
+        "meetings/2026-08-03-auth-design.md",
+        "experiments/jwt-vs-cookie.md",
+        "designs/auth-middleware.md",
+        "discoveries/auth-competitor-scan.md",
+      ];
+      const ordered = preferred.filter(function (p) { return files.indexOf(p) >= 0; })
+        .concat(files.filter(function (f) { return preferred.indexOf(f) < 0; }));
+      ordered.slice(0, 24).forEach(function (f) {
+        const li = document.createElement("li");
+        const btn = document.createElement("button");
+        btn.type = "button";
+        const k = kindFor(f);
+        const label = f.split("/").pop().replace(/\.md$/, "");
+        btn.innerHTML = '<span class="dot ' + k + '"></span>' + esc(label);
+        btn.onclick = function () { openSample(f); };
+        li.appendChild(btn);
+        ul.appendChild(li);
+      });
+    }
+
+    document.querySelectorAll("[data-view]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        const v = btn.getAttribute("data-view");
+        if (v === "home") showHome();
+        else if (v === "skills") showSkills();
+        else if (v === "readme") showReadme();
+      });
+    });
+
+    Promise.all([
+      fetch("/api/meta").then(function (r) { return r.json(); }),
+      fetch("/api/tree").then(function (r) { return r.json(); }),
+    ]).then(function (pair) {
+      meta = pair[0];
+      tree = pair[1].files || [];
+      document.getElementById("version").textContent = "v" + (meta.version || "0.1.0");
+      buildTree();
+      showHome();
+    }).catch(function () {
+      showHome();
+    });
+  </script>
+</body>
+</html>

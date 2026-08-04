@@ -1,0 +1,22 @@
+# Copy to .pkc/config.yml (or merge under `pkc:` in .work/config.yml)
+pkc:
+  enabled: true
+  knowledge_root: knowledge          # or .okf
+  okf_bundle: true                   # treat knowledge_root as full OKF bundle
+  materialize:
+    from_worklog: true
+    from_docs: true
+    include:
+      - features
+      - decisions
+      - designs
+      - releases
+      - tickets
+      - specs
+  capture:
+    auto_create_ticketlinks: true
+    default_meeting_dir: meetings
+    default_experiment_dir: experiments
+  bridge:
+    wikiticket: true                 # allow creating work items on assent
+    worklog_bin: bin/worklog

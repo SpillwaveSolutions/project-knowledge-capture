@@ -1,0 +1,48 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+*~
+.idea/
+.vscode/
+*.iml
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Node (preview only)
+node_modules/
+.npm/
+package-lock.json
+
+# Build / local
+dist/
+.tmp/
+tmp/
+*.log
+/tmp/
+
+# Worklog runtime (if this repo adopts WikiTicket later)
+.work/todo.jsonl.bak
+.work/.cache/
+
+# Agent sandbox noise
+.node_modules.tmp.*
+.node_modules.lock
+artifacts/
+screenshots/*.png
+!screenshots/.gitkeep
+
+# Env / secrets
+.env
+.env.*
+!.env.example

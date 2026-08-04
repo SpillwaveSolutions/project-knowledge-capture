@@ -1,0 +1,51 @@
+{
+  "meta": {
+    "source": "wikiticket-worklog-fold",
+    "generated_at": "2026-08-03T20:00:00Z"
+  },
+  "items": [
+    {
+      "id": "01KTEST0000000000000000EPIC",
+      "title": "Authentication platform",
+      "level": "epic",
+      "kind": "feature",
+      "status": "in_progress",
+      "body": "Epic covering login, session, and refresh.",
+      "wiki_key": "epic-auth-platform",
+      "truth_state": "current",
+      "external": { "system": "github", "key": "10" },
+      "updated_at": "2026-08-03T12:00:00Z"
+    },
+    {
+      "id": "01KTEST000000000000000STORY",
+      "title": "Email password login",
+      "level": "story",
+      "kind": "feature",
+      "status": "todo",
+      "parent": "01KTEST0000000000000000EPIC",
+      "body": "Users can sign in with email and password.",
+      "wiki_key": "story-email-login",
+      "truth_state": "current",
+      "external": { "system": "github", "key": "11" },
+      "updated_at": "2026-08-03T13:00:00Z"
+    },
+    {
+      "id": "01KTEST000000000000000TASK",
+      "title": "Wire login form",
+      "level": "task",
+      "kind": "feature",
+      "status": "todo",
+      "parent": "01KTEST000000000000000STORY",
+      "body": "Connect UI form to auth API.",
+      "updated_at": "2026-08-03T14:00:00Z"
+    },
+    {
+      "id": "01KTEST000000000000CANCEL",
+      "title": "Abandoned SSO spike",
+      "level": "task",
+      "kind": "ops",
+      "status": "cancelled",
+      "body": "Should be skipped unless --force"
+    }
+  ]
+}

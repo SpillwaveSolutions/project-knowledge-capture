@@ -1,0 +1,19 @@
+{
+  "name": "pkc-plugin-marketplace",
+  "description": "Optional native Grok marketplace metadata. Grok Build already loads Claude plugins with zero config; this file pins identity for Grok marketplace listings.",
+  "version": "0.1.0",
+  "plugins": [
+    {
+      "name": "project-knowledge-capture",
+      "source": ".",
+      "description": "Project Knowledge Capture — meetings, experiments, decisions → OKF knowledge graph. Claude-compatible.",
+      "version": "0.1.0",
+      "compatibility": {
+        "claude_plugin": true,
+        "zero_config": true
+      },
+      "repository": "https://github.com/SpillwaveSolutions/project-knowledge-capture",
+      "sha_pinning": "optional — pin to a release tag when publishing"
+    }
+  ]
+}

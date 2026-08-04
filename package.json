@@ -1,0 +1,16 @@
+{
+  "name": "project-knowledge-capture",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Project Knowledge Capture — Claude Code / Grok Build plugin (docs preview)",
+  "scripts": {
+    "dev": "node scripts/serve-preview.mjs",
+    "start": "node scripts/serve-preview.mjs",
+    "test": "python3 tests/test_pkc.py",
+    "typecheck": "python3 -m py_compile scripts/pkc_common.py scripts/pkc_capture.py scripts/pkc_materialize.py scripts/pkc_link.py scripts/pkc_promote.py"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT"
+}

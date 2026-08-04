@@ -1,0 +1,16 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "pkc-plugin-marketplace",
+  "owner": {
+    "name": "Rick Hightower",
+    "url": "https://github.com/RichardHightower"
+  },
+  "plugins": [
+    {
+      "name": "project-knowledge-capture",
+      "source": "./",
+      "description": "Project Knowledge Capture — OKF knowledge graph from meetings, experiments, and WikiTicket",
+      "version": "0.1.0"
+    }
+  ]
+}
