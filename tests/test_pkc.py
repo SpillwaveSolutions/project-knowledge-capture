@@ -233,6 +233,39 @@ class TestSampleKnowledge(unittest.TestCase):
         self.assertIn(("originates_from", "/meetings/2026-08-03-auth-design.md"), rels)
 
 
+from pkc_pack import pack, resolve_concept  # noqa: E402
+from pkc_validate import validate_bundle  # noqa: E402
+from pkc_action_items import extract_action_items  # noqa: E402
+
+
+class TestValidate(unittest.TestCase):
+    def test_sample_passes(self):
+        errors, warnings = validate_bundle(ROOT / "sample-knowledge")
+        self.assertEqual(errors, [], errors)
+
+
+class TestPack(unittest.TestCase):
+    def test_feature_pack_has_decision(self):
+        bundle = ROOT / "sample-knowledge"
+        seed = resolve_concept(bundle, "features/user-authentication.md")
+        result = pack(bundle, seed, hops=2, max_nodes=20)
+        self.assertGreaterEqual(result["node_count"], 5)
+        types = {n["type"] for n in result["nodes"]}
+        self.assertIn("DecisionRecord", types)
+        self.assertIn("Meeting", types)
+
+
+class TestActionItems(unittest.TestCase):
+    def test_extract_from_sample_meeting(self):
+        text = (ROOT / "sample-knowledge/meetings/2026-08-03-auth-design.md").read_text()
+        from pkc_common import parse_frontmatter
+        _, body = parse_frontmatter(text)
+        items = extract_action_items(body)
+        self.assertGreaterEqual(len(items), 2)
+        titles = " ".join(i["title"].lower() for i in items)
+        self.assertIn("jwt", titles)
+
+
 def main() -> int:
     suite = unittest.defaultTestLoader.loadTestsFromModule(sys.modules[__name__])
     result = unittest.TextTestRunner(verbosity=2).run(suite)

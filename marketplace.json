@@ -9,8 +9,8 @@
     {
       "name": "project-knowledge-capture",
       "source": "./",
-      "description": "Project Knowledge Capture — OKF knowledge graph from meetings, experiments, and WikiTicket",
-      "version": "0.1.0"
+      "description": "Project Knowledge Capture \u2014 OKF knowledge graph from meetings, experiments, and WikiTicket",
+      "version": "0.2.0"
     }
   ]
 }

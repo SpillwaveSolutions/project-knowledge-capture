@@ -20,6 +20,35 @@ links:
 
 # Auth design discussion
 
+## Meta
+
+- Date: 2026-08-03
+- Attendees: rick, alice
+- Duration: 45 minutes
+
+## Agenda
+
+1. Review session strategies for multi-instance deploy
+2. Compare JWT vs sticky session cookies
+3. Agree on refresh/revoke approach
+
 ## Notes
 
-JWT chosen. See [decision](/decisions/use-jwt-for-session.md).
+We need auth that survives horizontal scale-out without shared session stores.
+Alice walked through the cookie-session prototype; Rick shared JWT spike results
+from [JWT vs session-cookie spike](/experiments/jwt-vs-cookie.md).
+
+Concerns raised:
+- Token size on every request
+- Revocation for compromised tokens
+- Refresh UX on mobile
+
+## Decisions extracted
+
+- [Use JWT for session management](/decisions/use-jwt-for-session.md)
+
+## Action items
+
+- Implement JWT middleware (owner: alice)
+- Document refresh cookie scheme in design doc (owner: rick)
+- Investigate token revoke denylist options (owner: rick)

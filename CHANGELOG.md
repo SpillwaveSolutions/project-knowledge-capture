@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.2.0 — 2026-08-04
+
+### Added
+- `pkc_pack.py` — progressive disclosure context packs (standalone, no okf-plugin required)
+- `pkc_validate.py` — bundle structure + link validation
+- `pkc_action_items.py` — extract meeting action items → TicketLink / worklog bridge (dry-run default)
+- `/pkc-context` skill + command — “load institutional memory for this Feature”
+- Post-edit hook `hooks/hooks.json` → `scripts/pkc-curate.sh` (catalog refresh + light validate)
+- CI workflow (`.github/workflows/ci.yml`)
+- Golden pack: `sample-knowledge/packs/user-authentication-pack.md`
+- Roadmap + brainstorm backlog: `docs/roadmap.md`
+- Tests for validate, pack, action-item extraction (12 total)
+
+### Improved
+- Sample meeting restored with full notes + action items for bridge demos
+
 ## 0.1.0 — 2026-08-03
 
 ### Added

@@ -1,55 +1,41 @@
 # CLAUDE.md — project-knowledge-capture
 
-Instructions for **Claude Code** when working in this repository or when the plugin is installed.
+## What this is
 
-## What this project is
+**PKC** captures meetings, experiments, discoveries, decisions and materializes WikiTicket work into an OKF knowledge graph.
 
-**Project Knowledge Capture (PKC)** is a Claude Code plugin that captures informal knowledge (meetings, experiments, discoveries, decisions) and materializes WikiTicket work into a durable **OKF** knowledge graph.
+**Hosts:** Claude Code + Grok Build (same tree).
 
-**Hosts:** Claude Code (primary packaging) and **Grok Build** (native zero-config compatibility). Do not add Grok-only features that break Claude Code.
-
-## Plugin layout
+## Layout
 
 ```
-.claude-plugin/plugin.json   # manifest (name: project-knowledge-capture)
-.grok-plugin/                # optional Grok marketplace pin
-skills/                      # portable intelligence (SKILL.md per skill)
-commands/                    # slash command wrappers
-agents/knowledge-capturer.md
-scripts/                     # pkc_common, capture, materialize, link, promote
-templates/                   # OKF concept skeletons
-sample-knowledge/            # self-describing demo bundle
-docs/                        # PRD, design, integration
+.claude-plugin/   hooks/   skills/   commands/   agents/
+scripts/          templates/   sample-knowledge/   docs/
 ```
 
-Use `${CLAUDE_PLUGIN_ROOT}` for all intra-plugin paths in skill instructions.
+## Skills
 
-## Skills (auto-invoke)
+| Skill | When |
+|-------|------|
+| pkc-init | scaffold knowledge root |
+| pkc-capture-* | meeting / experiment / discovery / decision |
+| pkc-materialize | worklog → OKF |
+| pkc-promote / pkc-link | formalize / connect |
+| pkc-context | progressive disclosure pack |
 
-| Skill | Trigger themes |
-|-------|----------------|
-| pkc-init | scaffold knowledge/, new PKC bundle |
-| pkc-capture-meeting | meeting notes, transcript, standup decisions |
-| pkc-capture-experiment | spike, experiment, POC results |
-| pkc-capture-discovery | research, competitive scan, user findings |
-| pkc-capture-decision | ADR, decision record, architecture choice |
-| pkc-materialize | sync worklog, import tickets into OKF |
-| pkc-promote | promote discovery/experiment to feature/requirement |
-| pkc-link | typed edge, connect concepts, relates to |
+## Rules
 
-## Working rules
+1. Valid OKF Markdown only.
+2. Use `scripts/pkc_*.py` for deterministic ops.
+3. Absolute links + typed `rel`.
+4. Idempotent paths; never invent edges.
+5. No hand-edits to `.work/*.jsonl`.
+6. Bump version in plugin manifests on release.
+7. `python3 tests/test_pkc.py` after script changes.
 
-1. Write **valid OKF Markdown** only (no hidden DBs).
-2. Prefer `scripts/pkc_*.py` for deterministic file ops.
-3. Absolute links: `[Title](/features/….md)`.
-4. Typed `links[].rel` for PKC relations (`decides`, `informs`, `originates_from`, …).
-5. Idempotent paths: `meetings/YYYY-MM-DD-slug.md`, stable slugs for decisions.
-6. Never hand-edit WikiTicket `.work/*.jsonl`.
-7. Do not overwrite `truth_state: snapshot|superseded|archived` without force/assent.
-8. Keep each `SKILL.md` focused; deep material in `docs/` and `templates/`.
-9. Bump version in `.claude-plugin/plugin.json` on release.
-10. Run `python3 tests/test_pkc.py` after script changes.
+## v0.2 extras
 
-## Dual-host note
-
-Grok Build loads this same tree. Prefer Claude plugin conventions so both hosts stay aligned. See [AGENTS.md](./AGENTS.md).
+- `pkc_pack.py`, `pkc_validate.py`, `pkc_action_items.py`
+- Post-edit `pkc-curate.sh`
+- CI in `.github/workflows/ci.yml`
+- Ideas: `docs/roadmap.md`

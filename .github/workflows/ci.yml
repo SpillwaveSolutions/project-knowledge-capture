@@ -1,0 +1,55 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Unit tests
+        run: python3 tests/test_pkc.py
+
+      - name: Compile scripts
+        run: |
+          python3 -m py_compile \
+            scripts/pkc_common.py \
+            scripts/pkc_capture.py \
+            scripts/pkc_materialize.py \
+            scripts/pkc_link.py \
+            scripts/pkc_promote.py \
+            scripts/pkc_validate.py \
+            scripts/pkc_pack.py \
+            scripts/pkc_action_items.py
+
+      - name: Validate sample-knowledge
+        run: python3 scripts/pkc_validate.py --bundle sample-knowledge
+
+      - name: Golden context pack
+        run: |
+          python3 scripts/pkc_pack.py features/user-authentication.md \
+            --bundle sample-knowledge --hops 2 --json > /tmp/pack.json
+          python3 -c "import json; d=json.load(open('/tmp/pack.json')); assert d['node_count']>=5, d; print('pack nodes', d['node_count'])"
+
+      - name: Action items dry-run
+        run: |
+          python3 scripts/pkc_action_items.py meetings/2026-08-03-auth-design.md \
+            --bundle sample-knowledge | tee /tmp/actions.txt
+          grep -q "action item" /tmp/actions.txt || grep -q "Action" /tmp/actions.txt || grep -qi "implement\|document" /tmp/actions.txt
+
+      - name: Materialize fixture idempotency
+        run: |
+          python3 scripts/pkc_materialize.py --repo /tmp/pkc-ci --bundle knowledge \
+            --fold tests/fixtures/fold.json
+          python3 scripts/pkc_materialize.py --repo /tmp/pkc-ci --bundle knowledge \
+            --fold tests/fixtures/fold.json | tee /tmp/mat2.txt
+          grep -q "0 created" /tmp/mat2.txt
