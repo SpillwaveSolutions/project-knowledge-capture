@@ -58,3 +58,14 @@ links:
 python3 scripts/pkc_link.py decisions/use-jwt-for-session.md \
   /features/user-authentication.md --rel decides --repo .
 ```
+
+
+## v0.3 relations
+
+| rel | Direction | Meaning |
+|-----|-----------|---------|
+| `assumes` | Assumption → Feature | Working hypothesis |
+| `blocks` | Question → Feature | Open question blocks work |
+| `answers` | Decision/Discovery → Question | Resolves a question |
+| `validates` | Experiment/Evidence → Assumption | Confirms assumption |
+| `invalidates` | Experiment/Evidence → Assumption | Falsifies assumption |

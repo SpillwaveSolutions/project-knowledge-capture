@@ -8,7 +8,7 @@ Works in **Claude Code** and **Grok Build** (zero-config: Grok Build reads Claud
 |---|---|
 | **Plugin name** | `project-knowledge-capture` |
 | **Repo** | [SpillwaveSolutions/project-knowledge-capture](https://github.com/SpillwaveSolutions/project-knowledge-capture) |
-| **Version** | 0.2.0 |
+| **Version** | 0.3.0 |
 | **License** | MIT |
 
 ## Why PKC
@@ -67,7 +67,12 @@ python3 scripts/pkc_action_items.py meetings/2026-08-03-auth-design.md --bundle 
 | `pkc-materialize` | WikiTicket fold + docs → OKF |
 | `pkc-promote` | Informal → Feature / Requirement / ADR |
 | `pkc-link` | Typed edges |
-| `pkc-context` | Progressive disclosure pack for a concept |
+| `pkc-context` | Progressive disclosure pack (`--tiny`, mermaid) |
+| `pkc-doctor` | Bundle health: conflicts, thin features, stale |
+| `pkc-capture-assumption` | Working hypothesis (weaker than ADR) |
+| `pkc-capture-question` | Open question that may block a Feature |
+| `pkc-capture-transcript` | Fireflies/Otter/Granola/plain → Meeting |
+| `pkc-capture-pr` | GitHub PR → CodeChange |
 
 ### Agent
 
@@ -89,6 +94,10 @@ Post-edit curation refreshes catalog indexes and runs a light validate when you 
 | `pkc_validate.py` | Structure + links |
 | `pkc_action_items.py` | Meeting actions → TicketLink / worklog |
 | `pkc-curate.sh` | Post-edit hook helper |
+| `pkc_doctor.py` | One-screen health check |
+| `pkc_scrub.py` | Secret/PII redaction |
+| `pkc_transcript.py` | Transcript normalizer |
+| `pkc_pr_capture.py` | PR → CodeChange |
 
 ## Sample knowledge
 

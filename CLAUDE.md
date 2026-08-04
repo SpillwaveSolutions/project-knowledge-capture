@@ -22,6 +22,9 @@ scripts/          templates/   sample-knowledge/   docs/
 | pkc-materialize | worklog → OKF |
 | pkc-promote / pkc-link | formalize / connect |
 | pkc-context | progressive disclosure pack |
+| pkc-doctor | health check |
+| pkc-capture-assumption / question | soft knowledge |
+| pkc-capture-transcript / pr | ingest |
 
 ## Rules
 
@@ -39,3 +42,7 @@ scripts/          templates/   sample-knowledge/   docs/
 - Post-edit `pkc-curate.sh`
 - CI in `.github/workflows/ci.yml`
 - Ideas: `docs/roadmap.md`
+
+## v0.3
+
+Doctor, assumptions/questions, scrub, transcript, PR capture, tiny packs, mermaid, config schema.

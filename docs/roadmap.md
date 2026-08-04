@@ -19,6 +19,14 @@ Status legend: **done** · **now** · **next** · **later** · **idea**
 | Post-edit curate hook | **done** (v0.2) |
 | CI workflow | **done** (v0.2) |
 | `/pkc-context` skill | **done** (v0.2) |
+| Doctor + conflicts + thin features | **done** (v0.3) |
+| Assumption + Question types | **done** (v0.3) |
+| Stale / re-verify | **done** (v0.3) |
+| Transcript + PR capture | **done** (v0.3) |
+| Scrub secrets/PII | **done** (v0.3) |
+| Tiny packs + mermaid | **done** (v0.3) |
+| Config JSON Schema | **done** (v0.3) |
+| okf-plugin CI interop job | **done** (v0.3) |
 
 ## Next (v0.3)
 

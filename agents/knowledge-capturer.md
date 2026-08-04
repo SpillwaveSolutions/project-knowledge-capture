@@ -28,6 +28,15 @@ python3 "${CLAUDE_PLUGIN_ROOT}/scripts/pkc_promote.py" <src> --to Feature --repo
 
 When **okf-plugin** is present, prefer its pack/impact/validate; fall back to PKC scripts.
 
+## Auto-inject context
+
+When the user starts work on a **Feature** path (or names a Feature):
+1. Run a **tiny pack** first (`pkc_pack --tiny`) for chat focus
+2. Escalate to 2-hop pack if they dig deeper
+3. Lead with DecisionRecords + Meetings/Experiments; flag open Questions
+
+Always scrub pasted notes (`pkc_scrub` / capture auto-scrub).
+
 ## Default workflows
 
 ### Capture meeting
