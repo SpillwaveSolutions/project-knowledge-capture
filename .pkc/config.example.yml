@@ -31,3 +31,9 @@ pkc:
   bridge:
     wikiticket: true
     worklog_bin: bin/worklog
+
+  federation:
+    # - name: platform
+    #   path: ../platform/knowledge
+    #   readonly: true
+

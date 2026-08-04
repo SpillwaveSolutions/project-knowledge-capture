@@ -1,6 +1,6 @@
 {
   "name": "project-knowledge-capture",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "private": true,
   "description": "Project Knowledge Capture \u2014 Claude Code / Grok Build plugin (docs preview)",
   "scripts": {
@@ -9,8 +9,9 @@
     "test": "python3 tests/test_pkc.py",
     "validate": "python3 scripts/pkc_validate.py --bundle sample-knowledge",
     "doctor": "python3 scripts/pkc_doctor.py --bundle sample-knowledge",
-    "pack:sample": "python3 scripts/pkc_pack.py features/user-authentication.md --bundle sample-knowledge --hops 2 --write sample-knowledge/packs/",
-    "typecheck": "python3 -m py_compile scripts/pkc_common.py scripts/pkc_capture.py scripts/pkc_materialize.py scripts/pkc_link.py scripts/pkc_promote.py scripts/pkc_validate.py scripts/pkc_pack.py scripts/pkc_action_items.py scripts/pkc_doctor.py scripts/pkc_scrub.py scripts/pkc_transcript.py scripts/pkc_pr_capture.py"
+    "search": "python3 scripts/pkc_search.py",
+    "digest": "python3 scripts/pkc_digest.py --bundle sample-knowledge",
+    "typecheck": "python3 -m py_compile scripts/pkc_common.py scripts/pkc_capture.py scripts/pkc_materialize.py scripts/pkc_link.py scripts/pkc_promote.py scripts/pkc_validate.py scripts/pkc_pack.py scripts/pkc_action_items.py scripts/pkc_doctor.py scripts/pkc_scrub.py scripts/pkc_transcript.py scripts/pkc_pr_capture.py scripts/pkc_search.py scripts/pkc_digest.py scripts/pkc_release_notes.py scripts/pkc_thread.py scripts/pkc_federate.py scripts/pkc_adr_import.py"
   },
   "engines": {
     "node": ">=20"

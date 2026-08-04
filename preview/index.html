@@ -174,6 +174,8 @@
             <li><button type="button" data-view="readme">README</button></li>
             <li><button type="button" data-view="graph">Graph</button></li>
             <li><button type="button" data-view="doctor">Doctor</button></li>
+            <li><button type="button" data-view="search">Search</button></li>
+            <li><button type="button" data-view="digest">Digest</button></li>
           </ul>
         </section>
         <section>
@@ -450,6 +452,50 @@
       }
     }
 
+    
+    async function showSearch() {
+      titleEl.textContent = "Search";
+      pathEl.textContent = "pkc_search · sample-knowledge";
+      setActive(document.querySelector('[data-view="search"]'));
+      content.innerHTML = '<div class="md"><h1>Search knowledge</h1><p><input id="sq" value="JWT" style="width:70%;padding:0.5rem;border-radius:8px;border:1px solid var(--border);background:var(--bg-elevated);color:var(--text)" /> <button id="sgo" type="button" style="padding:0.5rem 0.75rem;border-radius:8px;border:1px solid var(--border);background:var(--accent-dim);color:var(--text);cursor:pointer">Search</button></p><div id="sres"></div></div>';
+      async function run() {
+        const q = document.getElementById("sq").value || "JWT";
+        const data = await fetch("/api/search?q=" + encodeURIComponent(q)).then(r => r.json());
+        let h = "<p>" + (data.count || 0) + " hit(s)</p><ul>";
+        (data.results || []).forEach(function(r) {
+          h += "<li><strong>" + esc(r.title) + "</strong> <code>" + esc(r.type) + "</code> · score " + r.score + "<br/><span style='color:var(--muted)'>" + esc(r.path) + "</span><br/>" + esc(r.snippet || "") + "</li>";
+        });
+        h += "</ul>";
+        document.getElementById("sres").innerHTML = h;
+      }
+      document.getElementById("sgo").onclick = run;
+      run();
+    }
+
+    async function showDigest() {
+      titleEl.textContent = "Digest";
+      pathEl.textContent = "pkc_digest · sample-knowledge";
+      setActive(document.querySelector('[data-view="digest"]'));
+      const data = await fetch("/api/digest").then(r => r.json());
+      let html = '<div class="md"><h1>Knowledge digest</h1>';
+      html += "<p>Health: " + data.doctor.errors + " errors · " + data.doctor.warnings + " warnings</p>";
+      html += "<h2>Open questions</h2><ul>";
+      (data.open_questions || []).forEach(function(r) {
+        html += "<li>" + esc(r.title) + " <code>" + esc(r.path) + "</code></li>";
+      });
+      html += "</ul><h2>Needs verification</h2><ul>";
+      (data.needs_verification || []).forEach(function(r) {
+        html += "<li>" + esc(r.title) + " · " + esc(r.type) + "</li>";
+      });
+      html += "</ul><h2>Recent</h2><ul>";
+      (data.recent || []).slice(0, 15).forEach(function(r) {
+        html += "<li>" + esc(r.title) + " · " + esc(r.type) + "</li>";
+      });
+      html += "</ul></div>";
+      content.innerHTML = html;
+    }
+
+
     async function showDoctor() {
       titleEl.textContent = "Doctor";
       pathEl.textContent = "pkc_doctor · sample-knowledge";
@@ -474,6 +520,8 @@
         else if (v === "readme") showReadme();
         else if (v === "graph") showGraph();
         else if (v === "doctor") showDoctor();
+        else if (v === "search") showSearch();
+        else if (v === "digest") showDigest();
       });
     });
 

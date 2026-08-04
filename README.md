@@ -8,7 +8,7 @@ Works in **Claude Code** and **Grok Build** (zero-config: Grok Build reads Claud
 |---|---|
 | **Plugin name** | `project-knowledge-capture` |
 | **Repo** | [SpillwaveSolutions/project-knowledge-capture](https://github.com/SpillwaveSolutions/project-knowledge-capture) |
-| **Version** | 0.3.0 |
+| **Version** | 0.4.0 |
 | **License** | MIT |
 
 ## Why PKC
@@ -73,6 +73,12 @@ python3 scripts/pkc_action_items.py meetings/2026-08-03-auth-design.md --bundle 
 | `pkc-capture-question` | Open question that may block a Feature |
 | `pkc-capture-transcript` | Fireflies/Otter/Granola/plain → Meeting |
 | `pkc-capture-pr` | GitHub PR → CodeChange |
+| `pkc-import-adr` | Import MADR/adr-tools ADRs |
+| `pkc-federate` | Multi-repo federation |
+| `pkc-capture-thread` | Slack/Discord paste capture |
+| `pkc-release-notes` | Release notes from graph edges |
+| `pkc-digest` | Weekly brief + verification queue |
+| `pkc-search` | Full-text search over concepts |
 
 ### Agent
 

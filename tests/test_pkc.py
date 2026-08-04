@@ -334,6 +334,78 @@ class TestTinyPack(unittest.TestCase):
         self.assertEqual(result["hops"], 1)
 
 
+from pkc_search import search  # noqa: E402
+from pkc_digest import collect as digest_collect  # noqa: E402
+from pkc_release_notes import notes_for_release, load_nodes  # noqa: E402
+from pkc_thread import normalize_thread  # noqa: E402
+from pkc_federate import federated_search, list_roots  # noqa: E402
+from pkc_adr_import import import_dir  # noqa: E402
+
+
+class TestSearch(unittest.TestCase):
+    def test_jwt_hits(self):
+        hits = search(ROOT / "sample-knowledge", "JWT", limit=10)
+        self.assertGreaterEqual(len(hits), 1)
+        self.assertTrue(any("jwt" in h["title"].lower() or "jwt" in h["path"].lower() for h in hits))
+
+
+class TestDigest(unittest.TestCase):
+    def test_digest_has_sections(self):
+        data = digest_collect(ROOT / "sample-knowledge", days=3650)
+        self.assertIn("recent", data)
+        self.assertIn("open_questions", data)
+        self.assertTrue(len(data["open_questions"]) >= 1)
+
+
+class TestReleaseNotes(unittest.TestCase):
+    def test_release_pack(self):
+        nodes = load_nodes(ROOT / "sample-knowledge")
+        releases = [p for p, n in nodes.items() if n["type"] == "Release"]
+        self.assertTrue(releases)
+        pack = notes_for_release(nodes, releases[0])
+        self.assertIn("features", pack)
+
+
+class TestThread(unittest.TestCase):
+    def test_slack_fixture(self):
+        raw = (ROOT / "tests/fixtures/thread_slack.txt").read_text()
+        result = normalize_thread(raw, title="T")
+        self.assertTrue(result["attendees"])
+        self.assertTrue(result["redactions"] or "REDACTED" in result["notes"])
+
+
+class TestFederate(unittest.TestCase):
+    def test_remote_search(self):
+        # write temp config pointing at fixture remote
+        tmp = Path(tempfile.mkdtemp())
+        try:
+            (tmp / ".pkc").mkdir()
+            remote = ROOT / "tests/fixtures/remote-knowledge"
+            (tmp / ".pkc" / "config.yml").write_text(
+                f"pkc:\n  knowledge_root: knowledge\n  federation:\n    - name: remote\n      path: {remote}\n"
+            )
+            # local bundle
+            ensure_bundle(tmp / "knowledge", "Local")
+            roots = list_roots(tmp)
+            self.assertTrue(any(r["name"] == "remote" and r["exists"] for r in roots))
+            hits = federated_search(tmp, "caching", limit=10)
+            self.assertTrue(any(h.get("federation") == "remote" for h in hits))
+        finally:
+            shutil.rmtree(tmp)
+
+
+class TestAdrImport(unittest.TestCase):
+    def test_import_fixture(self):
+        tmp = Path(tempfile.mkdtemp())
+        try:
+            ensure_bundle(tmp, "T")
+            results = import_dir(tmp, ROOT / "tests/fixtures/adr", dry_run=False)
+            self.assertGreaterEqual(len(results), 1)
+            self.assertTrue((tmp / results[0][0]).is_file())
+        finally:
+            shutil.rmtree(tmp)
+
+
 def main() -> int:
     suite = unittest.defaultTestLoader.loadTestsFromModule(sys.modules[__name__])
     result = unittest.TextTestRunner(verbosity=2).run(suite)

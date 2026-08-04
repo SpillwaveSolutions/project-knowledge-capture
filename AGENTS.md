@@ -47,3 +47,7 @@ python3 scripts/pkc_validate.py --bundle knowledge
 python3 scripts/pkc_action_items.py meetings/….md --repo .   # dry-run
 python3 tests/test_pkc.py
 ```
+
+## v0.4
+
+Search, digest, release notes, thread capture, federation, ADR import.

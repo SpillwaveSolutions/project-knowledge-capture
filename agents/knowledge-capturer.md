@@ -23,6 +23,8 @@ python3 "${CLAUDE_PLUGIN_ROOT}/scripts/pkc_pack.py" features/<slug>.md --repo . 
 python3 "${CLAUDE_PLUGIN_ROOT}/scripts/pkc_validate.py" --repo . --bundle knowledge
 python3 "${CLAUDE_PLUGIN_ROOT}/scripts/pkc_action_items.py" meetings/<file>.md --repo .  # dry-run
 python3 "${CLAUDE_PLUGIN_ROOT}/scripts/pkc_link.py" <src> <tgt> --rel decides --repo .
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/pkc_search.py" "keyword" --repo .
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/pkc_digest.py" --repo . --days 7
 python3 "${CLAUDE_PLUGIN_ROOT}/scripts/pkc_promote.py" <src> --to Feature --repo .
 ```
 

@@ -27,6 +27,12 @@ Status legend: **done** · **now** · **next** · **later** · **idea**
 | Tiny packs + mermaid | **done** (v0.3) |
 | Config JSON Schema | **done** (v0.3) |
 | okf-plugin CI interop job | **done** (v0.3) |
+| Full-text search | **done** (v0.4) |
+| Weekly digest + verify queue | **done** (v0.4) |
+| Release notes generator | **done** (v0.4) |
+| Slack/Discord thread capture | **done** (v0.4) |
+| Multi-repo federation | **done** (v0.4) |
+| ADR import | **done** (v0.4) |
 
 ## Next (v0.3)
 

@@ -46,3 +46,7 @@ scripts/          templates/   sample-knowledge/   docs/
 ## v0.3
 
 Doctor, assumptions/questions, scrub, transcript, PR capture, tiny packs, mermaid, config schema.
+
+## v0.4
+
+Search, digest, release notes, thread capture, federation, ADR import.

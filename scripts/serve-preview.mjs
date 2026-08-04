@@ -89,6 +89,25 @@ const server = http.createServer((req, res) => {
   }
 
 
+
+  if (url.startsWith("/api/search")) {
+    const u = new URL(url, "http://local");
+    const q = u.searchParams.get("q") || "JWT";
+    const r = spawnSync("python3", ["scripts/pkc_search.py", q, "--bundle", "sample-knowledge", "--json", "--limit", "15"], {
+      cwd: ROOT,
+      encoding: "utf8",
+    });
+    return send(res, 200, r.stdout || "{\"results\":[]}", MIME[".json"]);
+  }
+
+  if (url === "/api/digest") {
+    const r = spawnSync("python3", ["scripts/pkc_digest.py", "--bundle", "sample-knowledge", "--days", "3650", "--json"], {
+      cwd: ROOT,
+      encoding: "utf8",
+    });
+    return send(res, 200, r.stdout || "{}", MIME[".json"]);
+  }
+
   if (url.startsWith("/api/mermaid")) {
     const u = new URL(url, "http://local");
     const concept = u.searchParams.get("concept") || "features/user-authentication.md";
