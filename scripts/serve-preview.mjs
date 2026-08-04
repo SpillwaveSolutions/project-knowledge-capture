@@ -7,6 +7,7 @@ import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { spawnSync } from "node:child_process";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -85,6 +86,26 @@ const server = http.createServer((req, res) => {
       const ext = path.extname(target).toLowerCase();
       return send(res, 200, fs.readFileSync(target), MIME[ext] || "application/octet-stream");
     }
+  }
+
+
+  if (url.startsWith("/api/mermaid")) {
+    const u = new URL(url, "http://local");
+    const concept = u.searchParams.get("concept") || "features/user-authentication.md";
+    const r = spawnSync("python3", ["scripts/pkc_pack.py", concept, "--bundle", "sample-knowledge", "--mermaid"], {
+      cwd: ROOT,
+      encoding: "utf8",
+    });
+    if (r.status !== 0) return send(res, 500, r.stderr || "mermaid failed");
+    return send(res, 200, JSON.stringify({ mermaid: r.stdout }), MIME[".json"]);
+  }
+
+  if (url === "/api/doctor") {
+    const r = spawnSync("python3", ["scripts/pkc_doctor.py", "--bundle", "sample-knowledge", "--json"], {
+      cwd: ROOT,
+      encoding: "utf8",
+    });
+    return send(res, 200, r.stdout || "{\"issues\":[]}", MIME[".json"]);
   }
 
   // API: list sample knowledge tree

@@ -6,7 +6,8 @@ Does not require okf-plugin (works standalone; prefer okf-graph.py pack when ava
 
 Usage:
   python3 scripts/pkc_pack.py features/user-authentication.md --bundle sample-knowledge --hops 2
-  python3 scripts/pkc_pack.py /features/user-authentication.md --write sample-knowledge/packs/
+  python3 scripts/pkc_pack.py features/user-authentication.md --tiny
+  python3 scripts/pkc_pack.py features/user-authentication.md --mermaid
 """
 
 from __future__ import annotations
@@ -34,7 +35,6 @@ def resolve_concept(bundle: Path, ref: str) -> Path:
     for candidate in (bundle / ref, bundle / f"{ref}.md"):
         if candidate.is_file():
             return candidate
-    # try under catalogs
     if not ref.endswith(".md"):
         matches = list(bundle.rglob(f"{Path(ref).name}.md"))
         if len(matches) == 1:
@@ -43,7 +43,6 @@ def resolve_concept(bundle: Path, ref: str) -> Path:
 
 
 def extract_edges(bundle: Path, path: Path) -> list[tuple[str, str, str]]:
-    """Return list of (rel, target_abs_path, label)."""
     text = path.read_text(encoding="utf-8")
     fm, body = parse_frontmatter(text)
     edges: list[tuple[str, str, str]] = []
@@ -71,7 +70,6 @@ def extract_edges(bundle: Path, path: Path) -> list[tuple[str, str, str]]:
         key = ("links_to", tgt)
         if key in seen:
             continue
-        # don't duplicate if typed edge already present
         if any(t == tgt for _, t, _ in edges):
             continue
         seen.add(key)
@@ -118,18 +116,19 @@ def pack(
             if tgt not in visited and len(visited) + len(queue) < max_nodes:
                 queue.append((tgt, depth + 1))
 
-    # rank: seed first, then by depth, prefer Decision/Meeting/Experiment near features
     priority = {
         "DecisionRecord": 0,
         "Meeting": 1,
         "Experiment": 2,
         "Discovery": 3,
-        "Design": 4,
-        "Requirement": 5,
-        "Feature": 6,
-        "TicketLink": 7,
-        "CodeChange": 8,
-        "Release": 9,
+        "Assumption": 4,
+        "Question": 5,
+        "Design": 6,
+        "Requirement": 7,
+        "Feature": 8,
+        "TicketLink": 9,
+        "CodeChange": 10,
+        "Release": 11,
     }
     ordered = sorted(
         nodes.values(),
@@ -154,7 +153,40 @@ def _excerpt(body: str, limit: int = 400) -> str:
     return text[:limit] + ("…" if len(text) > limit else "")
 
 
-def render_markdown(result: dict[str, Any]) -> str:
+def _mermaid_id(path: str) -> str:
+    return re.sub(r"[^A-Za-z0-9_]", "_", path.strip("/"))
+
+
+def render_mermaid(result: dict[str, Any]) -> str:
+    lines = ["```mermaid", "flowchart LR"]
+    for n in result["nodes"]:
+        nid = _mermaid_id(n["path"])
+        label = f"{n['type']}: {n['title']}".replace('"', "'")
+        shape = {
+            "DecisionRecord": f'{nid}{{"{label}"}}',
+            "Feature": f'{nid}["{label}"]',
+            "Meeting": f'{nid}(["{label}"])',
+            "Experiment": f'{nid}[("{label}")]',
+            "Question": f'{nid}{{"{label}?"}}',
+        }.get(n["type"], f'{nid}["{label}"]')
+        lines.append(f"  {shape}")
+    seen = set()
+    for e in result["edges"]:
+        if e["from"] not in {n["path"] for n in result["nodes"]}:
+            continue
+        if e["to"] not in {n["path"] for n in result["nodes"]}:
+            continue
+        key = (e["from"], e["to"], e["rel"])
+        if key in seen:
+            continue
+        seen.add(key)
+        a, b = _mermaid_id(e["from"]), _mermaid_id(e["to"])
+        lines.append(f"  {a} -- {e['rel']} --> {b}")
+    lines.append("```")
+    return "\n".join(lines)
+
+
+def render_markdown(result: dict[str, Any], *, include_mermaid: bool = True) -> str:
     seed = result["seed"]
     lines = [
         "---",
@@ -172,9 +204,14 @@ def render_markdown(result: dict[str, Any]) -> str:
         f"- Nodes: **{result['node_count']}** (max {result['max_nodes']})",
         f"- Generated: {utc_now()}",
         "",
-        "## Nodes (ranked)",
-        "",
     ]
+    if include_mermaid and result["nodes"]:
+        lines.append("## Graph")
+        lines.append("")
+        lines.append(render_mermaid(result))
+        lines.append("")
+    lines.append("## Nodes (ranked)")
+    lines.append("")
     for n in result["nodes"]:
         lines.append(
             f"### [{n['title']}]({n['path']}) · `{n['type']}` · depth {n['depth']}"
@@ -206,9 +243,18 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--bundle", default=None)
     parser.add_argument("--hops", type=int, default=2)
     parser.add_argument("--max-nodes", type=int, default=20)
+    parser.add_argument(
+        "--tiny",
+        action="store_true",
+        help="ADHD/chat mode: 1 hop, max 8 nodes",
+    )
+    parser.add_argument("--mermaid", action="store_true", help="Print mermaid only")
     parser.add_argument("--write", default=None, help="Directory or file to write pack markdown")
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args(argv)
+
+    hops = 1 if args.tiny else args.hops
+    max_nodes = 8 if args.tiny else args.max_nodes
 
     bundle = resolve_knowledge_root(Path(args.repo).resolve(), args.bundle)
     seed = resolve_concept(bundle, args.concept)
@@ -216,14 +262,19 @@ def main(argv: list[str] | None = None) -> int:
         print(f"error: concept not found: {args.concept}", file=sys.stderr)
         return 1
 
-    result = pack(bundle, seed, hops=args.hops, max_nodes=args.max_nodes)
-    md = render_markdown(result)
+    result = pack(bundle, seed, hops=hops, max_nodes=max_nodes)
+
+    if args.mermaid:
+        print(render_mermaid(result))
+        return 0
+
+    md = render_markdown(result, include_mermaid=True)
 
     if args.write:
         out = Path(args.write)
         if out.is_dir() or str(args.write).endswith("/"):
             out.mkdir(parents=True, exist_ok=True)
-            slug = seed.stem
+            slug = seed.stem + ("-tiny" if args.tiny else "")
             out = out / f"{slug}-pack.md"
         else:
             out.parent.mkdir(parents=True, exist_ok=True)

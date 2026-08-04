@@ -1,0 +1,3 @@
+Alice: We should use JWT for sessions.
+Rick: Agreed. Action: implement middleware (owner: alice)
+Alice: API key sk-test-abcdefghijklmnopqrstuvwxyz123456 must never be committed.

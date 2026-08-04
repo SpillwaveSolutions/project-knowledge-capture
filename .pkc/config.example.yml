@@ -1,8 +1,19 @@
 # Copy to .pkc/config.yml (or merge under `pkc:` in .work/config.yml)
+# Schema: .pkc/config.schema.json
 pkc:
   enabled: true
-  knowledge_root: knowledge          # or .okf
-  okf_bundle: true                   # treat knowledge_root as full OKF bundle
+  knowledge_root: knowledge
+  okf_bundle: true
+  stale_days: 90
+  pack:
+    default_hops: 2
+    default_max_nodes: 20
+    tiny_hops: 1
+    tiny_max_nodes: 8
+    auto_inject_on_feature: true
+  scrub:
+    secrets: true
+    pii: true
   materialize:
     from_worklog: true
     from_docs: true
@@ -18,5 +29,5 @@ pkc:
     default_meeting_dir: meetings
     default_experiment_dir: experiments
   bridge:
-    wikiticket: true                 # allow creating work items on assent
+    wikiticket: true
     worklog_bin: bin/worklog

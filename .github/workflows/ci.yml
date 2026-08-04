@@ -29,22 +29,38 @@ jobs:
             scripts/pkc_promote.py \
             scripts/pkc_validate.py \
             scripts/pkc_pack.py \
-            scripts/pkc_action_items.py
+            scripts/pkc_action_items.py \
+            scripts/pkc_doctor.py \
+            scripts/pkc_scrub.py \
+            scripts/pkc_transcript.py \
+            scripts/pkc_pr_capture.py
 
       - name: Validate sample-knowledge
         run: python3 scripts/pkc_validate.py --bundle sample-knowledge
 
-      - name: Golden context pack
+      - name: Doctor sample-knowledge
+        run: python3 scripts/pkc_doctor.py --bundle sample-knowledge
+
+      - name: Golden context pack + tiny + mermaid
         run: |
           python3 scripts/pkc_pack.py features/user-authentication.md \
             --bundle sample-knowledge --hops 2 --json > /tmp/pack.json
           python3 -c "import json; d=json.load(open('/tmp/pack.json')); assert d['node_count']>=5, d; print('pack nodes', d['node_count'])"
+          python3 scripts/pkc_pack.py features/user-authentication.md \
+            --bundle sample-knowledge --tiny --json > /tmp/tiny.json
+          python3 -c "import json; d=json.load(open('/tmp/tiny.json')); assert d['node_count']<=8 and d['hops']==1, d"
+          python3 scripts/pkc_pack.py features/user-authentication.md \
+            --bundle sample-knowledge --mermaid | grep -q flowchart
 
-      - name: Action items dry-run
+      - name: Action items + transcript scrub + PR fixture
         run: |
           python3 scripts/pkc_action_items.py meetings/2026-08-03-auth-design.md \
             --bundle sample-knowledge | tee /tmp/actions.txt
-          grep -q "action item" /tmp/actions.txt || grep -q "Action" /tmp/actions.txt || grep -qi "implement\|document" /tmp/actions.txt
+          grep -qi "implement\|document" /tmp/actions.txt
+          python3 scripts/pkc_transcript.py --file tests/fixtures/transcript_speakers.txt --json \
+            | python3 -c "import json,sys; d=json.load(sys.stdin); assert d['redactions'] or 'REDACTED' in d['notes']"
+          python3 scripts/pkc_pr_capture.py --json-file tests/fixtures/pr.json \
+            --repo /tmp/pkc-pr --implements user-authentication
 
       - name: Materialize fixture idempotency
         run: |
@@ -53,3 +69,26 @@ jobs:
           python3 scripts/pkc_materialize.py --repo /tmp/pkc-ci --bundle knowledge \
             --fold tests/fixtures/fold.json | tee /tmp/mat2.txt
           grep -q "0 created" /tmp/mat2.txt
+
+  okf-interop:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Checkout okf-plugin (optional interop)
+        uses: actions/checkout@v4
+        with:
+          repository: SpillwaveSolutions/okf-plugin
+          path: okf-plugin
+      - name: okf-graph validate/pack sample when available
+        run: |
+          if [[ -f okf-plugin/scripts/okf-graph.py ]]; then
+            python3 okf-plugin/scripts/okf-graph.py validate sample-knowledge || true
+            python3 okf-plugin/scripts/okf-graph.py pack sample-knowledge features/user-authentication.md --hops 2 || true
+            python3 okf-plugin/scripts/okf-graph.py impact sample-knowledge decisions/use-jwt-for-session.md || true
+          else
+            echo "okf-plugin not available"
+          fi

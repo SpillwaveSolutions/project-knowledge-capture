@@ -25,6 +25,8 @@ Complete **institutional memory chain** for authentication:
 - [Experiments](/experiments/index.md)
 - [Discoveries](/discoveries/index.md)
 - [Decisions](/decisions/index.md)
+- [Assumptions](/assumptions/index.md)
+- [Questions](/questions/index.md)
 - [Features](/features/index.md)
 - [Requirements](/requirements/index.md)
 - [Specs](/specs/index.md)

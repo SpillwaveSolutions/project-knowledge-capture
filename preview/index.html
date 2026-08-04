@@ -146,6 +146,11 @@
     }
     .skill-chip code { font-family: var(--mono); font-size: 0.78rem; color: var(--accent); }
   </style>
+  <script type="module">
+    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+    mermaid.initialize({ startOnLoad: false, theme: "dark" });
+    window.__mermaid = mermaid;
+  </script>
 </head>
 <body>
   <div class="app">
@@ -167,6 +172,8 @@
             <li><button type="button" class="active" data-view="home">Overview</button></li>
             <li><button type="button" data-view="skills">Skills & commands</button></li>
             <li><button type="button" data-view="readme">README</button></li>
+            <li><button type="button" data-view="graph">Graph</button></li>
+            <li><button type="button" data-view="doctor">Doctor</button></li>
           </ul>
         </section>
         <section>
@@ -420,12 +427,53 @@
       });
     }
 
+    
+    async function showGraph() {
+      titleEl.textContent = "Knowledge graph";
+      pathEl.textContent = "mermaid · sample-knowledge";
+      setActive(document.querySelector('[data-view="graph"]'));
+      content.innerHTML = '<div class="md"><h1>Auth chain graph</h1><div class="mermaid" id="mmd">Loading…</div></div>';
+      try {
+        const data = await fetch("/api/mermaid?concept=features/user-authentication.md").then(r => r.json());
+        let src = data.mermaid || "";
+        src = src.replace(/^```mermaid\n?/, "").replace(/```\s*$/, "").trim();
+        const el = document.getElementById("mmd");
+        el.removeAttribute("data-processed");
+        el.textContent = src;
+        if (window.__mermaid) {
+          await window.__mermaid.run({ nodes: [el] });
+        } else {
+          el.innerHTML = "<pre>" + src.replace(/</g,"<") + "</pre>";
+        }
+      } catch (e) {
+        content.innerHTML = '<div class="md"><p class="empty">Graph failed: ' + e + "</p></div>";
+      }
+    }
+
+    async function showDoctor() {
+      titleEl.textContent = "Doctor";
+      pathEl.textContent = "pkc_doctor · sample-knowledge";
+      setActive(document.querySelector('[data-view="doctor"]'));
+      const data = await fetch("/api/doctor").then(r => r.json());
+      let html = '<div class="md"><h1>Bundle health</h1>';
+      html += "<p>Nodes: " + data.node_count + " · Edges: " + data.edge_count + "</p><ul>";
+      (data.issues || []).slice(0, 40).forEach(function(i) {
+        html += "<li><strong>" + i.severity + "/" + i.kind + "</strong>: " + esc(i.message) + "</li>";
+      });
+      if (!(data.issues || []).length) html += "<li>All clear</li>";
+      html += "</ul></div>";
+      content.innerHTML = html;
+    }
+
+
     document.querySelectorAll("[data-view]").forEach(function (btn) {
       btn.addEventListener("click", function () {
         const v = btn.getAttribute("data-view");
         if (v === "home") showHome();
         else if (v === "skills") showSkills();
         else if (v === "readme") showReadme();
+        else if (v === "graph") showGraph();
+        else if (v === "doctor") showDoctor();
       });
     });
 

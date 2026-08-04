@@ -15,6 +15,7 @@ links:
     rel: informs
   - target: /experiments/jwt-vs-cookie.md
     rel: related_to
+stale_after: 2026-10-01
 ---
 
 # Auth competitor scan

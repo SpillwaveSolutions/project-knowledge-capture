@@ -24,8 +24,15 @@ links:
     rel: related_to
   - target: /tickets/ticket-01kexample0000000000000001.md
     rel: tracks
+  - target: /assumptions/short-ttl-ok-for-ux.md
+    rel: related_to
+  - target: /questions/need-revoke-denylist-v1.md
+    rel: related_to
 ---
 
 # User authentication
 
 Shaped by [Use JWT for session management](/decisions/use-jwt-for-session.md).
+
+- Assumption: [Short access TTL is OK for UX](/assumptions/short-ttl-ok-for-ux.md)
+- Open question: [Need distributed revoke denylist in v1?](/questions/need-revoke-denylist-v1.md)

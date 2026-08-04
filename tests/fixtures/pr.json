@@ -1,0 +1,14 @@
+{
+  "number": 12,
+  "title": "JWT middleware",
+  "body": "Adds JWT verification. Token sample: ghp_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA should be scrubbed if present in notes.",
+  "headRefName": "feat/jwt-middleware",
+  "baseRefName": "main",
+  "mergedAt": "2026-08-04T15:00:00Z",
+  "url": "https://github.com/example/app/pull/12",
+  "state": "MERGED",
+  "files": [
+    {"path": "src/auth/middleware.ts"},
+    {"path": "src/auth/refresh.ts"}
+  ]
+}

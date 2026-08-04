@@ -266,6 +266,74 @@ class TestActionItems(unittest.TestCase):
         self.assertIn("jwt", titles)
 
 
+from pkc_doctor import doctor  # noqa: E402
+from pkc_common import scrub_text  # noqa: E402
+from pkc_transcript import normalize as normalize_transcript  # noqa: E402
+from pkc_pr_capture import materialize_pr  # noqa: E402
+from pkc_capture import capture_assumption, capture_question  # noqa: E402
+import json
+
+
+class TestDoctor(unittest.TestCase):
+    def test_sample_doctor_runs(self):
+        result = doctor(ROOT / "sample-knowledge", stale_days=90)
+        self.assertIn("issues", result)
+        self.assertGreaterEqual(result["node_count"], 8)
+        kinds = {i["kind"] for i in result["issues"]}
+        # open question should surface
+        self.assertTrue("open_question" in kinds or any("question" in i["message"].lower() for i in result["issues"]))
+
+
+class TestScrub(unittest.TestCase):
+    def test_github_token(self):
+        clean, labels = scrub_text("token ghp_ABCDEFGHIJKLMNOPQRSTUVWXYZ012345 and a@b.com")
+        self.assertNotIn("ghp_", clean)
+        self.assertIn("[REDACTED", clean)
+
+
+class TestTranscript(unittest.TestCase):
+    def test_speaker_lines(self):
+        raw = (ROOT / "tests/fixtures/transcript_speakers.txt").read_text()
+        result = normalize_transcript(raw, title="T", date="2026-08-03")
+        self.assertEqual(result["format"], "speaker_lines")
+        self.assertIn("REDACTED", " ".join(result["redactions"]) or result["notes"])
+
+
+class TestPRCapture(unittest.TestCase):
+    def test_fixture_pr(self):
+        tmp = Path(tempfile.mkdtemp())
+        try:
+            ensure_bundle(tmp, "T")
+            pr = json.loads((ROOT / "tests/fixtures/pr.json").read_text())
+            rel, action = materialize_pr(tmp, pr, implements=["user-authentication"])
+            self.assertEqual(action, "created")
+            self.assertTrue((tmp / rel).is_file())
+        finally:
+            shutil.rmtree(tmp)
+
+
+class TestAssumptionQuestion(unittest.TestCase):
+    def test_capture(self):
+        tmp = Path(tempfile.mkdtemp())
+        try:
+            ensure_bundle(tmp, "T")
+            a = capture_assumption(tmp, title="A1", statement="S", assumes_for=["feat"])
+            q = capture_question(tmp, title="Q1", question="Why?", blocks=["feat"])
+            self.assertTrue(a[0][0].startswith("assumptions/"))
+            self.assertTrue(q[0][0].startswith("questions/"))
+        finally:
+            shutil.rmtree(tmp)
+
+
+class TestTinyPack(unittest.TestCase):
+    def test_tiny_bounds(self):
+        bundle = ROOT / "sample-knowledge"
+        seed = resolve_concept(bundle, "features/user-authentication.md")
+        result = pack(bundle, seed, hops=1, max_nodes=8)
+        self.assertLessEqual(result["node_count"], 8)
+        self.assertEqual(result["hops"], 1)
+
+
 def main() -> int:
     suite = unittest.defaultTestLoader.loadTestsFromModule(sys.modules[__name__])
     result = unittest.TextTestRunner(verbosity=2).run(suite)

@@ -1,7 +1,7 @@
 ---
 type: ContextPack
 title: Context pack for /features/user-authentication.md
-description: Progressive disclosure pack (2 hops, 9 nodes)
+description: Progressive disclosure pack (1 hops, 8 nodes)
 timestamp: 2026-08-04T04:29:31Z
 generated: true
 tags: [pack, pkc, progressive-disclosure]
@@ -9,8 +9,8 @@ tags: [pack, pkc, progressive-disclosure]
 
 # Context pack: `/features/user-authentication.md`
 
-- Hops: **2**
-- Nodes: **9** (max 20)
+- Hops: **1**
+- Nodes: **8** (max 8)
 - Generated: 2026-08-04T04:29:31Z
 
 ## Graph
@@ -22,7 +22,6 @@ flowchart LR
   meetings_2026_08_03_auth_design_md(["Meeting: Auth design discussion"])
   experiments_jwt_vs_cookie_md[("Experiment: JWT vs session-cookie spike")]
   assumptions_short_ttl_ok_for_ux_md["Assumption: Short access TTL is OK for UX"]
-  questions_need_revoke_denylist_v1_md{"Question: Need distributed revoke denylist in v1??"}
   designs_auth_middleware_md["Design: Auth middleware"]
   requirements_secure_session_tokens_md["Requirement: Secure session tokens"]
   tickets_ticket_01kexample0000000000000001_md["TicketLink: Implement user authentication"]
@@ -33,24 +32,6 @@ flowchart LR
   features_user_authentication_md -- related_to --> experiments_jwt_vs_cookie_md
   features_user_authentication_md -- tracks --> tickets_ticket_01kexample0000000000000001_md
   features_user_authentication_md -- related_to --> assumptions_short_ttl_ok_for_ux_md
-  features_user_authentication_md -- related_to --> questions_need_revoke_denylist_v1_md
-  decisions_use_jwt_for_session_md -- originates_from --> meetings_2026_08_03_auth_design_md
-  decisions_use_jwt_for_session_md -- decides --> features_user_authentication_md
-  decisions_use_jwt_for_session_md -- informs --> experiments_jwt_vs_cookie_md
-  requirements_secure_session_tokens_md -- related_to --> features_user_authentication_md
-  designs_auth_middleware_md -- documents --> features_user_authentication_md
-  designs_auth_middleware_md -- implements --> decisions_use_jwt_for_session_md
-  meetings_2026_08_03_auth_design_md -- decides --> decisions_use_jwt_for_session_md
-  meetings_2026_08_03_auth_design_md -- related_to --> features_user_authentication_md
-  meetings_2026_08_03_auth_design_md -- links_to --> experiments_jwt_vs_cookie_md
-  experiments_jwt_vs_cookie_md -- informs --> features_user_authentication_md
-  experiments_jwt_vs_cookie_md -- related_to --> decisions_use_jwt_for_session_md
-  tickets_ticket_01kexample0000000000000001_md -- tracks --> features_user_authentication_md
-  tickets_ticket_01kexample0000000000000001_md -- maps_to --> features_user_authentication_md
-  assumptions_short_ttl_ok_for_ux_md -- assumes --> features_user_authentication_md
-  assumptions_short_ttl_ok_for_ux_md -- related_to --> experiments_jwt_vs_cookie_md
-  questions_need_revoke_denylist_v1_md -- blocks --> features_user_authentication_md
-  questions_need_revoke_denylist_v1_md -- related_to --> decisions_use_jwt_for_session_md
 ```
 
 ## Nodes (ranked)
@@ -85,12 +66,6 @@ Both workable; JWT chosen for statelessness
 
 > 15-minute JWT access tokens will not harm user experience if silent refresh works. Peers use similar TTLs; refresh cookies hide rotation from users. Instrument refresh failure rate in production for 2 weeks.
 
-### [Need distributed revoke denylist in v1?](/questions/need-revoke-denylist-v1.md) · `Question` · depth 1
-
-Do we need a JWT denylist before shipping auth?
-
-> Do we need a distributed JWT denylist before shipping user authentication v1? Decision defers denylist until compliance requires it. Security still wants a tracked open question. _Unanswered — capture Decision when compliance answers._
-
 ### [Auth middleware](/designs/auth-middleware.md) · `Design` · depth 1
 
 Request middleware that validates JWT and attaches principal
@@ -119,22 +94,5 @@ WikiTicket bridge for the user-authentication feature
 - `/features/user-authentication.md` —[tracks]→ `/tickets/ticket-01kexample0000000000000001.md`
 - `/features/user-authentication.md` —[related_to]→ `/assumptions/short-ttl-ok-for-ux.md`
 - `/features/user-authentication.md` —[related_to]→ `/questions/need-revoke-denylist-v1.md`
-- `/decisions/use-jwt-for-session.md` —[originates_from]→ `/meetings/2026-08-03-auth-design.md`
-- `/decisions/use-jwt-for-session.md` —[decides]→ `/features/user-authentication.md`
-- `/decisions/use-jwt-for-session.md` —[informs]→ `/experiments/jwt-vs-cookie.md`
-- `/requirements/secure-session-tokens.md` —[related_to]→ `/features/user-authentication.md`
-- `/designs/auth-middleware.md` —[documents]→ `/features/user-authentication.md`
-- `/designs/auth-middleware.md` —[implements]→ `/decisions/use-jwt-for-session.md`
-- `/meetings/2026-08-03-auth-design.md` —[decides]→ `/decisions/use-jwt-for-session.md`
-- `/meetings/2026-08-03-auth-design.md` —[related_to]→ `/features/user-authentication.md`
-- `/meetings/2026-08-03-auth-design.md` —[links_to]→ `/experiments/jwt-vs-cookie.md`
-- `/experiments/jwt-vs-cookie.md` —[informs]→ `/features/user-authentication.md`
-- `/experiments/jwt-vs-cookie.md` —[related_to]→ `/decisions/use-jwt-for-session.md`
-- `/tickets/ticket-01kexample0000000000000001.md` —[tracks]→ `/features/user-authentication.md`
-- `/tickets/ticket-01kexample0000000000000001.md` —[maps_to]→ `/features/user-authentication.md`
-- `/assumptions/short-ttl-ok-for-ux.md` —[assumes]→ `/features/user-authentication.md`
-- `/assumptions/short-ttl-ok-for-ux.md` —[related_to]→ `/experiments/jwt-vs-cookie.md`
-- `/questions/need-revoke-denylist-v1.md` —[blocks]→ `/features/user-authentication.md`
-- `/questions/need-revoke-denylist-v1.md` —[related_to]→ `/decisions/use-jwt-for-session.md`
 
 _Nodes beyond hops/max_nodes omitted for progressive disclosure._

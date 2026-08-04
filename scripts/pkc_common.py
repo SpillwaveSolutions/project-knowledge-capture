@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
-"""Shared helpers for Project Knowledge Capture (PKC).
-
-Deterministic utilities for writing OKF concept Markdown, updating catalogs,
-and resolving the knowledge root. No third-party dependencies.
-"""
+"""Shared helpers for Project Knowledge Capture (PKC)."""
 
 from __future__ import annotations
 
@@ -20,6 +16,8 @@ CATALOGS = (
     "experiments",
     "discoveries",
     "decisions",
+    "assumptions",
+    "questions",
     "features",
     "requirements",
     "specs",
@@ -35,6 +33,8 @@ TYPE_TO_DIR = {
     "Experiment": "experiments",
     "Discovery": "discoveries",
     "DecisionRecord": "decisions",
+    "Assumption": "assumptions",
+    "Question": "questions",
     "Feature": "features",
     "Requirement": "requirements",
     "Specification": "specs",
@@ -44,6 +44,7 @@ TYPE_TO_DIR = {
     "Package": "packages",
     "Module": "packages",
     "TicketLink": "tickets",
+    "ContextPack": "packs",
 }
 
 DEFAULT_RELATIONS = (
@@ -66,7 +67,44 @@ DEFAULT_RELATIONS = (
     "lands_in",
     "released_in",
     "verified_by",
+    "assumes",
+    "blocks",
+    "answers",
+    "validates",
+    "invalidates",
 )
+
+SECRET_PATTERNS: list[tuple[re.Pattern[str], str]] = [
+    (
+        re.compile(
+            r"(?i)\b(sk|pk|api[_-]?key|token|secret|password|passwd|pwd)[-_]?[a-z0-9]*\s*[:=]\s*['\"]?[^\s'\"\n]{8,}"
+        ),
+        "[REDACTED_SECRET]",
+    ),
+    # OpenAI-style / generic sk- keys
+    (re.compile(r"\bsk-[A-Za-z0-9_-]{10,}\b"), "[REDACTED_API_KEY]"),
+    (re.compile(r"\bghp_[A-Za-z0-9]{20,}\b"), "[REDACTED_GITHUB_TOKEN]"),
+    (re.compile(r"\bgho_[A-Za-z0-9]{20,}\b"), "[REDACTED_GITHUB_TOKEN]"),
+    (re.compile(r"\bxox[baprs]-[A-Za-z0-9-]{10,}\b"), "[REDACTED_SLACK_TOKEN]"),
+    (re.compile(r"\bAKIA[0-9A-Z]{16}\b"), "[REDACTED_AWS_KEY]"),
+    (re.compile(r"\bAIza[0-9A-Za-z\-_]{35}\b"), "[REDACTED_GOOGLE_KEY]"),
+    (
+        re.compile(
+            r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----[\s\S]*?-----END (?:RSA |EC |OPENSSH )?PRIVATE KEY-----"
+        ),
+        "[REDACTED_PRIVATE_KEY]",
+    ),
+    (re.compile(r"\bBearer\s+[A-Za-z0-9\-._~+/]+=*\b"), "Bearer [REDACTED_TOKEN]"),
+]
+
+PII_PATTERNS: list[tuple[re.Pattern[str], str]] = [
+    (re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b"), "[REDACTED_EMAIL]"),
+    (
+        re.compile(r"\b(?:\+?1[-.\s]?)?(?:\(\d{3}\)|\d{3})[-.\s]?\d{3}[-.\s]?\d{4}\b"),
+        "[REDACTED_PHONE]",
+    ),
+    (re.compile(r"\b\d{3}-\d{2}-\d{4}\b"), "[REDACTED_SSN]"),
+]
 
 
 def utc_now() -> str:
@@ -80,6 +118,28 @@ def slugify(text: str, max_len: int = 80) -> str:
     if not text:
         text = "untitled"
     return text[:max_len].rstrip("-")
+
+
+def scrub_text(text: str, *, pii: bool = True, secrets: bool = True) -> tuple[str, list[str]]:
+    found: list[str] = []
+    out = text
+    if secrets:
+        for pat, repl in SECRET_PATTERNS:
+            if pat.search(out):
+                found.append(repl)
+            out = pat.sub(repl, out)
+    if pii:
+        for pat, repl in PII_PATTERNS:
+            if pat.search(out):
+                found.append(repl)
+            out = pat.sub(repl, out)
+    seen: set[str] = set()
+    labels = []
+    for f in found:
+        if f not in seen:
+            seen.add(f)
+            labels.append(f)
+    return out, labels
 
 
 def load_config(repo_root: Path) -> dict[str, Any]:
@@ -108,10 +168,8 @@ def resolve_knowledge_root(repo_root: Path, override: str | None = None) -> Path
 
 
 def _parse_simple_yaml(text: str) -> dict[str, Any]:
-    """Minimal YAML subset: maps, nested maps, lists of scalars, lists of maps."""
     root: dict[str, Any] = {}
     stack: list[tuple[int, Any]] = [(-1, root)]
-
     lines = text.splitlines()
     i = 0
     while i < len(lines):
@@ -121,15 +179,11 @@ def _parse_simple_yaml(text: str) -> dict[str, Any]:
             continue
         indent = len(raw) - len(raw.lstrip(" "))
         line = raw.strip()
-
         while len(stack) > 1 and indent <= stack[-1][0]:
             stack.pop()
-
         parent = stack[-1][1]
-
         if line.startswith("- "):
             item_body = line[2:].strip()
-            # Convert empty dict placeholder (from key:) into list if needed
             if isinstance(parent, dict) and len(stack) >= 2 and isinstance(stack[-2][1], dict):
                 gp = stack[-2][1]
                 for k, v in list(gp.items()):
@@ -141,22 +195,18 @@ def _parse_simple_yaml(text: str) -> dict[str, Any]:
                         break
             if not isinstance(parent, list):
                 continue
-
             if ":" in item_body and not _is_quoted(item_body):
                 key, _, rest = item_body.partition(":")
                 item_map: dict[str, Any] = {key.strip(): _scalar(rest.strip())}
                 parent.append(item_map)
-                # nested keys of this map item share indent > list-dash indent
                 stack.append((indent, item_map))
             else:
                 parent.append(_scalar(item_body))
             continue
-
         if ":" in line:
             key, _, rest = line.partition(":")
             key = key.strip()
             rest = rest.strip()
-
             if rest == "" or rest in ("|", ">"):
                 j = i
                 next_line = None
@@ -272,7 +322,6 @@ def _dump_key(key: str, value: Any, indent: int) -> list[str]:
             if all(isinstance(x, str) and re.match(r"^[\w./:@+-]+$", x) for x in value):
                 inner = ", ".join(str(x) for x in value)
                 return [f"{pad}{key}: [{inner}]"]
-        # Block list — items indented under the key
         out = [f"{pad}{key}:"]
         ipad = "  " * (indent + 1)
         for item in value:
@@ -314,10 +363,8 @@ def write_concept(
 ) -> tuple[Path, str]:
     path = bundle / rel_path.lstrip("/")
     path.parent.mkdir(parents=True, exist_ok=True)
-
     if "timestamp" not in frontmatter:
         frontmatter = {**frontmatter, "timestamp": utc_now()}
-
     if path.is_file():
         existing = path.read_text(encoding="utf-8")
         if merge:
@@ -344,7 +391,6 @@ def write_concept(
             return path, "skipped"
         path.write_text(content, encoding="utf-8")
         return path, "updated"
-
     fm = {k: v for k, v in frontmatter.items() if k not in ("force", "stable_timestamp")}
     path.write_text(dump_frontmatter(fm) + "\n" + body.rstrip() + "\n", encoding="utf-8")
     return path, "created"
@@ -497,22 +543,47 @@ def path_for_type(concept_type: str, slug: str) -> str:
     return f"{directory}/{slug}.md"
 
 
+def iter_concepts(bundle: Path) -> list[Path]:
+    files: list[Path] = []
+    skip_names = {"index.md", "log.md"}
+    for p in sorted(bundle.rglob("*.md")):
+        if p.name in skip_names:
+            continue
+        if "packs" in p.parts:
+            continue
+        files.append(p)
+    return files
+
+
+def parse_iso_date(value: Any) -> datetime | None:
+    if not value or not isinstance(value, str):
+        return None
+    s = value.strip().replace("Z", "+00:00")
+    try:
+        return datetime.fromisoformat(s)
+    except ValueError:
+        try:
+            return datetime.strptime(value[:10], "%Y-%m-%d").replace(tzinfo=timezone.utc)
+        except ValueError:
+            return None
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="PKC common utilities CLI")
     sub = parser.add_subparsers(dest="cmd", required=True)
-
-    p_init = sub.add_parser("init-bundle", help="Create knowledge bundle skeleton")
+    p_init = sub.add_parser("init-bundle")
     p_init.add_argument("--bundle", default="knowledge")
     p_init.add_argument("--title", default="Project Knowledge")
     p_init.add_argument("--repo", default=".")
-
-    p_slug = sub.add_parser("slugify", help="Slugify a string")
+    p_slug = sub.add_parser("slugify")
     p_slug.add_argument("text")
-
-    p_root = sub.add_parser("resolve-root", help="Print resolved knowledge root")
+    p_root = sub.add_parser("resolve-root")
     p_root.add_argument("--repo", default=".")
     p_root.add_argument("--override", default=None)
-
+    p_scrub = sub.add_parser("scrub")
+    p_scrub.add_argument("--text", default=None)
+    p_scrub.add_argument("--no-pii", action="store_true")
+    p_scrub.add_argument("--file", default=None)
     args = parser.parse_args(argv)
     if args.cmd == "init-bundle":
         repo = Path(args.repo).resolve()
@@ -525,6 +596,18 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.cmd == "resolve-root":
         print(resolve_knowledge_root(Path(args.repo).resolve(), args.override))
+        return 0
+    if args.cmd == "scrub":
+        if args.file:
+            raw = Path(args.file).read_text(encoding="utf-8")
+        elif args.text is not None:
+            raw = args.text
+        else:
+            raw = sys.stdin.read()
+        clean, labels = scrub_text(raw, pii=not args.no_pii, secrets=True)
+        if labels:
+            print(f"# redacted: {', '.join(labels)}", file=sys.stderr)
+        sys.stdout.write(clean)
         return 0
     return 1
 

@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://spillwave.solutions/schemas/pkc-config.json",
+  "title": "PKC config",
+  "type": "object",
+  "properties": {
+    "pkc": {
+      "type": "object",
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "knowledge_root": { "type": "string" },
+        "okf_bundle": { "type": "boolean" },
+        "stale_days": { "type": "integer", "minimum": 1, "default": 90 },
+        "pack": {
+          "type": "object",
+          "properties": {
+            "default_hops": { "type": "integer", "minimum": 1, "default": 2 },
+            "default_max_nodes": { "type": "integer", "minimum": 1, "default": 20 },
+            "tiny_hops": { "type": "integer", "default": 1 },
+            "tiny_max_nodes": { "type": "integer", "default": 8 },
+            "auto_inject_on_feature": { "type": "boolean", "default": true }
+          }
+        },
+        "scrub": {
+          "type": "object",
+          "properties": {
+            "secrets": { "type": "boolean", "default": true },
+            "pii": { "type": "boolean", "default": true }
+          }
+        },
+        "materialize": {
+          "type": "object",
+          "properties": {
+            "from_worklog": { "type": "boolean" },
+            "from_docs": { "type": "boolean" },
+            "include": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          }
+        },
+        "capture": {
+          "type": "object",
+          "properties": {
+            "auto_create_ticketlinks": { "type": "boolean" },
+            "default_meeting_dir": { "type": "string" },
+            "default_experiment_dir": { "type": "string" }
+          }
+        },
+        "bridge": {
+          "type": "object",
+          "properties": {
+            "wikiticket": { "type": "boolean" },
+            "worklog_bin": { "type": "string" }
+          }
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "required": ["pkc"]
+}

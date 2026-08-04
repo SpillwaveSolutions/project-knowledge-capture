@@ -1,12 +1,6 @@
 #!/usr/bin/env python3
-"""Deterministic capture helpers for meetings, experiments, discoveries, decisions.
-
-These helpers write skeleton OKF files; agents still extract structure from free text.
-Useful for idempotent path selection and golden tests.
-
-Usage:
-  python3 scripts/pkc_capture.py meeting --title "Auth design" --date 2026-08-03 \\
-      --attendees rick,alice --notes-file notes.md --bundle knowledge
+"""Deterministic capture helpers for meetings, experiments, discoveries, decisions,
+assumptions, and questions.
 """
 
 from __future__ import annotations
@@ -23,10 +17,16 @@ from pkc_common import (  # noqa: E402
     path_for_type,
     refresh_catalog_index,
     resolve_knowledge_root,
+    scrub_text,
     slugify,
     utc_now,
     write_concept,
 )
+
+
+def _scrub(notes: str) -> str:
+    clean, _ = scrub_text(notes)
+    return clean
 
 
 def capture_meeting(
@@ -39,6 +39,7 @@ def capture_meeting(
     decisions: list[str] | None = None,
     wiki_key: str | None = None,
 ) -> list[tuple[str, str]]:
+    notes = _scrub(notes)
     results: list[tuple[str, str]] = []
     slug = slugify(f"{date}-{title}")
     rel = path_for_type("Meeting", slug)
@@ -61,9 +62,7 @@ def capture_meeting(
             "stable_timestamp": True,
             "wiki_key": f"adr-{dslug}",
             "truth_state": "current",
-            "links": [
-                {"target": f"/{rel}", "rel": "originates_from"},
-            ],
+            "links": [{"target": f"/{rel}", "rel": "originates_from"}],
         }
         dbody = (
             f"# {d}\n\n## Context\n\nCaptured from meeting [{title}](/{rel}).\n\n"
@@ -169,7 +168,9 @@ def capture_discovery(
     notes: str,
     confidence: str = "medium",
     links_to: list[str] | None = None,
+    stale_after: str | None = None,
 ) -> list[tuple[str, str]]:
+    notes = _scrub(notes)
     slug = slugify(title)
     rel = path_for_type("Discovery", slug)
     links = []
@@ -191,6 +192,8 @@ def capture_discovery(
         "wiki_key": f"discovery-{slug}",
         "truth_state": "current",
     }
+    if stale_after:
+        fm["stale_after"] = stale_after
     if links:
         fm["links"] = links
     body = f"""# {title}
@@ -277,6 +280,114 @@ def capture_decision(
     return [(rel, action)]
 
 
+def capture_assumption(
+    bundle: Path,
+    *,
+    title: str,
+    statement: str,
+    rationale: str = "",
+    status: str = "unvalidated",
+    assumes_for: list[str] | None = None,
+) -> list[tuple[str, str]]:
+    slug = slugify(title)
+    rel = path_for_type("Assumption", slug)
+    links = []
+    for t in assumes_for or []:
+        target = t if t.startswith("/") else f"/features/{slugify(t)}.md"
+        links.append({"target": target, "rel": "assumes"})
+    fm: dict[str, Any] = {
+        "type": "Assumption",
+        "title": title,
+        "description": statement[:200],
+        "status": status,
+        "tags": ["assumption"],
+        "timestamp": utc_now(),
+        "verified": False,
+        "generated": True,
+        "stable_timestamp": True,
+        "wiki_key": f"assumption-{slug}",
+        "truth_state": "current",
+    }
+    if links:
+        fm["links"] = links
+    body = f"""# {title}
+
+## Statement
+
+{statement}
+
+## Rationale
+
+{rationale or '_TBD_'}
+
+## Validation path
+
+_What experiment or evidence would validate or invalidate this?_
+"""
+    if links:
+        body += "\n## Applies to\n\n"
+        for link in links:
+            body += f"- [{link['target']}]({link['target']}) (`assumes`)\n"
+    _, action = write_concept(bundle, rel, fm, body)
+    refresh_catalog_index(bundle, "assumptions")
+    append_log(bundle, f"Captured assumption: {title}")
+    return [(rel, action)]
+
+
+def capture_question(
+    bundle: Path,
+    *,
+    title: str,
+    question: str,
+    context: str = "",
+    status: str = "open",
+    blocks: list[str] | None = None,
+) -> list[tuple[str, str]]:
+    slug = slugify(title)
+    rel = path_for_type("Question", slug)
+    links = []
+    for t in blocks or []:
+        target = t if t.startswith("/") else f"/features/{slugify(t)}.md"
+        links.append({"target": target, "rel": "blocks"})
+    fm: dict[str, Any] = {
+        "type": "Question",
+        "title": title,
+        "description": question[:200],
+        "status": status,
+        "tags": ["question", "open"],
+        "timestamp": utc_now(),
+        "verified": False,
+        "generated": True,
+        "stable_timestamp": True,
+        "wiki_key": f"question-{slug}",
+        "truth_state": "current",
+    }
+    if links:
+        fm["links"] = links
+    body = f"""# {title}
+
+## Question
+
+{question}
+
+## Context
+
+{context or '_TBD_'}
+
+## Resolution
+
+_Unanswered — capture a Decision or Discovery when resolved._
+"""
+    if links:
+        body += "\n## Blocks\n\n"
+        for link in links:
+            body += f"- [{link['target']}]({link['target']}) (`blocks`)\n"
+    _, action = write_concept(bundle, rel, fm, body)
+    refresh_catalog_index(bundle, "questions")
+    append_log(bundle, f"Captured question: {title}")
+    return [(rel, action)]
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="PKC capture helpers")
     parser.add_argument("--repo", default=".")
@@ -305,6 +416,7 @@ def main(argv: list[str] | None = None) -> int:
     d.add_argument("--notes-file", default=None)
     d.add_argument("--confidence", default="medium")
     d.add_argument("--links-to", action="append", default=[])
+    d.add_argument("--stale-after", default=None)
 
     r = sub.add_parser("decision")
     r.add_argument("--title", required=True)
@@ -314,6 +426,20 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--status", default="accepted")
     r.add_argument("--originates-from", default=None)
     r.add_argument("--decides", action="append", default=[])
+
+    a = sub.add_parser("assumption")
+    a.add_argument("--title", required=True)
+    a.add_argument("--statement", required=True)
+    a.add_argument("--rationale", default="")
+    a.add_argument("--status", default="unvalidated")
+    a.add_argument("--for", dest="assumes_for", action="append", default=[])
+
+    q = sub.add_parser("question")
+    q.add_argument("--title", required=True)
+    q.add_argument("--question", required=True)
+    q.add_argument("--context", default="")
+    q.add_argument("--status", default="open")
+    q.add_argument("--blocks", action="append", default=[])
 
     args = parser.parse_args(argv)
     repo = Path(args.repo).resolve()
@@ -328,7 +454,7 @@ def main(argv: list[str] | None = None) -> int:
             bundle,
             title=args.title,
             date=args.date,
-            attendees=[a.strip() for a in args.attendees.split(",") if a.strip()],
+            attendees=[x.strip() for x in args.attendees.split(",") if x.strip()],
             notes=notes,
             decisions=args.decision,
         )
@@ -352,8 +478,9 @@ def main(argv: list[str] | None = None) -> int:
             notes=notes,
             confidence=args.confidence,
             links_to=args.links_to,
+            stale_after=args.stale_after,
         )
-    else:
+    elif args.kind == "decision":
         results = capture_decision(
             bundle,
             title=args.title,
@@ -363,6 +490,24 @@ def main(argv: list[str] | None = None) -> int:
             status=args.status,
             originates_from=args.originates_from,
             decides=args.decides,
+        )
+    elif args.kind == "assumption":
+        results = capture_assumption(
+            bundle,
+            title=args.title,
+            statement=args.statement,
+            rationale=args.rationale,
+            status=args.status,
+            assumes_for=args.assumes_for,
+        )
+    else:
+        results = capture_question(
+            bundle,
+            title=args.title,
+            question=args.question,
+            context=args.context,
+            status=args.status,
+            blocks=args.blocks,
         )
 
     for rel, action in results:
