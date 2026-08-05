@@ -116,7 +116,8 @@ Golden pack: [`sample-knowledge/packs/user-authentication-pack.md`](./sample-kno
 ## Docs
 
 - [PRD](./docs/prd.md) · [Design](./docs/design.md) · [Integration](./docs/integration-okf-wikiticket.md)
-- [Typed edges](./docs/typed-edges.md) · [Roadmap & brainstorm](./docs/roadmap.md)
+- [Typed edges](./docs/typed-edges.md) · [Vision & brainstorm](./docs/vision.md)
+- [Roadmap](./docs/roadmap.md) — generated from `.work/` by `bin/worklog roadmap-render`; edit work items, not the file
 
 ## Config
 
