@@ -215,6 +215,74 @@ class TestMaterialize(unittest.TestCase):
         self.assertEqual(len(features2), 2)
 
 
+class TestIncrementalMaterialize(unittest.TestCase):
+    """Unchanged worklog items must be skipped without re-rendering the concept."""
+
+    ITEM = {
+        "id": "01KTEST000000000000000INCR",
+        "title": "Incremental demo",
+        "level": "story",
+        "kind": "feature",
+        "status": "todo",
+        "body": "Original body.",
+        "updated_at": "2026-08-05T00:00:00Z",
+    }
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp())
+        self.bundle = self.tmp / "knowledge"
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp)
+
+    def run_fold(self, item):
+        fold = self.tmp / "fold.json"
+        fold.write_text(json.dumps([item]), encoding="utf-8")
+        rc = materialize_main(
+            ["--repo", str(self.tmp), "--bundle", "knowledge",
+             "--fold", str(fold), "--include", "features,tickets"]
+        )
+        self.assertEqual(rc, 0)
+
+    def feature_file(self):
+        hits = [p for p in (self.bundle / "features").glob("*.md") if p.name != "index.md"]
+        self.assertEqual(len(hits), 1, hits)
+        return hits[0]
+
+    def test_records_source_fingerprint(self):
+        self.run_fold(dict(self.ITEM))
+        fm, _ = parse_frontmatter(self.feature_file().read_text(encoding="utf-8"))
+        self.assertTrue(fm.get("source_fingerprint"), "concept must record the item fingerprint")
+
+    def test_unchanged_item_skips_without_rendering(self):
+        self.run_fold(dict(self.ITEM))
+        import pkc_materialize
+
+        calls = []
+        original = pkc_materialize.write_concept
+
+        def counting(*args, **kwargs):
+            calls.append(args[1])
+            return original(*args, **kwargs)
+
+        pkc_materialize.write_concept = counting
+        try:
+            self.run_fold(dict(self.ITEM))
+        finally:
+            pkc_materialize.write_concept = original
+        self.assertEqual(calls, [], "unchanged item must not reach write_concept")
+
+    def test_changed_field_rerenders(self):
+        self.run_fold(dict(self.ITEM))
+        before = parse_frontmatter(self.feature_file().read_text(encoding="utf-8"))[0]
+        changed = {**self.ITEM, "title": "Incremental demo", "body": "Rewritten body."}
+        self.run_fold(changed)
+        after_text = self.feature_file().read_text(encoding="utf-8")
+        after = parse_frontmatter(after_text)[0]
+        self.assertNotEqual(before.get("source_fingerprint"), after.get("source_fingerprint"))
+        self.assertIn("Rewritten body.", after_text)
+
+
 class TestSampleKnowledge(unittest.TestCase):
     def test_chain_files_exist(self):
         sk = ROOT / "sample-knowledge"

@@ -20,7 +20,9 @@ from typing import Any
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from pkc_common import (  # noqa: E402
     append_log,
+    content_fingerprint,
     ensure_bundle,
+    parse_frontmatter,
     path_for_type,
     refresh_catalog_index,
     resolve_knowledge_root,
@@ -78,6 +80,29 @@ def extract_external(item: dict[str, Any]) -> tuple[str | None, str | None]:
     return None, None
 
 
+# Fields that actually reach the rendered concept. A change to anything else
+# (priority churn, a re-fold timestamp) must not force a rewrite.
+FINGERPRINT_FIELDS = ("title", "body", "description", "status", "state",
+                      "level", "kind", "parent", "parent_id", "wiki_key",
+                      "truth_state", "priority")
+
+
+def item_fingerprint(item: dict[str, Any]) -> str:
+    """Stable hash of the item fields that affect the rendered concept."""
+    parts = [f"{k}={item.get(k)!r}" for k in FINGERPRINT_FIELDS]
+    ext_id, ext_system = extract_external(item)
+    parts.append(f"external={ext_system!r}:{ext_id!r}")
+    return content_fingerprint(*parts)
+
+
+def fingerprint_matches(path: Path, fingerprint: str) -> bool:
+    """True when `path` already records this fingerprint — skip before rendering."""
+    if not path.is_file():
+        return False
+    fm, _ = parse_frontmatter(path.read_text(encoding="utf-8"))
+    return fm.get("source_fingerprint") == fingerprint
+
+
 def materialize_item(
     bundle: Path,
     item: dict[str, Any],
@@ -86,6 +111,7 @@ def materialize_item(
     force: bool = False,
 ) -> list[tuple[str, str, str]]:
     results: list[tuple[str, str, str]] = []
+    fingerprint = item_fingerprint(item)
     ulid = item.get("id") or item.get("ulid") or item.get("worklog_id")
     title = item.get("title") or item.get("name") or "Untitled"
     level = (item.get("level") or "task").lower()
@@ -104,6 +130,9 @@ def materialize_item(
         if ulid:
             slug = slugify(f"{title}-{str(ulid)[-6:].lower()}")
         feature_rel = path_for_type("Feature", slug)
+    if feature_rel and not force and fingerprint_matches(bundle / feature_rel, fingerprint):
+        results.append((feature_rel, "skipped", "Feature"))
+    elif feature_rel:
         fm: dict[str, Any] = {
             "type": "Feature",
             "title": title,
@@ -117,6 +146,7 @@ def materialize_item(
             "level": level,
             "kind": kind,
             "truth_state": truth,
+            "source_fingerprint": fingerprint,
         }
         if item.get("priority") is not None:
             fm["priority"] = item.get("priority")
@@ -153,9 +183,12 @@ def materialize_item(
         _, action = write_concept(bundle, feature_rel, fm, body)
         results.append((feature_rel, action, "Feature"))
 
+    trel: str | None = None
     if ulid and "tickets" in include:
-        tslug = slugify(f"ticket-{ulid}")
-        trel = path_for_type("TicketLink", tslug)
+        trel = path_for_type("TicketLink", slugify(f"ticket-{ulid}"))
+    if trel and not force and fingerprint_matches(bundle / trel, fingerprint):
+        results.append((trel, "skipped", "TicketLink"))
+    elif trel:
         tfm: dict[str, Any] = {
             "type": "TicketLink",
             "title": title,
@@ -168,6 +201,7 @@ def materialize_item(
             "stable_timestamp": True,
             "worklog_id": ulid,
             "truth_state": truth,
+            "source_fingerprint": fingerprint,
         }
         if wiki_key:
             tfm["wiki_key"] = wiki_key
