@@ -31,9 +31,14 @@ tmp/
 *.log
 /tmp/
 
-# Worklog runtime (if this repo adopts WikiTicket later)
+# Worklog runtime — local state, never shared (matches wiki_ticket_sdd's own .gitignore)
 .work/todo.jsonl.bak
 .work/.cache/
+.work/sync-state.json
+.work/changeset.json
+.work/suggestions.jsonl
+.work/results/
+.work/wiki-checkout/
 
 # Agent sandbox noise
 .node_modules.tmp.*
