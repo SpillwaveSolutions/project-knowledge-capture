@@ -50,6 +50,8 @@ All concept writes go through `write_concept()` in `pkc_common.py`. It owns the 
 - **Return code** — `"created" | "updated" | "skipped"`; identical content returns `skipped`, which is what makes re-running capture/materialize idempotent (and what CI's `0 created` check depends on).
 - `stable_timestamp: true` keeps the original `timestamp` when title is unchanged, so re-captures don't churn diffs.
 
+Materialized concepts additionally carry `source_fingerprint` — a hash of the worklog fields that reach the rendered output (`FINGERPRINT_FIELDS` in `pkc_materialize.py`). On the next run a matching fingerprint short-circuits *before* the frontmatter and body are built, so unchanged items never reach `write_concept()`. Adding a field to the rendered concept means adding it to `FINGERPRINT_FIELDS`, or that field will never trigger a re-render.
+
 Bypassing this function (writing Markdown directly) breaks idempotency and the truth-state contract.
 
 ### Concept types → directories
