@@ -244,6 +244,18 @@
    "title": "Design Document \u2014 Project Knowledge Capture",
    "truth_state": "current"
   },
+  "guide/cli-reference": {
+   "doc_type": "guide",
+   "source": "docs/user_guide/cli-reference.md",
+   "title": "CLI Reference",
+   "truth_state": "current"
+  },
+  "guide/plugin-guide": {
+   "doc_type": "guide",
+   "source": "docs/user_guide/plugin-guide.md",
+   "title": "Plugin Guide",
+   "truth_state": "current"
+  },
   "guide/user-guide": {
    "doc_type": "guide",
    "source": "docs/user_guide/user-guide.md",

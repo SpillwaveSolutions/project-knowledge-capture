@@ -23,6 +23,30 @@
     "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Design-Doc",
     "wiki_key": "design/current-design-doc"
   },
+  "guide/cli-reference": {
+    "canonical_key": "guide/cli-reference",
+    "doc_type": "guide",
+    "page_id": "CLI-Reference",
+    "render_hash": "310d94cf219c",
+    "rev": "4234f1a6ab65dd2c5ff954aa78a152005beff84c",
+    "source": "docs/user_guide/cli-reference.md",
+    "source_hash": "18fefa5aa6c7",
+    "truth_state": "current",
+    "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/CLI-Reference",
+    "wiki_key": "guide/cli-reference"
+  },
+  "guide/plugin-guide": {
+    "canonical_key": "guide/plugin-guide",
+    "doc_type": "guide",
+    "page_id": "Plugin-Guide",
+    "render_hash": "2d7c8df50aa8",
+    "rev": "4234f1a6ab65dd2c5ff954aa78a152005beff84c",
+    "source": "docs/user_guide/plugin-guide.md",
+    "source_hash": "46edb6c68e2e",
+    "truth_state": "current",
+    "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Plugin-Guide",
+    "wiki_key": "guide/plugin-guide"
+  },
   "guide/user-guide": {
     "canonical_key": "guide/user-guide",
     "doc_type": "guide",

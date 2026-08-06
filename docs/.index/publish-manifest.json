@@ -295,6 +295,28 @@
   {
    "banner": "> **Current** \u2014 this is the living version. Historical snapshots are linked from [[Index-Releases]].",
    "frozen": false,
+   "page_name": "CLI-Reference",
+   "render": "doc+banner",
+   "render_hash": "310d94cf219c",
+   "source": "docs/user_guide/cli-reference.md",
+   "title": "CLI Reference",
+   "truth_state": "current",
+   "wiki_key": "guide/cli-reference"
+  },
+  {
+   "banner": "> **Current** \u2014 this is the living version. Historical snapshots are linked from [[Index-Releases]].",
+   "frozen": false,
+   "page_name": "Plugin-Guide",
+   "render": "doc+banner",
+   "render_hash": "2d7c8df50aa8",
+   "source": "docs/user_guide/plugin-guide.md",
+   "title": "Plugin Guide",
+   "truth_state": "current",
+   "wiki_key": "guide/plugin-guide"
+  },
+  {
+   "banner": "> **Current** \u2014 this is the living version. Historical snapshots are linked from [[Index-Releases]].",
+   "frozen": false,
    "page_name": "User-Guide",
    "render": "doc+banner",
    "render_hash": "26820e1220d1",

@@ -33,6 +33,26 @@
    "wiki_key": "design/current-design-doc"
   },
   {
+   "canonical_key": "guide/cli-reference",
+   "doc_type": "guide",
+   "slug": "cli-reference",
+   "source": "docs/user_guide/cli-reference.md",
+   "title": "CLI Reference",
+   "truth_state": "current",
+   "wiki": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/CLI-Reference",
+   "wiki_key": "guide/cli-reference"
+  },
+  {
+   "canonical_key": "guide/plugin-guide",
+   "doc_type": "guide",
+   "slug": "plugin-guide",
+   "source": "docs/user_guide/plugin-guide.md",
+   "title": "Plugin Guide",
+   "truth_state": "current",
+   "wiki": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Plugin-Guide",
+   "wiki_key": "guide/plugin-guide"
+  },
+  {
    "canonical_key": "guide/user-guide",
    "doc_type": "guide",
    "slug": "user-guide",
