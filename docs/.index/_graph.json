@@ -388,6 +388,11 @@
    "status": "done",
    "title": "Release v0.4.2"
   },
+  "item/01KZCA0DK74YQW82H4HZ1DJ8Q8": {
+   "doc_type": "item",
+   "status": "done",
+   "title": "Add tools/ci-local.sh mirroring both CI workflows"
+  },
   "release/v0.4.1": {
    "doc_type": "release"
   },
