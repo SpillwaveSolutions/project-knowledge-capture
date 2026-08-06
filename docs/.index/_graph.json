@@ -309,12 +309,12 @@
   },
   "item/01KZ75VWSERRKEZE957R1MBE9B": {
    "doc_type": "item",
-   "status": "todo",
+   "status": "done",
    "title": "Resolve worklog IA gate warnings before they harden"
   },
   "item/01KZC4FVRKYYY0P76RW251H4R1": {
    "doc_type": "item",
-   "status": "todo",
+   "status": "done",
    "title": "Release v0.4.1"
   },
   "release/v0.4.1": {

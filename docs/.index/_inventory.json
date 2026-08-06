@@ -3,12 +3,13 @@
   {
    "canonical_key": "roadmap",
    "doc_type": "roadmap",
-   "generated_at": "2026-08-06T18:13:40Z",
+   "generated_at": "2026-08-06T18:34:35Z",
    "slug": "roadmap",
    "source": "docs/roadmap.md",
-   "source_hash": "489f40bf",
+   "source_hash": "b69633ab",
    "title": "Roadmap",
    "truth_state": "current",
+   "wiki": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Roadmap",
    "wiki_key": "roadmap"
   },
   {
@@ -23,6 +24,7 @@
    "source_hash": "1c76e909",
    "title": "Roadmap",
    "truth_state": "snapshot",
+   "wiki": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Roadmap-2026-08-06_v0.4.1-release",
    "wiki_key": "roadmap-snapshot/2026-08-06_v0.4.1-release"
   }
  ],
