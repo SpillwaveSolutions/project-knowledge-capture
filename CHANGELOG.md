@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.4.1 — 2026-08-06
+
+### Added
+- **Incremental materialize** — materialized concepts carry `source_fingerprint`, a hash of only the worklog fields that reach the rendered output. A matching fingerprint short-circuits before the frontmatter and body are built, so unchanged items never reach `write_concept()`. Re-materialize is now O(changed work) instead of O(all work).
+- `adapters/github/adapter` — the GitHub ticket adapter, so `worklog sync` can push work items to GitHub Issues. worklog's own `init.sh` scaffolds `bin/` and `hooks/` but not `adapters/`.
+- `docs/vision.md` — themes, brainstorm, non-goals, and how to contribute an idea.
+
+### Changed
+- **This repo now runs WikiTicket SDD on itself.** `bin/`, git hooks via `core.hooksPath`, a `.work/` event log, and CI invariants. `pkc_materialize.py` is exercised against a real fold instead of only a four-item fixture.
+- **`docs/roadmap.md` is generated** from `.work/` by `bin/worklog roadmap-render` and is read-only for humans. Its narrative half moved to `docs/vision.md`; the shipped table was dropped as a duplicate of this changelog.
+- `CLAUDE.md` rewritten for accuracy: the zero-dependency mini-YAML parser, the `write_concept()` merge and `truth_state` contract, `--repo`/`--bundle` resolution order, and the `source_fingerprint` contract.
+- `AGENTS.md` carries the work-tracking policy as a real file, not a symlink — the Claude and Grok hosts get deliberately different content.
+
+### Notes
+- Upgrade path is one migration pass: a bundle written before this release has no fingerprint, so the first materialize updates each concept once and every run after that skips.
+- Contributors: commits no longer land on `main`, and every commit message must reference a 26-char ULID or `#123`. Both enforced by git hooks and by CI on pull requests.
+
 ## 0.4.0 — 2026-08-04
 
 ### Added

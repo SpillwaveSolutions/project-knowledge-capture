@@ -1,0 +1,30 @@
+{
+ "docs": [
+  {
+   "canonical_key": "roadmap",
+   "doc_type": "roadmap",
+   "generated_at": "2026-08-06T18:13:40Z",
+   "slug": "roadmap",
+   "source": "docs/roadmap.md",
+   "source_hash": "489f40bf",
+   "title": "Roadmap",
+   "truth_state": "current",
+   "wiki_key": "roadmap"
+  },
+  {
+   "canonical_key": "roadmap-snapshot/2026-08-06_v0.4.1-release",
+   "date": "2026-08-06",
+   "doc_type": "roadmap-snapshot",
+   "generated_at": "2026-08-05T18:54:22Z",
+   "name": "v0.4.1-release",
+   "release": "v0.4.1",
+   "slug": "2026-08-06_v0.4.1-release",
+   "source": "docs/roadmap/2026-08-06_v0.4.1-release.md",
+   "source_hash": "1c76e909",
+   "title": "Roadmap",
+   "truth_state": "snapshot",
+   "wiki_key": "roadmap-snapshot/2026-08-06_v0.4.1-release"
+  }
+ ],
+ "version": 1
+}
