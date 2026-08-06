@@ -2,6 +2,9 @@
 
 _The evidence chain: plan → item → ticket → code → release, forward and backward. Generated from `docs/.index/_graph.json`; do not edit._
 
+### Add tools/ci-local.sh mirroring both CI workflows
+`01KZCA0DK74YQW82H4HZ1DJ8Q8` · status: done
+
 ### Release v0.4.2
 `01KZC789NPHSTEVC7D6BEKGY4D` · status: done
 

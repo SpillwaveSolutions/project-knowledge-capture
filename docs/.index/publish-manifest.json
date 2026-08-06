@@ -44,7 +44,7 @@
    "frozen": false,
    "page_name": "Index-Traceability",
    "render": "as-is",
-   "render_hash": "3080c11d4411",
+   "render_hash": "5c7ff2706a69",
    "source": "docs/.index/rendered/traceability.md",
    "title": "Traceability Index",
    "truth_state": "current",
@@ -291,6 +291,16 @@
    "wiki_key": "item/01KZC789NPHSTEVC7D6BEKGY4D"
   },
   {
+   "frozen": false,
+   "page_name": "Ticket-01KZCA0DK74YQW82H4HZ1DJ8Q8",
+   "render": "as-is",
+   "render_hash": "c7a5c4192edc",
+   "source": "docs/.index/rendered/tickets/01KZCA0DK74YQW82H4HZ1DJ8Q8.md",
+   "title": "Add tools/ci-local.sh mirroring both CI workflows",
+   "truth_state": "done",
+   "wiki_key": "item/01KZCA0DK74YQW82H4HZ1DJ8Q8"
+  },
+  {
    "banner": "> **Current** \u2014 this is the living version; regenerated at 2026-08-06T18:42:39Z. Historical snapshots are linked from [[Index-Releases]].",
    "frozen": false,
    "page_name": "Code-Walkthrough",
@@ -357,11 +367,11 @@
    "wiki_key": "guide/worklog-spec"
   },
   {
-   "banner": "> **Current** \u2014 this is the living version; regenerated at 2026-08-06T19:04:09Z. Historical snapshots are linked from [[Index-Releases]].",
+   "banner": "> **Current** \u2014 this is the living version; regenerated at 2026-08-06T19:50:06Z. Historical snapshots are linked from [[Index-Releases]].",
    "frozen": false,
    "page_name": "Roadmap",
    "render": "doc+banner",
-   "render_hash": "2f0ad72fa825",
+   "render_hash": "ebb01af2f03f",
    "source": "docs/roadmap.md",
    "title": "Roadmap",
    "truth_state": "current",
