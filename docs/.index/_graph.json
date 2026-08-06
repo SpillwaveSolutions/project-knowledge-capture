@@ -1,6 +1,16 @@
 {
  "edges": [
   {
+   "from": "design/current-code-walkthrough",
+   "to": "release/v0.4.1",
+   "type": "targets"
+  },
+  {
+   "from": "design/current-design-doc",
+   "to": "release/v0.4.1",
+   "type": "targets"
+  },
+  {
    "from": "item/01KZ75NC58VJD8E219BYAYPBPA",
    "to": "ticket/github#2",
    "type": "references"
@@ -222,6 +232,30 @@
   }
  ],
  "nodes": {
+  "design/current-code-walkthrough": {
+   "doc_type": "design",
+   "source": "docs/designs/current_code_walkthrough.md",
+   "title": "Code Walkthrough \u2014 Project Knowledge Capture",
+   "truth_state": "current"
+  },
+  "design/current-design-doc": {
+   "doc_type": "design",
+   "source": "docs/designs/current_design_doc.md",
+   "title": "Design Document \u2014 Project Knowledge Capture",
+   "truth_state": "current"
+  },
+  "guide/user-guide": {
+   "doc_type": "guide",
+   "source": "docs/user_guide/user-guide.md",
+   "title": "User Guide",
+   "truth_state": "current"
+  },
+  "guide/worklog-spec": {
+   "doc_type": "guide",
+   "source": "docs/worklog-spec.md",
+   "title": "Worklog Spec",
+   "truth_state": "current"
+  },
   "item/01KZ75NC58VJD8E219BYAYPBPA": {
    "doc_type": "item",
    "status": "todo",
@@ -316,6 +350,11 @@
    "doc_type": "item",
    "status": "done",
    "title": "Release v0.4.1"
+  },
+  "item/01KZC6JVCDDSH3CYMX1KAGZQRQ": {
+   "doc_type": "item",
+   "status": "done",
+   "title": "Author User-Guide, Design-Doc, and Worklog-Spec"
   },
   "release/v0.4.1": {
    "doc_type": "release"
