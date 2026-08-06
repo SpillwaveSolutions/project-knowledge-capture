@@ -267,12 +267,16 @@
     "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Release-v0.5.0"
   },
   "roadmap": {
+    "canonical_key": "roadmap",
+    "doc_type": "roadmap",
     "page_id": "Roadmap",
     "render_hash": "09a52e2ddc85",
     "rev": "0c56b07a25b6d72136a4dcafdcfc31f1a65a9cdc",
     "source": "docs/roadmap.md",
     "source_hash": "5778cd8d2d81",
-    "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Roadmap"
+    "truth_state": "current",
+    "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Roadmap",
+    "wiki_key": "roadmap"
   },
   "roadmap-snapshot/2026-08-06_v0.4.1-release": {
     "canonical_key": "roadmap-snapshot/2026-08-06_v0.4.1-release",
