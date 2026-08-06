@@ -1,5 +1,29 @@
 # Changelog
 
+## 0.4.2 — 2026-08-06
+
+Documentation release. No plugin code changed.
+
+### Added
+- **Six wiki pages**, each with a source of truth in `docs/`:
+  - `User-Guide` — install, the 20 commands grouped by intent, context packs, concept types, typed edges, privacy, troubleshooting
+  - `CLI-Reference` — every script's flags, extracted from each script's own `--help`
+  - `Plugin-Guide` — packaging and extension: the skill/command/script split, `${CLAUDE_PLUGIN_ROOT}`, hook rules, adding a capability or concept type
+  - `Design-Doc` — architecture and the four decisions that shape it
+  - `Code-Walkthrough` — a read-the-code tour with line citations computed against the tree
+  - `Worklog-Spec` — how this repo runs WikiTicket SDD
+- `tools/wiki-publish.py` — the wiki publisher. The wiki-publish skill describes the ledger rules but ships no implementation. Placed in `tools/` rather than `scripts/` deliberately: `scripts/` ships inside the plugin, and a wiki publisher is repo tooling.
+
+### Fixed
+- `docs/worklog-spec.md` used `doc_type: spec`, which is not in the IA schema (valid: plan, roadmap, roadmap-snapshot, status, design, adr, guide). Re-keyed as `guide/worklog-spec`.
+
+### Known gap
+- **GitHub Actions produced no workflow runs for this release, or for v0.4.1.** The last run was 2026-08-05 18:59 UTC; PRs #21, #22, and #23 each have zero check-runs despite Actions being enabled and both workflows `active`. The cause appears to be org-level and is not visible from this repository.
+
+  Both releases were verified by running the CI suite locally instead — unit tests, `py_compile` over every script, validate and doctor on `sample-knowledge`, the golden pack assertions, materialize idempotency, and `commit-msg` over every commit in each PR. All passed. This is self-reported rather than independently verified, and is recorded here rather than left in a terminal.
+
+  Related: `merge-when-green.sh` treats *no checks* as *all checks green*. PR #22 merged that way. Worth a guard.
+
 ## 0.4.1 — 2026-08-06
 
 ### Added

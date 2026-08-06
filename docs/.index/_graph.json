@@ -229,6 +229,21 @@
    "from": "roadmap-snapshot/2026-08-06_v0.4.1-release",
    "to": "release/v0.4.1",
    "type": "targets"
+  },
+  {
+   "from": "roadmap-snapshot/2026-08-06_v0.4.2-release",
+   "to": "roadmap",
+   "type": "snapshot-of"
+  },
+  {
+   "from": "roadmap-snapshot/2026-08-06_v0.4.2-release",
+   "to": "roadmap-snapshot/2026-08-06_v0.4.1-release",
+   "type": "supersedes"
+  },
+  {
+   "from": "roadmap-snapshot/2026-08-06_v0.4.2-release",
+   "to": "release/v0.4.2",
+   "type": "targets"
   }
  ],
  "nodes": {
@@ -368,7 +383,15 @@
    "status": "done",
    "title": "Author User-Guide, Design-Doc, and Worklog-Spec"
   },
+  "item/01KZC789NPHSTEVC7D6BEKGY4D": {
+   "doc_type": "item",
+   "status": "todo",
+   "title": "Release v0.4.2"
+  },
   "release/v0.4.1": {
+   "doc_type": "release"
+  },
+  "release/v0.4.2": {
    "doc_type": "release"
   },
   "release/v0.5.0": {
@@ -383,6 +406,12 @@
   "roadmap-snapshot/2026-08-06_v0.4.1-release": {
    "doc_type": "roadmap-snapshot",
    "source": "docs/roadmap/2026-08-06_v0.4.1-release.md",
+   "title": "Roadmap",
+   "truth_state": "snapshot"
+  },
+  "roadmap-snapshot/2026-08-06_v0.4.2-release": {
+   "doc_type": "roadmap-snapshot",
+   "source": "docs/roadmap/2026-08-06_v0.4.2-release.md",
    "title": "Roadmap",
    "truth_state": "snapshot"
   },
