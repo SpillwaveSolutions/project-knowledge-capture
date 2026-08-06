@@ -1,12 +1,87 @@
 {
  "docs": [
   {
+   "branch": "docs/user-guide-design-spec",
+   "canonical_key": "design/current-code-walkthrough",
+   "doc_type": "design",
+   "generated_at": "2026-08-06T18:42:39Z",
+   "git_hash": "ddcf3c4b71829a6db0742c24a2f742f1d476fe82",
+   "release": "v0.4.1",
+   "roadmap": "docs/roadmap.md",
+   "slug": "current_code_walkthrough",
+   "source": "docs/designs/current_code_walkthrough.md",
+   "tag": "v0.4.1",
+   "title": "Code Walkthrough \u2014 Project Knowledge Capture",
+   "truth_state": "current",
+   "wiki": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Code-Walkthrough",
+   "wiki_key": "design/current-code-walkthrough"
+  },
+  {
+   "branch": "docs/user-guide-design-spec",
+   "canonical_key": "design/current-design-doc",
+   "doc_type": "design",
+   "generated_at": "2026-08-06T18:42:39Z",
+   "git_hash": "ddcf3c4b71829a6db0742c24a2f742f1d476fe82",
+   "release": "v0.4.1",
+   "roadmap": "docs/roadmap.md",
+   "slug": "current_design_doc",
+   "source": "docs/designs/current_design_doc.md",
+   "tag": "v0.4.1",
+   "title": "Design Document \u2014 Project Knowledge Capture",
+   "truth_state": "current",
+   "wiki": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Design-Doc",
+   "wiki_key": "design/current-design-doc"
+  },
+  {
+   "canonical_key": "guide/cli-reference",
+   "doc_type": "guide",
+   "slug": "cli-reference",
+   "source": "docs/user_guide/cli-reference.md",
+   "title": "CLI Reference",
+   "truth_state": "current",
+   "wiki": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/CLI-Reference",
+   "wiki_key": "guide/cli-reference"
+  },
+  {
+   "canonical_key": "guide/plugin-guide",
+   "doc_type": "guide",
+   "slug": "plugin-guide",
+   "source": "docs/user_guide/plugin-guide.md",
+   "title": "Plugin Guide",
+   "truth_state": "current",
+   "wiki": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Plugin-Guide",
+   "wiki_key": "guide/plugin-guide"
+  },
+  {
+   "canonical_key": "guide/user-guide",
+   "doc_type": "guide",
+   "slug": "user-guide",
+   "source": "docs/user_guide/user-guide.md",
+   "title": "User Guide",
+   "truth_state": "current",
+   "wiki": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/User-Guide",
+   "wiki_key": "guide/user-guide"
+  },
+  {
+   "aliases": [
+    "guide/worklog-spec"
+   ],
+   "canonical_key": "spec",
+   "doc_type": "guide",
+   "slug": "worklog-spec",
+   "source": "docs/worklog-spec.md",
+   "title": "Worklog Spec",
+   "truth_state": "current",
+   "wiki": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Worklog-Spec",
+   "wiki_key": "guide/worklog-spec"
+  },
+  {
    "canonical_key": "roadmap",
    "doc_type": "roadmap",
-   "generated_at": "2026-08-06T18:34:35Z",
+   "generated_at": "2026-08-06T18:50:16Z",
    "slug": "roadmap",
    "source": "docs/roadmap.md",
-   "source_hash": "b69633ab",
+   "source_hash": "59b91d72",
    "title": "Roadmap",
    "truth_state": "current",
    "wiki": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Roadmap",

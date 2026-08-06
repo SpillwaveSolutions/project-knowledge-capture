@@ -1,4 +1,79 @@
 {
+  "design/current-code-walkthrough": {
+    "canonical_key": "design/current-code-walkthrough",
+    "doc_type": "design",
+    "page_id": "Code-Walkthrough",
+    "render_hash": "7876b10e8881",
+    "rev": "5350bcad271bd2f51bbd2ee01c4c1f5a2a0e15ce",
+    "source": "docs/designs/current_code_walkthrough.md",
+    "source_hash": "e697d7d7e67c",
+    "truth_state": "current",
+    "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Code-Walkthrough",
+    "wiki_key": "design/current-code-walkthrough"
+  },
+  "design/current-design-doc": {
+    "canonical_key": "design/current-design-doc",
+    "doc_type": "design",
+    "page_id": "Design-Doc",
+    "render_hash": "5ce67458f4ce",
+    "rev": "5350bcad271bd2f51bbd2ee01c4c1f5a2a0e15ce",
+    "source": "docs/designs/current_design_doc.md",
+    "source_hash": "33133d02c740",
+    "truth_state": "current",
+    "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Design-Doc",
+    "wiki_key": "design/current-design-doc"
+  },
+  "guide/cli-reference": {
+    "canonical_key": "guide/cli-reference",
+    "doc_type": "guide",
+    "page_id": "CLI-Reference",
+    "render_hash": "310d94cf219c",
+    "rev": "4234f1a6ab65dd2c5ff954aa78a152005beff84c",
+    "source": "docs/user_guide/cli-reference.md",
+    "source_hash": "18fefa5aa6c7",
+    "truth_state": "current",
+    "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/CLI-Reference",
+    "wiki_key": "guide/cli-reference"
+  },
+  "guide/plugin-guide": {
+    "canonical_key": "guide/plugin-guide",
+    "doc_type": "guide",
+    "page_id": "Plugin-Guide",
+    "render_hash": "2d7c8df50aa8",
+    "rev": "4234f1a6ab65dd2c5ff954aa78a152005beff84c",
+    "source": "docs/user_guide/plugin-guide.md",
+    "source_hash": "46edb6c68e2e",
+    "truth_state": "current",
+    "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Plugin-Guide",
+    "wiki_key": "guide/plugin-guide"
+  },
+  "guide/user-guide": {
+    "canonical_key": "guide/user-guide",
+    "doc_type": "guide",
+    "page_id": "User-Guide",
+    "render_hash": "26820e1220d1",
+    "rev": "ba2d1f8a7f6e0232906ec85edf13baada1afd61e",
+    "source": "docs/user_guide/user-guide.md",
+    "source_hash": "bdeda9f419c3",
+    "truth_state": "current",
+    "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/User-Guide",
+    "wiki_key": "guide/user-guide"
+  },
+  "guide/worklog-spec": {
+    "aliases": [
+      "guide/worklog-spec"
+    ],
+    "canonical_key": "spec",
+    "doc_type": "guide",
+    "page_id": "Worklog-Spec",
+    "render_hash": "e05dd54928e3",
+    "rev": "ba2d1f8a7f6e0232906ec85edf13baada1afd61e",
+    "source": "docs/worklog-spec.md",
+    "source_hash": "dbac552be280",
+    "truth_state": "current",
+    "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Worklog-Spec",
+    "wiki_key": "guide/worklog-spec"
+  },
   "home": {
     "page_id": "Home",
     "render_hash": "8c5fb1643e15",
@@ -33,10 +108,10 @@
   },
   "index/traceability": {
     "page_id": "Index-Traceability",
-    "render_hash": "df724f1c74c5",
-    "rev": "075616aec16068f792f2837f9fe58bab985087bd",
+    "render_hash": "f66d310cf2ac",
+    "rev": "0c56b07a25b6d72136a4dcafdcfc31f1a65a9cdc",
     "source": "docs/.index/rendered/traceability.md",
-    "source_hash": "df724f1c74c5",
+    "source_hash": "f66d310cf2ac",
     "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Index-Traceability"
   },
   "item/01KZ75NC58VJD8E219BYAYPBPA": {
@@ -191,6 +266,14 @@
     "source_hash": "ff87e0ffd4b0",
     "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Ticket-01KZC4FVRKYYY0P76RW251H4R1"
   },
+  "item/01KZC6JVCDDSH3CYMX1KAGZQRQ": {
+    "page_id": "Ticket-01KZC6JVCDDSH3CYMX1KAGZQRQ",
+    "render_hash": "317fe85d03cd",
+    "rev": "0c56b07a25b6d72136a4dcafdcfc31f1a65a9cdc",
+    "source": "docs/.index/rendered/tickets/01KZC6JVCDDSH3CYMX1KAGZQRQ.md",
+    "source_hash": "317fe85d03cd",
+    "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Ticket-01KZC6JVCDDSH3CYMX1KAGZQRQ"
+  },
   "release/v0.4.1": {
     "page_id": "Release-v0.4.1",
     "render_hash": "6b6429cc14e6",
@@ -211,10 +294,10 @@
     "canonical_key": "roadmap",
     "doc_type": "roadmap",
     "page_id": "Roadmap",
-    "render_hash": "1550d74078b8",
-    "rev": "075616aec16068f792f2837f9fe58bab985087bd",
+    "render_hash": "09a52e2ddc85",
+    "rev": "0c56b07a25b6d72136a4dcafdcfc31f1a65a9cdc",
     "source": "docs/roadmap.md",
-    "source_hash": "2092761f0b53",
+    "source_hash": "5778cd8d2d81",
     "truth_state": "current",
     "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Roadmap",
     "wiki_key": "roadmap"
