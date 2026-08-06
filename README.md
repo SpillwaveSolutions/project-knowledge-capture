@@ -8,7 +8,7 @@ Works in **Claude Code** and **Grok Build** (zero-config: Grok Build reads Claud
 |---|---|
 | **Plugin name** | `project-knowledge-capture` |
 | **Repo** | [SpillwaveSolutions/project-knowledge-capture](https://github.com/SpillwaveSolutions/project-knowledge-capture) |
-| **Version** | 0.4.1 |
+| **Version** | 0.4.2 |
 | **License** | MIT |
 
 ## Why PKC

@@ -1,13 +1,13 @@
 {
   "name": "pkc-plugin-marketplace",
   "description": "Optional native Grok marketplace metadata. Grok Build already loads Claude plugins with zero config; this file pins identity for Grok marketplace listings.",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "plugins": [
     {
       "name": "project-knowledge-capture",
       "source": ".",
       "description": "Project Knowledge Capture \u2014 meetings, experiments, decisions \u2192 OKF knowledge graph. Claude-compatible.",
-      "version": "0.4.1",
+      "version": "0.4.2",
       "compatibility": {
         "claude_plugin": true,
         "zero_config": true
