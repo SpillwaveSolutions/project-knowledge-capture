@@ -1,0 +1,408 @@
+{
+ "edges": [
+  {
+   "from": "item/01KZ75NC58VJD8E219BYAYPBPA",
+   "to": "ticket/github#2",
+   "type": "references"
+  },
+  {
+   "from": "item/01KZ75NQ2VDVFD3R9F0SV38YEN",
+   "to": "ticket/github#3",
+   "type": "references"
+  },
+  {
+   "from": "item/01KZ75NQ7VFPF3YESB5P90DR29",
+   "to": "ticket/github#4",
+   "type": "references"
+  },
+  {
+   "from": "item/01KZ75NQCMYGFYRCVJATEBVBRB",
+   "to": "ticket/github#5",
+   "type": "references"
+  },
+  {
+   "from": "item/01KZ75R1ZYFEZVPWDY73CK4P4N",
+   "to": "item/01KZ75NC58VJD8E219BYAYPBPA",
+   "type": "belongs-to"
+  },
+  {
+   "from": "item/01KZ75R1ZYFEZVPWDY73CK4P4N",
+   "to": "ticket/github#6",
+   "type": "references"
+  },
+  {
+   "from": "item/01KZ75R1ZYFEZVPWDY73CK4P4N",
+   "to": "release/v0.5.0",
+   "type": "targets"
+  },
+  {
+   "from": "item/01KZ75R254CS97W8MNX9CV3SNF",
+   "to": "item/01KZ75NC58VJD8E219BYAYPBPA",
+   "type": "belongs-to"
+  },
+  {
+   "from": "item/01KZ75R254CS97W8MNX9CV3SNF",
+   "to": "ticket/github#7",
+   "type": "references"
+  },
+  {
+   "from": "item/01KZ75R254CS97W8MNX9CV3SNF",
+   "to": "release/v0.5.0",
+   "type": "targets"
+  },
+  {
+   "from": "item/01KZ75R2ADREHM3JD22V5C5HE7",
+   "to": "item/01KZ75NC58VJD8E219BYAYPBPA",
+   "type": "belongs-to"
+  },
+  {
+   "from": "item/01KZ75R2ADREHM3JD22V5C5HE7",
+   "to": "ticket/github#8",
+   "type": "references"
+  },
+  {
+   "from": "item/01KZ75R2ADREHM3JD22V5C5HE7",
+   "to": "release/v0.5.0",
+   "type": "targets"
+  },
+  {
+   "from": "item/01KZ75R2FPH92VY79KNR6MP59E",
+   "to": "item/01KZ75NQ2VDVFD3R9F0SV38YEN",
+   "type": "belongs-to"
+  },
+  {
+   "from": "item/01KZ75R2FPH92VY79KNR6MP59E",
+   "to": "ticket/github#9",
+   "type": "references"
+  },
+  {
+   "from": "item/01KZ75R2FPH92VY79KNR6MP59E",
+   "to": "release/v0.5.0",
+   "type": "targets"
+  },
+  {
+   "from": "item/01KZ75R2NDYVCGERRTKE9XCRM2",
+   "to": "item/01KZ75NQ2VDVFD3R9F0SV38YEN",
+   "type": "belongs-to"
+  },
+  {
+   "from": "item/01KZ75R2NDYVCGERRTKE9XCRM2",
+   "to": "ticket/github#10",
+   "type": "references"
+  },
+  {
+   "from": "item/01KZ75R2NDYVCGERRTKE9XCRM2",
+   "to": "release/v0.5.0",
+   "type": "targets"
+  },
+  {
+   "from": "item/01KZ75R2TEF13SKZYZ3DSBS5BZ",
+   "to": "item/01KZ75NQ2VDVFD3R9F0SV38YEN",
+   "type": "belongs-to"
+  },
+  {
+   "from": "item/01KZ75R2TEF13SKZYZ3DSBS5BZ",
+   "to": "ticket/github#11",
+   "type": "references"
+  },
+  {
+   "from": "item/01KZ75R2TEF13SKZYZ3DSBS5BZ",
+   "to": "release/v0.5.0",
+   "type": "targets"
+  },
+  {
+   "from": "item/01KZ75R2ZJGMNBHD82WZXPCNX4",
+   "to": "item/01KZ75NQ7VFPF3YESB5P90DR29",
+   "type": "belongs-to"
+  },
+  {
+   "from": "item/01KZ75R2ZJGMNBHD82WZXPCNX4",
+   "to": "ticket/github#12",
+   "type": "references"
+  },
+  {
+   "from": "item/01KZ75R2ZJGMNBHD82WZXPCNX4",
+   "to": "release/v0.5.0",
+   "type": "targets"
+  },
+  {
+   "from": "item/01KZ75R34PGN7WH6HCP44B85A2",
+   "to": "item/01KZ75NQ7VFPF3YESB5P90DR29",
+   "type": "belongs-to"
+  },
+  {
+   "from": "item/01KZ75R34PGN7WH6HCP44B85A2",
+   "to": "ticket/github#13",
+   "type": "references"
+  },
+  {
+   "from": "item/01KZ75R34PGN7WH6HCP44B85A2",
+   "to": "release/v0.5.0",
+   "type": "targets"
+  },
+  {
+   "from": "item/01KZ75R39PENN65G92HKA108H3",
+   "to": "item/01KZ75NQ7VFPF3YESB5P90DR29",
+   "type": "belongs-to"
+  },
+  {
+   "from": "item/01KZ75R39PENN65G92HKA108H3",
+   "to": "ticket/github#14",
+   "type": "references"
+  },
+  {
+   "from": "item/01KZ75R39PENN65G92HKA108H3",
+   "to": "release/v0.5.0",
+   "type": "targets"
+  },
+  {
+   "from": "item/01KZ75R3EXEG4GVGRP2S9CCKZ4",
+   "to": "item/01KZ75NQCMYGFYRCVJATEBVBRB",
+   "type": "belongs-to"
+  },
+  {
+   "from": "item/01KZ75R3EXEG4GVGRP2S9CCKZ4",
+   "to": "ticket/github#15",
+   "type": "references"
+  },
+  {
+   "from": "item/01KZ75R3EXEG4GVGRP2S9CCKZ4",
+   "to": "release/v0.5.0",
+   "type": "targets"
+  },
+  {
+   "from": "item/01KZ75R3M6BYQ643NKDCCSEEZC",
+   "to": "item/01KZ75NQCMYGFYRCVJATEBVBRB",
+   "type": "belongs-to"
+  },
+  {
+   "from": "item/01KZ75R3M6BYQ643NKDCCSEEZC",
+   "to": "ticket/github#16",
+   "type": "references"
+  },
+  {
+   "from": "item/01KZ75R3M6BYQ643NKDCCSEEZC",
+   "to": "release/v0.5.0",
+   "type": "targets"
+  },
+  {
+   "from": "item/01KZ75R3S2X1G4PCTGMMSR8BWA",
+   "to": "item/01KZ75NQCMYGFYRCVJATEBVBRB",
+   "type": "belongs-to"
+  },
+  {
+   "from": "item/01KZ75R3S2X1G4PCTGMMSR8BWA",
+   "to": "ticket/github#17",
+   "type": "references"
+  },
+  {
+   "from": "item/01KZ75R3S2X1G4PCTGMMSR8BWA",
+   "to": "release/v0.5.0",
+   "type": "targets"
+  },
+  {
+   "from": "item/01KZ75R3YBQAH47CYTF06A4WF0",
+   "to": "release/v0.5.0",
+   "type": "targets"
+  },
+  {
+   "from": "item/01KZ75VWSERRKEZE957R1MBE9B",
+   "to": "ticket/github#18",
+   "type": "references"
+  },
+  {
+   "from": "roadmap-snapshot/2026-08-06_v0.4.1-release",
+   "to": "roadmap",
+   "type": "snapshot-of"
+  },
+  {
+   "from": "roadmap-snapshot/2026-08-06_v0.4.1-release",
+   "to": "release/v0.4.1",
+   "type": "targets"
+  }
+ ],
+ "nodes": {
+  "item/01KZ75NC58VJD8E219BYAYPBPA": {
+   "doc_type": "item",
+   "status": "todo",
+   "title": "Agent auto-context injection"
+  },
+  "item/01KZ75NQ2VDVFD3R9F0SV38YEN": {
+   "doc_type": "item",
+   "status": "todo",
+   "title": "Incremental materialize"
+  },
+  "item/01KZ75NQ7VFPF3YESB5P90DR29": {
+   "doc_type": "item",
+   "status": "todo",
+   "title": "Risk and Acceptance concepts"
+  },
+  "item/01KZ75NQCMYGFYRCVJATEBVBRB": {
+   "doc_type": "item",
+   "status": "todo",
+   "title": "MCP server mode"
+  },
+  "item/01KZ75R1ZYFEZVPWDY73CK4P4N": {
+   "doc_type": "item",
+   "status": "todo",
+   "title": "Detect Feature path or ULID in agent context"
+  },
+  "item/01KZ75R254CS97W8MNX9CV3SNF": {
+   "doc_type": "item",
+   "status": "todo",
+   "title": "Inject tiny pack for the detected Feature"
+  },
+  "item/01KZ75R2ADREHM3JD22V5C5HE7": {
+   "doc_type": "item",
+   "status": "todo",
+   "title": "Gate injection behind pack.auto_inject_on_feature"
+  },
+  "item/01KZ75R2FPH92VY79KNR6MP59E": {
+   "doc_type": "item",
+   "status": "done",
+   "title": "Fingerprint worklog items on materialize"
+  },
+  "item/01KZ75R2NDYVCGERRTKE9XCRM2": {
+   "doc_type": "item",
+   "status": "done",
+   "title": "Skip unchanged ULIDs without rewriting"
+  },
+  "item/01KZ75R2TEF13SKZYZ3DSBS5BZ": {
+   "doc_type": "item",
+   "status": "todo",
+   "title": "Assert zero-write re-materialize in CI"
+  },
+  "item/01KZ75R2ZJGMNBHD82WZXPCNX4": {
+   "doc_type": "item",
+   "status": "todo",
+   "title": "Add Risk type with mitigates and exposes edges"
+  },
+  "item/01KZ75R34PGN7WH6HCP44B85A2": {
+   "doc_type": "item",
+   "status": "todo",
+   "title": "Add Acceptance type with verified_by edge"
+  },
+  "item/01KZ75R39PENN65G92HKA108H3": {
+   "doc_type": "item",
+   "status": "todo",
+   "title": "Cover Risk and Acceptance in sample-knowledge"
+  },
+  "item/01KZ75R3EXEG4GVGRP2S9CCKZ4": {
+   "doc_type": "item",
+   "status": "todo",
+   "title": "Expose pack over MCP"
+  },
+  "item/01KZ75R3M6BYQ643NKDCCSEEZC": {
+   "doc_type": "item",
+   "status": "todo",
+   "title": "Expose validate over MCP"
+  },
+  "item/01KZ75R3S2X1G4PCTGMMSR8BWA": {
+   "doc_type": "item",
+   "status": "todo",
+   "title": "Expose capture over MCP"
+  },
+  "item/01KZ75R3YBQAH47CYTF06A4WF0": {
+   "doc_type": "item",
+   "status": "done",
+   "title": "Adopt WikiTicket SDD in the PKC repo"
+  },
+  "item/01KZ75VWSERRKEZE957R1MBE9B": {
+   "doc_type": "item",
+   "status": "todo",
+   "title": "Resolve worklog IA gate warnings before they harden"
+  },
+  "item/01KZC4FVRKYYY0P76RW251H4R1": {
+   "doc_type": "item",
+   "status": "todo",
+   "title": "Release v0.4.1"
+  },
+  "release/v0.4.1": {
+   "doc_type": "release"
+  },
+  "release/v0.5.0": {
+   "doc_type": "release"
+  },
+  "roadmap": {
+   "doc_type": "roadmap",
+   "source": "docs/roadmap.md",
+   "title": "Roadmap",
+   "truth_state": "current"
+  },
+  "roadmap-snapshot/2026-08-06_v0.4.1-release": {
+   "doc_type": "roadmap-snapshot",
+   "source": "docs/roadmap/2026-08-06_v0.4.1-release.md",
+   "title": "Roadmap",
+   "truth_state": "snapshot"
+  },
+  "ticket/github#10": {
+   "doc_type": "ticket",
+   "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/10"
+  },
+  "ticket/github#11": {
+   "doc_type": "ticket",
+   "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/11"
+  },
+  "ticket/github#12": {
+   "doc_type": "ticket",
+   "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/12"
+  },
+  "ticket/github#13": {
+   "doc_type": "ticket",
+   "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/13"
+  },
+  "ticket/github#14": {
+   "doc_type": "ticket",
+   "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/14"
+  },
+  "ticket/github#15": {
+   "doc_type": "ticket",
+   "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/15"
+  },
+  "ticket/github#16": {
+   "doc_type": "ticket",
+   "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/16"
+  },
+  "ticket/github#17": {
+   "doc_type": "ticket",
+   "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/17"
+  },
+  "ticket/github#18": {
+   "doc_type": "ticket",
+   "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/18"
+  },
+  "ticket/github#2": {
+   "doc_type": "ticket",
+   "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/2"
+  },
+  "ticket/github#3": {
+   "doc_type": "ticket",
+   "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/3"
+  },
+  "ticket/github#4": {
+   "doc_type": "ticket",
+   "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/4"
+  },
+  "ticket/github#5": {
+   "doc_type": "ticket",
+   "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/5"
+  },
+  "ticket/github#6": {
+   "doc_type": "ticket",
+   "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/6"
+  },
+  "ticket/github#7": {
+   "doc_type": "ticket",
+   "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/7"
+  },
+  "ticket/github#8": {
+   "doc_type": "ticket",
+   "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/8"
+  },
+  "ticket/github#9": {
+   "doc_type": "ticket",
+   "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/9"
+  }
+ },
+ "version": 1
+}
