@@ -1,0 +1,234 @@
+{
+  "home": {
+    "page_id": "Home",
+    "render_hash": "8c5fb1643e15",
+    "rev": "d4d049b30a9af57cce9a93096fec7304e585e018",
+    "source": "docs/.index/rendered/home.md",
+    "source_hash": "8c5fb1643e15",
+    "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Home"
+  },
+  "index/decisions": {
+    "page_id": "Index-Decisions",
+    "render_hash": "d3182fbfb022",
+    "rev": "d4d049b30a9af57cce9a93096fec7304e585e018",
+    "source": "docs/.index/rendered/decisions.md",
+    "source_hash": "d3182fbfb022",
+    "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Index-Decisions"
+  },
+  "index/releases": {
+    "page_id": "Index-Releases",
+    "render_hash": "5b7a05af8a04",
+    "rev": "d4d049b30a9af57cce9a93096fec7304e585e018",
+    "source": "docs/.index/rendered/releases.md",
+    "source_hash": "5b7a05af8a04",
+    "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Index-Releases"
+  },
+  "index/status": {
+    "page_id": "Index-Status",
+    "render_hash": "b8bcebbbbe23",
+    "rev": "d4d049b30a9af57cce9a93096fec7304e585e018",
+    "source": "docs/.index/rendered/status.md",
+    "source_hash": "b8bcebbbbe23",
+    "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Index-Status"
+  },
+  "index/traceability": {
+    "page_id": "Index-Traceability",
+    "render_hash": "df724f1c74c5",
+    "rev": "075616aec16068f792f2837f9fe58bab985087bd",
+    "source": "docs/.index/rendered/traceability.md",
+    "source_hash": "df724f1c74c5",
+    "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Index-Traceability"
+  },
+  "item/01KZ75NC58VJD8E219BYAYPBPA": {
+    "page_id": "Ticket-01KZ75NC58VJD8E219BYAYPBPA",
+    "render_hash": "72b8f949a7ef",
+    "rev": "d4d049b30a9af57cce9a93096fec7304e585e018",
+    "source": "docs/.index/rendered/tickets/01KZ75NC58VJD8E219BYAYPBPA.md",
+    "source_hash": "72b8f949a7ef",
+    "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Ticket-01KZ75NC58VJD8E219BYAYPBPA"
+  },
+  "item/01KZ75NQ2VDVFD3R9F0SV38YEN": {
+    "page_id": "Ticket-01KZ75NQ2VDVFD3R9F0SV38YEN",
+    "render_hash": "b5c5e5a6fc40",
+    "rev": "d4d049b30a9af57cce9a93096fec7304e585e018",
+    "source": "docs/.index/rendered/tickets/01KZ75NQ2VDVFD3R9F0SV38YEN.md",
+    "source_hash": "b5c5e5a6fc40",
+    "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Ticket-01KZ75NQ2VDVFD3R9F0SV38YEN"
+  },
+  "item/01KZ75NQ7VFPF3YESB5P90DR29": {
+    "page_id": "Ticket-01KZ75NQ7VFPF3YESB5P90DR29",
+    "render_hash": "3f48e8c162b1",
+    "rev": "d4d049b30a9af57cce9a93096fec7304e585e018",
+    "source": "docs/.index/rendered/tickets/01KZ75NQ7VFPF3YESB5P90DR29.md",
+    "source_hash": "3f48e8c162b1",
+    "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Ticket-01KZ75NQ7VFPF3YESB5P90DR29"
+  },
+  "item/01KZ75NQCMYGFYRCVJATEBVBRB": {
+    "page_id": "Ticket-01KZ75NQCMYGFYRCVJATEBVBRB",
+    "render_hash": "1fcdd1d466b3",
+    "rev": "d4d049b30a9af57cce9a93096fec7304e585e018",
+    "source": "docs/.index/rendered/tickets/01KZ75NQCMYGFYRCVJATEBVBRB.md",
+    "source_hash": "1fcdd1d466b3",
+    "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Ticket-01KZ75NQCMYGFYRCVJATEBVBRB"
+  },
+  "item/01KZ75R1ZYFEZVPWDY73CK4P4N": {
+    "page_id": "Ticket-01KZ75R1ZYFEZVPWDY73CK4P4N",
+    "render_hash": "bfbb7edeeef6",
+    "rev": "d4d049b30a9af57cce9a93096fec7304e585e018",
+    "source": "docs/.index/rendered/tickets/01KZ75R1ZYFEZVPWDY73CK4P4N.md",
+    "source_hash": "bfbb7edeeef6",
+    "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Ticket-01KZ75R1ZYFEZVPWDY73CK4P4N"
+  },
+  "item/01KZ75R254CS97W8MNX9CV3SNF": {
+    "page_id": "Ticket-01KZ75R254CS97W8MNX9CV3SNF",
+    "render_hash": "dd103e15a081",
+    "rev": "d4d049b30a9af57cce9a93096fec7304e585e018",
+    "source": "docs/.index/rendered/tickets/01KZ75R254CS97W8MNX9CV3SNF.md",
+    "source_hash": "dd103e15a081",
+    "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Ticket-01KZ75R254CS97W8MNX9CV3SNF"
+  },
+  "item/01KZ75R2ADREHM3JD22V5C5HE7": {
+    "page_id": "Ticket-01KZ75R2ADREHM3JD22V5C5HE7",
+    "render_hash": "97574cb3828b",
+    "rev": "d4d049b30a9af57cce9a93096fec7304e585e018",
+    "source": "docs/.index/rendered/tickets/01KZ75R2ADREHM3JD22V5C5HE7.md",
+    "source_hash": "97574cb3828b",
+    "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Ticket-01KZ75R2ADREHM3JD22V5C5HE7"
+  },
+  "item/01KZ75R2FPH92VY79KNR6MP59E": {
+    "page_id": "Ticket-01KZ75R2FPH92VY79KNR6MP59E",
+    "render_hash": "94dd3d614ff9",
+    "rev": "d4d049b30a9af57cce9a93096fec7304e585e018",
+    "source": "docs/.index/rendered/tickets/01KZ75R2FPH92VY79KNR6MP59E.md",
+    "source_hash": "94dd3d614ff9",
+    "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Ticket-01KZ75R2FPH92VY79KNR6MP59E"
+  },
+  "item/01KZ75R2NDYVCGERRTKE9XCRM2": {
+    "page_id": "Ticket-01KZ75R2NDYVCGERRTKE9XCRM2",
+    "render_hash": "b646ce67eecd",
+    "rev": "d4d049b30a9af57cce9a93096fec7304e585e018",
+    "source": "docs/.index/rendered/tickets/01KZ75R2NDYVCGERRTKE9XCRM2.md",
+    "source_hash": "b646ce67eecd",
+    "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Ticket-01KZ75R2NDYVCGERRTKE9XCRM2"
+  },
+  "item/01KZ75R2TEF13SKZYZ3DSBS5BZ": {
+    "page_id": "Ticket-01KZ75R2TEF13SKZYZ3DSBS5BZ",
+    "render_hash": "bf4c9ddd00a6",
+    "rev": "d4d049b30a9af57cce9a93096fec7304e585e018",
+    "source": "docs/.index/rendered/tickets/01KZ75R2TEF13SKZYZ3DSBS5BZ.md",
+    "source_hash": "bf4c9ddd00a6",
+    "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Ticket-01KZ75R2TEF13SKZYZ3DSBS5BZ"
+  },
+  "item/01KZ75R2ZJGMNBHD82WZXPCNX4": {
+    "page_id": "Ticket-01KZ75R2ZJGMNBHD82WZXPCNX4",
+    "render_hash": "f782fb41f875",
+    "rev": "d4d049b30a9af57cce9a93096fec7304e585e018",
+    "source": "docs/.index/rendered/tickets/01KZ75R2ZJGMNBHD82WZXPCNX4.md",
+    "source_hash": "f782fb41f875",
+    "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Ticket-01KZ75R2ZJGMNBHD82WZXPCNX4"
+  },
+  "item/01KZ75R34PGN7WH6HCP44B85A2": {
+    "page_id": "Ticket-01KZ75R34PGN7WH6HCP44B85A2",
+    "render_hash": "1903fae313cc",
+    "rev": "d4d049b30a9af57cce9a93096fec7304e585e018",
+    "source": "docs/.index/rendered/tickets/01KZ75R34PGN7WH6HCP44B85A2.md",
+    "source_hash": "1903fae313cc",
+    "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Ticket-01KZ75R34PGN7WH6HCP44B85A2"
+  },
+  "item/01KZ75R39PENN65G92HKA108H3": {
+    "page_id": "Ticket-01KZ75R39PENN65G92HKA108H3",
+    "render_hash": "d4fc18ba5b34",
+    "rev": "d4d049b30a9af57cce9a93096fec7304e585e018",
+    "source": "docs/.index/rendered/tickets/01KZ75R39PENN65G92HKA108H3.md",
+    "source_hash": "d4fc18ba5b34",
+    "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Ticket-01KZ75R39PENN65G92HKA108H3"
+  },
+  "item/01KZ75R3EXEG4GVGRP2S9CCKZ4": {
+    "page_id": "Ticket-01KZ75R3EXEG4GVGRP2S9CCKZ4",
+    "render_hash": "61983b91a7e6",
+    "rev": "d4d049b30a9af57cce9a93096fec7304e585e018",
+    "source": "docs/.index/rendered/tickets/01KZ75R3EXEG4GVGRP2S9CCKZ4.md",
+    "source_hash": "61983b91a7e6",
+    "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Ticket-01KZ75R3EXEG4GVGRP2S9CCKZ4"
+  },
+  "item/01KZ75R3M6BYQ643NKDCCSEEZC": {
+    "page_id": "Ticket-01KZ75R3M6BYQ643NKDCCSEEZC",
+    "render_hash": "1106162ce1f6",
+    "rev": "d4d049b30a9af57cce9a93096fec7304e585e018",
+    "source": "docs/.index/rendered/tickets/01KZ75R3M6BYQ643NKDCCSEEZC.md",
+    "source_hash": "1106162ce1f6",
+    "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Ticket-01KZ75R3M6BYQ643NKDCCSEEZC"
+  },
+  "item/01KZ75R3S2X1G4PCTGMMSR8BWA": {
+    "page_id": "Ticket-01KZ75R3S2X1G4PCTGMMSR8BWA",
+    "render_hash": "bc66ffc5d9ed",
+    "rev": "d4d049b30a9af57cce9a93096fec7304e585e018",
+    "source": "docs/.index/rendered/tickets/01KZ75R3S2X1G4PCTGMMSR8BWA.md",
+    "source_hash": "bc66ffc5d9ed",
+    "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Ticket-01KZ75R3S2X1G4PCTGMMSR8BWA"
+  },
+  "item/01KZ75R3YBQAH47CYTF06A4WF0": {
+    "page_id": "Ticket-01KZ75R3YBQAH47CYTF06A4WF0",
+    "render_hash": "e19fa2550863",
+    "rev": "d4d049b30a9af57cce9a93096fec7304e585e018",
+    "source": "docs/.index/rendered/tickets/01KZ75R3YBQAH47CYTF06A4WF0.md",
+    "source_hash": "e19fa2550863",
+    "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Ticket-01KZ75R3YBQAH47CYTF06A4WF0"
+  },
+  "item/01KZ75VWSERRKEZE957R1MBE9B": {
+    "page_id": "Ticket-01KZ75VWSERRKEZE957R1MBE9B",
+    "render_hash": "dd5fdfc92ae6",
+    "rev": "075616aec16068f792f2837f9fe58bab985087bd",
+    "source": "docs/.index/rendered/tickets/01KZ75VWSERRKEZE957R1MBE9B.md",
+    "source_hash": "dd5fdfc92ae6",
+    "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Ticket-01KZ75VWSERRKEZE957R1MBE9B"
+  },
+  "item/01KZC4FVRKYYY0P76RW251H4R1": {
+    "page_id": "Ticket-01KZC4FVRKYYY0P76RW251H4R1",
+    "render_hash": "ff87e0ffd4b0",
+    "rev": "075616aec16068f792f2837f9fe58bab985087bd",
+    "source": "docs/.index/rendered/tickets/01KZC4FVRKYYY0P76RW251H4R1.md",
+    "source_hash": "ff87e0ffd4b0",
+    "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Ticket-01KZC4FVRKYYY0P76RW251H4R1"
+  },
+  "release/v0.4.1": {
+    "page_id": "Release-v0.4.1",
+    "render_hash": "6b6429cc14e6",
+    "rev": "d4d049b30a9af57cce9a93096fec7304e585e018",
+    "source": "docs/.index/rendered/releases/v0.4.1.md",
+    "source_hash": "6b6429cc14e6",
+    "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Release-v0.4.1"
+  },
+  "release/v0.5.0": {
+    "page_id": "Release-v0.5.0",
+    "render_hash": "61a1e8187677",
+    "rev": "d4d049b30a9af57cce9a93096fec7304e585e018",
+    "source": "docs/.index/rendered/releases/v0.5.0.md",
+    "source_hash": "61a1e8187677",
+    "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Release-v0.5.0"
+  },
+  "roadmap": {
+    "canonical_key": "roadmap",
+    "doc_type": "roadmap",
+    "page_id": "Roadmap",
+    "render_hash": "1550d74078b8",
+    "rev": "075616aec16068f792f2837f9fe58bab985087bd",
+    "source": "docs/roadmap.md",
+    "source_hash": "2092761f0b53",
+    "truth_state": "current",
+    "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Roadmap",
+    "wiki_key": "roadmap"
+  },
+  "roadmap-snapshot/2026-08-06_v0.4.1-release": {
+    "canonical_key": "roadmap-snapshot/2026-08-06_v0.4.1-release",
+    "doc_type": "roadmap-snapshot",
+    "page_id": "Roadmap-2026-08-06_v0.4.1-release",
+    "render_hash": "e376b79484bd",
+    "rev": "d4d049b30a9af57cce9a93096fec7304e585e018",
+    "source": "docs/roadmap/2026-08-06_v0.4.1-release.md",
+    "source_hash": "0b895bd0aa93",
+    "truth_state": "snapshot",
+    "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Roadmap-2026-08-06_v0.4.1-release",
+    "wiki_key": "roadmap-snapshot/2026-08-06_v0.4.1-release"
+  }
+}

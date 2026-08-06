@@ -3,10 +3,10 @@
 _The evidence chain: plan → item → ticket → code → release, forward and backward. Generated from `docs/.index/_graph.json`; do not edit._
 
 ### Release v0.4.1
-`01KZC4FVRKYYY0P76RW251H4R1` · status: todo
+`01KZC4FVRKYYY0P76RW251H4R1` · status: done
 
 ### Resolve worklog IA gate warnings before they harden
-`01KZ75VWSERRKEZE957R1MBE9B` · status: todo
+`01KZ75VWSERRKEZE957R1MBE9B` · status: done
 - references: [github#18](https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/18)
 
 ### Adopt WikiTicket SDD in the PKC repo

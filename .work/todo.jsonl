@@ -39,3 +39,5 @@
 {"actor":"richardhightower","ev":"01KZ9MDMY9BZ3S9A655WNK5FXT","item":"01KZ75R2FPH92VY79KNR6MP59E","op":"close","set":{"status":"done"},"ts":"2026-08-05T18:54:22Z"}
 {"actor":"richardhightower","ev":"01KZ9MDN38HRP4RHYGYJKDXCAE","item":"01KZ75R2NDYVCGERRTKE9XCRM2","op":"close","set":{"status":"done"},"ts":"2026-08-05T18:54:22Z"}
 {"actor":"richardhightower","ev":"01KZC4FVRKXEMYKZWW5D1E0TAS","item":"01KZC4FVRKYYY0P76RW251H4R1","op":"create","set":{"body":"Cut v0.4.1: stamp the changelog, bump the version lockstep across the six manifest sites, snapshot the roadmap, tag, publish the GitHub release, and sync the wiki.","kind":"ops","level":"task","priority":"P2","status":"todo","title":"Release v0.4.1"},"ts":"2026-08-06T18:13:40Z"}
+{"actor":"richardhightower","ev":"01KZC5P4T5ADM30CZ3GVQJZ3Q9","item":"01KZC4FVRKYYY0P76RW251H4R1","op":"close","set":{"status":"done"},"ts":"2026-08-06T18:34:35Z"}
+{"actor":"richardhightower","ev":"01KZC5P4ZMAQKMT7JMRWEH2FXP","item":"01KZ75VWSERRKEZE957R1MBE9B","op":"close","set":{"status":"done"},"ts":"2026-08-06T18:34:35Z"}
