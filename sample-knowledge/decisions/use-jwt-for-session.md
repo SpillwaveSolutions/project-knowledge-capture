@@ -15,6 +15,8 @@ links:
     rel: decides
   - target: /experiments/jwt-vs-cookie.md
     rel: informs
+  - target: /risks/token-replay-after-logout.md
+    rel: mitigates
 ---
 
 # Use JWT for session management
@@ -22,3 +24,7 @@ links:
 ## Decision
 
 Use short-lived JWT access tokens + httpOnly refresh cookies.
+
+## Related
+
+- [Token Replay After Logout](/risks/token-replay-after-logout.md) (`mitigates`)

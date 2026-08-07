@@ -335,17 +335,17 @@
   },
   "item/01KZ75R2ZJGMNBHD82WZXPCNX4": {
    "doc_type": "item",
-   "status": "todo",
+   "status": "done",
    "title": "Add Risk type with mitigates and exposes edges"
   },
   "item/01KZ75R34PGN7WH6HCP44B85A2": {
    "doc_type": "item",
-   "status": "todo",
+   "status": "done",
    "title": "Add Acceptance type with verified_by edge"
   },
   "item/01KZ75R39PENN65G92HKA108H3": {
    "doc_type": "item",
-   "status": "todo",
+   "status": "done",
    "title": "Cover Risk and Acceptance in sample-knowledge"
   },
   "item/01KZ75R3EXEG4GVGRP2S9CCKZ4": {
@@ -397,6 +397,11 @@
    "doc_type": "item",
    "status": "todo",
    "title": "Re-materialize with no changes still churns catalogs and log"
+  },
+  "item/01KZD6QRF62XDCPBDH5BN0H1RD": {
+   "doc_type": "item",
+   "status": "todo",
+   "title": "pkc_pack misses concepts that point at the seed"
   },
   "release/v0.4.1": {
    "doc_type": "release"

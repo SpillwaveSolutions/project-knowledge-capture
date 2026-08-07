@@ -32,7 +32,7 @@ Inside a plugin host, invoke as `python3 "${CLAUDE_PLUGIN_ROOT}/scripts/<name>.p
 
 ```
 pkc_capture.py [--repo REPO] [--bundle BUNDLE]
-               {meeting,experiment,discovery,decision,assumption,question} ...
+               {meeting,experiment,discovery,decision,assumption,question,risk,acceptance} ...
 ```
 
 | Subcommand | Required | Optional |
@@ -43,6 +43,8 @@ pkc_capture.py [--repo REPO] [--bundle BUNDLE]
 | `decision` | `--title`, `--decision` | `--context`, `--consequences`, `--status`, `--originates-from`, `--decides` (repeatable) |
 | `assumption` | `--title`, `--statement` | `--rationale`, `--status`, `--for` (repeatable) |
 | `question` | `--title`, `--question` | `--context`, `--status`, `--blocks` (repeatable) |
+| `risk` | `--title`, `--statement` | `--severity` (low/medium/high/critical), `--exposes`, `--mitigated-by` (repeatable) |
+| `acceptance` | `--title`, `--criterion` | `--for` (Feature), `--verified-by` (repeatable) |
 
 ```bash
 python3 scripts/pkc_capture.py meeting --repo . \
@@ -52,6 +54,10 @@ python3 scripts/pkc_capture.py meeting --repo . \
 ```
 
 Paths are derived from the title slug (plus date, for meetings), so re-running with the same title updates in place.
+
+`--repo` and `--bundle` are **top-level** flags: they go before the subcommand, not after.
+
+Flags that take a concept reference (`--exposes`, `--for`, `--decides`, `--verified-by`, …) accept an absolute path, a relative path, or a bare title that gets slugified into the default directory for that relation.
 
 ---
 

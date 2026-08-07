@@ -26,6 +26,8 @@ CATALOGS = (
     "code",
     "packages",
     "tickets",
+    "risks",
+    "acceptance",
 )
 
 TYPE_TO_DIR = {
@@ -43,6 +45,8 @@ TYPE_TO_DIR = {
     "CodeChange": "code",
     "Package": "packages",
     "Module": "packages",
+    "Risk": "risks",
+    "Acceptance": "acceptance",
     "TicketLink": "tickets",
     "ContextPack": "packs",
 }
@@ -72,6 +76,8 @@ DEFAULT_RELATIONS = (
     "answers",
     "validates",
     "invalidates",
+    "mitigates",
+    "exposes",
 )
 
 SECRET_PATTERNS: list[tuple[re.Pattern[str], str]] = [
@@ -536,6 +542,27 @@ def content_fingerprint(*parts: str) -> str:
         h.update(p.encode("utf-8"))
         h.update(b"\0")
     return h.hexdigest()[:12]
+
+
+def concept_ref(value: str, default_dir: str) -> str:
+    """Normalize a concept reference to an absolute in-bundle path.
+
+    Accepts an absolute path (`/features/x.md`), a relative path
+    (`features/x.md`), or a bare title (`User Authentication`) which is
+    slugified into `default_dir`.
+
+    Exists because callers used to do `t if t.startswith("/") else
+    f"/{dir}/{slugify(t)}.md"`, which mangles a relative path:
+    slugify strips `/` and `.`, so `features/user-auth.md` became
+    `featuresuser-authmd`. Paths are the natural thing to pass, since every
+    other command takes them.
+    """
+    v = value.strip()
+    if v.startswith("/"):
+        return v
+    if "/" in v or v.endswith(".md"):
+        return "/" + v.lstrip("./")
+    return f"/{default_dir}/{slugify(v)}.md"
 
 
 def path_for_type(concept_type: str, slug: str) -> str:

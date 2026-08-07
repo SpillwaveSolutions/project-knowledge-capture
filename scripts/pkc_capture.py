@@ -12,7 +12,9 @@ from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from pkc_common import (  # noqa: E402
+    add_typed_link,
     append_log,
+    concept_ref,
     ensure_bundle,
     path_for_type,
     refresh_catalog_index,
@@ -116,7 +118,7 @@ def capture_experiment(
     rel = path_for_type("Experiment", slug)
     links = []
     for t in informs or []:
-        target = t if t.startswith("/") else f"/features/{slugify(t)}.md"
+        target = concept_ref(t, "features")
         links.append({"target": target, "rel": "informs"})
     fm: dict[str, Any] = {
         "type": "Experiment",
@@ -175,7 +177,7 @@ def capture_discovery(
     rel = path_for_type("Discovery", slug)
     links = []
     for t in links_to or []:
-        target = t if t.startswith("/") else f"/features/{slugify(t)}.md"
+        target = concept_ref(t, "features")
         links.append({"target": target, "rel": "informs"})
     fm: dict[str, Any] = {
         "type": "Discovery",
@@ -235,10 +237,10 @@ def capture_decision(
     rel = path_for_type("DecisionRecord", slug)
     links = []
     if originates_from:
-        t = originates_from if originates_from.startswith("/") else f"/{originates_from}"
+        t = concept_ref(originates_from, "meetings")
         links.append({"target": t, "rel": "originates_from"})
     for d in decides or []:
-        t = d if d.startswith("/") else f"/features/{slugify(d)}.md"
+        t = concept_ref(d, "features")
         links.append({"target": t, "rel": "decides"})
     fm: dict[str, Any] = {
         "type": "DecisionRecord",
@@ -293,7 +295,7 @@ def capture_assumption(
     rel = path_for_type("Assumption", slug)
     links = []
     for t in assumes_for or []:
-        target = t if t.startswith("/") else f"/features/{slugify(t)}.md"
+        target = concept_ref(t, "features")
         links.append({"target": target, "rel": "assumes"})
     fm: dict[str, Any] = {
         "type": "Assumption",
@@ -334,6 +336,142 @@ _What experiment or evidence would validate or invalidate this?_
     return [(rel, action)]
 
 
+def capture_risk(
+    bundle: Path,
+    *,
+    title: str,
+    statement: str,
+    severity: str = "medium",
+    exposes: list[str] | None = None,
+    mitigated_by: list[str] | None = None,
+) -> list[tuple[str, str]]:
+    """A Risk names what could go wrong and what holds it back.
+
+    Edge directions are not symmetric and matter:
+      Risk     --exposes--> Feature    (the risk threatens it)
+      Decision --mitigates--> Risk     (the decision reduces it)
+
+    So `mitigated_by` writes its edge on the *decision*, not here --
+    "Risk mitigates Decision" would read backwards.
+    """
+    slug = slugify(title)
+    rel = path_for_type("Risk", slug)
+    links = []
+    for t in exposes or []:
+        target = concept_ref(t, "features")
+        links.append({"target": target, "rel": "exposes"})
+    fm: dict[str, Any] = {
+        "type": "Risk",
+        "title": title,
+        "description": statement[:200],
+        "severity": severity,
+        "status": "open",
+        "tags": ["risk", severity],
+        "timestamp": utc_now(),
+        "verified": False,
+        "generated": True,
+        "stable_timestamp": True,
+        "wiki_key": f"risk-{slug}",
+        "truth_state": "current",
+    }
+    if links:
+        fm["links"] = links
+    body = f"""# {title}
+
+## Risk
+
+{statement}
+
+## Severity
+
+`{severity}`
+
+## Mitigation
+
+_What reduces the likelihood or blast radius?_
+"""
+    if links:
+        body += "\n## Related\n\n"
+        for link in links:
+            body += f"- [{link['target']}]({link['target']}) (`{link['rel']}`)\n"
+    _, action = write_concept(bundle, rel, fm, body)
+    # The mitigation edge belongs on the decision that mitigates, pointing here.
+    for t in mitigated_by or []:
+        target = concept_ref(t, "decisions")
+        if add_typed_link(bundle / target.lstrip("/"), f"/{rel}", "mitigates") == "error":
+            # add_typed_link returns "error" for a missing file. Don't fail the
+            # capture -- the graph is often WIP -- but never drop it silently.
+            print(f"warning: no mitigation edge written, {target} not found", file=sys.stderr)
+    refresh_catalog_index(bundle, "risks")
+    append_log(bundle, f"Captured risk: {title}")
+    return [(rel, action)]
+
+
+def capture_acceptance(
+    bundle: Path,
+    *,
+    title: str,
+    criterion: str,
+    satisfies: str | None = None,
+    verified_by: list[str] | None = None,
+) -> list[tuple[str, str]]:
+    """One atomic, checkable condition for calling a Feature done.
+
+    Deliberately small: one criterion per concept, so each can be checked off
+    on its own and `verified_by` points at the specific thing that proves it.
+
+    `satisfies` also writes the inverse edge (Feature --verified_by--> this)
+    because pack() walks outbound edges only -- without it, a Feature's own
+    acceptance criteria would not appear in that Feature's context pack.
+    """
+    slug = slugify(title)
+    rel = path_for_type("Acceptance", slug)
+    links = []
+    if satisfies:
+        target = concept_ref(satisfies, "features")
+        links.append({"target": target, "rel": "satisfies"})
+    for t in verified_by or []:
+        target = concept_ref(t, "code")
+        links.append({"target": target, "rel": "verified_by"})
+    fm: dict[str, Any] = {
+        "type": "Acceptance",
+        "title": title,
+        "description": criterion[:200],
+        "status": "unverified",
+        "tags": ["acceptance"],
+        "timestamp": utc_now(),
+        "verified": False,
+        "generated": True,
+        "stable_timestamp": True,
+        "wiki_key": f"acceptance-{slug}",
+        "truth_state": "current",
+    }
+    if links:
+        fm["links"] = links
+    body = f"""# {title}
+
+## Criterion
+
+{criterion}
+
+## How it is verified
+
+_Test, review, or observation that settles this._
+"""
+    if links:
+        body += "\n## Related\n\n"
+        for link in links:
+            body += f"- [{link['target']}]({link['target']}) (`{link['rel']}`)\n"
+    _, action = write_concept(bundle, rel, fm, body)
+    if satisfies:
+        target = concept_ref(satisfies, "features")
+        if add_typed_link(bundle / target.lstrip("/"), f"/{rel}", "verified_by") == "error":
+            print(f"warning: no inverse edge written, {target} not found", file=sys.stderr)
+    refresh_catalog_index(bundle, "acceptance")
+    append_log(bundle, f"Captured acceptance criterion: {title}")
+    return [(rel, action)]
+
+
 def capture_question(
     bundle: Path,
     *,
@@ -347,7 +485,7 @@ def capture_question(
     rel = path_for_type("Question", slug)
     links = []
     for t in blocks or []:
-        target = t if t.startswith("/") else f"/features/{slugify(t)}.md"
+        target = concept_ref(t, "features")
         links.append({"target": target, "rel": "blocks"})
     fm: dict[str, Any] = {
         "type": "Question",
@@ -441,6 +579,19 @@ def main(argv: list[str] | None = None) -> int:
     q.add_argument("--status", default="open")
     q.add_argument("--blocks", action="append", default=[])
 
+    rk = sub.add_parser("risk")
+    rk.add_argument("--title", required=True)
+    rk.add_argument("--statement", required=True)
+    rk.add_argument("--severity", default="medium", choices=["low", "medium", "high", "critical"])
+    rk.add_argument("--exposes", action="append", default=[])
+    rk.add_argument("--mitigated-by", dest="mitigated_by", action="append", default=[])
+
+    ac = sub.add_parser("acceptance")
+    ac.add_argument("--title", required=True)
+    ac.add_argument("--criterion", required=True)
+    ac.add_argument("--for", dest="satisfies", default=None)
+    ac.add_argument("--verified-by", dest="verified_by", action="append", default=[])
+
     args = parser.parse_args(argv)
     repo = Path(args.repo).resolve()
     bundle = resolve_knowledge_root(repo, args.bundle)
@@ -490,6 +641,23 @@ def main(argv: list[str] | None = None) -> int:
             status=args.status,
             originates_from=args.originates_from,
             decides=args.decides,
+        )
+    elif args.kind == "risk":
+        results = capture_risk(
+            bundle,
+            title=args.title,
+            statement=args.statement,
+            severity=args.severity,
+            exposes=args.exposes,
+            mitigated_by=args.mitigated_by,
+        )
+    elif args.kind == "acceptance":
+        results = capture_acceptance(
+            bundle,
+            title=args.title,
+            criterion=args.criterion,
+            satisfies=args.satisfies,
+            verified_by=args.verified_by,
         )
     elif args.kind == "assumption":
         results = capture_assumption(

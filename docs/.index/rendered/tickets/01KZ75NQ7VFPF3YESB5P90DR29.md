@@ -6,11 +6,11 @@ Two kinds of project knowledge have no home in the graph today: risks (things th
 
 ## Children
 
-- [[Ticket-01KZ75R2ZJGMNBHD82WZXPCNX4]] Add Risk type with mitigates and exposes edges — Add a Risk concept type with mitigates and exposes edges, wired through TYPE_TO_DIR, CATALOGS, a template, and the curate hook's catalog list. (open)
-- [[Ticket-01KZ75R34PGN7WH6HCP44B85A2]] Add Acceptance type with verified_by edge — Add an Acceptance concept type carrying one atomic, checkable condition, linked to its Feature and to whatever proves it via verified_by. (open)
-- [[Ticket-01KZ75R39PENN65G92HKA108H3]] Cover Risk and Acceptance in sample-knowledge — Extend sample-knowledge with a Risk and an Acceptance node on the auth chain so the new types are covered by validate, doctor and the golden pack assertions like every other type. (open)
+- [[Ticket-01KZ75R2ZJGMNBHD82WZXPCNX4]] Add Risk type with mitigates and exposes edges — Add a Risk concept type with mitigates and exposes edges, wired through TYPE_TO_DIR, CATALOGS, a template, and the curate hook's catalog list. (done)
+- [[Ticket-01KZ75R34PGN7WH6HCP44B85A2]] Add Acceptance type with verified_by edge — Add an Acceptance concept type carrying one atomic, checkable condition, linked to its Feature and to whatever proves it via verified_by. (done)
+- [[Ticket-01KZ75R39PENN65G92HKA108H3]] Cover Risk and Acceptance in sample-knowledge — Extend sample-knowledge with a Risk and an Acceptance node on the auth chain so the new types are covered by validate, doctor and the golden pack assertions like every other type. (done)
 
-Progress: 0/3 done
+Progress: 3/3 done
 
 ## Related tickets
 

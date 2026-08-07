@@ -322,6 +322,141 @@ class TestIncrementalMaterialize(unittest.TestCase):
         self.assertEqual(before, mtimes(self.bundle), "re-materialize rewrote files")
 
 
+class TestConceptRef(unittest.TestCase):
+    """Capture flags accept a path or a bare name; slugify must not eat paths."""
+
+    def test_absolute_path_passes_through(self):
+        from pkc_common import concept_ref
+
+        self.assertEqual(concept_ref("/features/x.md", "features"), "/features/x.md")
+
+    def test_relative_path_is_not_slugified(self):
+        from pkc_common import concept_ref
+
+        # the bug: slugify("features/user-auth.md") -> "featuresuser-authmd"
+        self.assertEqual(
+            concept_ref("features/user-authentication.md", "decisions"),
+            "/features/user-authentication.md",
+        )
+
+    def test_bare_name_lands_in_the_default_dir(self):
+        from pkc_common import concept_ref
+
+        self.assertEqual(
+            concept_ref("User Authentication", "features"), "/features/user-authentication.md"
+        )
+
+    def test_bare_name_with_md_suffix_is_treated_as_a_path(self):
+        from pkc_common import concept_ref
+
+        self.assertEqual(concept_ref("x.md", "features"), "/x.md")
+
+
+class TestRiskAndAcceptance(unittest.TestCase):
+    """Risk and Acceptance are first-class concepts, not free-form Markdown."""
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp())
+        ensure_bundle(self.tmp, "Test")
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp)
+
+    def test_types_map_to_their_own_catalogs(self):
+        self.assertEqual(path_for_type("Risk", "x"), "risks/x.md")
+        self.assertEqual(path_for_type("Acceptance", "x"), "acceptance/x.md")
+
+    def test_new_relations_are_known(self):
+        from pkc_common import DEFAULT_RELATIONS
+
+        for rel in ("mitigates", "exposes"):
+            self.assertIn(rel, DEFAULT_RELATIONS)
+
+    def test_ensure_bundle_creates_both_catalogs(self):
+        for cat in ("risks", "acceptance"):
+            self.assertTrue((self.tmp / cat / "index.md").is_file(), cat)
+
+    def test_capture_risk_writes_a_valid_concept(self):
+        from pkc_capture import capture_risk
+
+        write_concept(
+            self.tmp,
+            "decisions/use-jwt-for-session.md",
+            {"type": "DecisionRecord", "title": "Use JWT", "description": "d",
+             "timestamp": "2026-08-03T00:00:00Z", "status": "accepted"},
+            "# Use JWT\n",
+            merge=False,
+        )
+
+        results = capture_risk(
+            self.tmp,
+            title="Token replay after logout",
+            statement="A stolen access token stays valid until it expires.",
+            severity="high",
+            exposes=["features/user-authentication.md"],
+            mitigated_by=["decisions/use-jwt-for-session.md"],
+        )
+        rel, action = results[0]
+        self.assertEqual(action, "created")
+        fm, body = parse_frontmatter((self.tmp / rel).read_text(encoding="utf-8"))
+        self.assertEqual(fm["type"], "Risk")
+        self.assertEqual(fm["severity"], "high")
+        self.assertIn(
+            ("exposes", "/features/user-authentication.md"),
+            {(l["rel"], l["target"]) for l in fm["links"]},
+        )
+        self.assertIn("stolen access token", body)
+        # the mitigation edge belongs on the decision, pointing back at the risk
+        dfm, _ = parse_frontmatter(
+            (self.tmp / "decisions/use-jwt-for-session.md").read_text(encoding="utf-8")
+        )
+        self.assertIn(
+            ("mitigates", f"/{rel}"), {(l["rel"], l["target"]) for l in dfm["links"]}
+        )
+
+    def test_capture_acceptance_writes_a_valid_concept(self):
+        from pkc_capture import capture_acceptance
+
+        write_concept(
+            self.tmp,
+            "features/user-authentication.md",
+            {"type": "Feature", "title": "Auth", "description": "d",
+             "timestamp": "2026-08-03T00:00:00Z"},
+            "# Auth\n",
+            merge=False,
+        )
+
+        results = capture_acceptance(
+            self.tmp,
+            title="Session expires within 15 minutes",
+            criterion="An access token is rejected 15 minutes after issue.",
+            satisfies="features/user-authentication.md",
+            verified_by=["code/pr-12-jwt-middleware.md"],
+        )
+        rel, action = results[0]
+        self.assertEqual(action, "created")
+        fm, _ = parse_frontmatter((self.tmp / rel).read_text(encoding="utf-8"))
+        self.assertEqual(fm["type"], "Acceptance")
+        rels = {(l["rel"], l["target"]) for l in fm["links"]}
+        self.assertIn(("satisfies", "/features/user-authentication.md"), rels)
+        self.assertIn(("verified_by", "/code/pr-12-jwt-middleware.md"), rels)
+        # pack() walks outbound only, so the Feature must point back or the
+        # criterion never appears in that Feature's context pack
+        ffm, _ = parse_frontmatter(
+            (self.tmp / "features/user-authentication.md").read_text(encoding="utf-8")
+        )
+        self.assertIn(
+            ("verified_by", f"/{rel}"), {(l["rel"], l["target"]) for l in ffm["links"]}
+        )
+
+    def test_captures_are_idempotent(self):
+        from pkc_capture import capture_risk
+
+        kw = dict(title="Same risk", statement="Same statement.")
+        self.assertEqual(capture_risk(self.tmp, **kw)[0][1], "created")
+        self.assertEqual(capture_risk(self.tmp, **kw)[0][1], "skipped")
+
+
 class TestSampleKnowledge(unittest.TestCase):
     def test_chain_files_exist(self):
         sk = ROOT / "sample-knowledge"

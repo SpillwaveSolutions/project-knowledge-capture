@@ -111,6 +111,8 @@ Post-edit curation refreshes catalog indexes and runs a light validate when you 
 
 **Discovery → Experiment → Meeting → Decision → Feature → Design → CodeChange → Release**
 
+Plus a `Risk` the decision mitigates and an `Acceptance` criterion the PR verifies.
+
 Golden pack: [`sample-knowledge/packs/user-authentication-pack.md`](./sample-knowledge/packs/user-authentication-pack.md)
 
 ## Docs

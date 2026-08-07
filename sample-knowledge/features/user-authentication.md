@@ -28,6 +28,8 @@ links:
     rel: related_to
   - target: /questions/need-revoke-denylist-v1.md
     rel: related_to
+  - target: /acceptance/session-expires-within-15-minutes.md
+    rel: verified_by
 ---
 
 # User authentication
@@ -36,3 +38,7 @@ Shaped by [Use JWT for session management](/decisions/use-jwt-for-session.md).
 
 - Assumption: [Short access TTL is OK for UX](/assumptions/short-ttl-ok-for-ux.md)
 - Open question: [Need distributed revoke denylist in v1?](/questions/need-revoke-denylist-v1.md)
+
+## Related
+
+- [Session Expires Within 15 Minutes](/acceptance/session-expires-within-15-minutes.md) (`verified_by`)
