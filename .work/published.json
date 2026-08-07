@@ -1,19 +1,27 @@
 {
   "design/current-code-walkthrough": {
+    "canonical_key": "design/current-code-walkthrough",
+    "doc_type": "design",
     "page_id": "Code-Walkthrough",
     "render_hash": "b46b32dfab83",
     "rev": "40aff6935961c81373fe5607618646dfc111f284",
     "source": "docs/designs/current_code_walkthrough.md",
     "source_hash": "044e1ae354cb",
-    "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Code-Walkthrough"
+    "truth_state": "current",
+    "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Code-Walkthrough",
+    "wiki_key": "design/current-code-walkthrough"
   },
   "design/current-design-doc": {
+    "canonical_key": "design/current-design-doc",
+    "doc_type": "design",
     "page_id": "Design-Doc",
     "render_hash": "1c955511f079",
     "rev": "40aff6935961c81373fe5607618646dfc111f284",
     "source": "docs/designs/current_design_doc.md",
     "source_hash": "9d1028e79dfb",
-    "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Design-Doc"
+    "truth_state": "current",
+    "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Design-Doc",
+    "wiki_key": "design/current-design-doc"
   },
   "guide/cli-reference": {
     "canonical_key": "guide/cli-reference",
@@ -315,12 +323,16 @@
     "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Release-v0.5.0"
   },
   "roadmap": {
+    "canonical_key": "roadmap",
+    "doc_type": "roadmap",
     "page_id": "Roadmap",
     "render_hash": "7545fc03a1af",
     "rev": "40aff6935961c81373fe5607618646dfc111f284",
     "source": "docs/roadmap.md",
     "source_hash": "9a0534adc911",
-    "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Roadmap"
+    "truth_state": "current",
+    "url": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Roadmap",
+    "wiki_key": "roadmap"
   },
   "roadmap-snapshot/2026-08-06_v0.4.1-release": {
     "canonical_key": "roadmap-snapshot/2026-08-06_v0.4.1-release",
