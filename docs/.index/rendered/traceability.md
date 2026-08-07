@@ -2,6 +2,9 @@
 
 _The evidence chain: plan → item → ticket → code → release, forward and backward. Generated from `docs/.index/_graph.json`; do not edit._
 
+### Re-materialize with no changes still churns catalogs and log
+`01KZD15ZR0JEKW6FA0HXM7W9CG` · status: todo
+
 ### Add tools/ci-local.sh mirroring both CI workflows
 `01KZCA0DK74YQW82H4HZ1DJ8Q8` · status: done
 
@@ -59,7 +62,7 @@ _The evidence chain: plan → item → ticket → code → release, forward and 
 - targets: release/v0.5.0
 
 ### Assert zero-write re-materialize in CI
-`01KZ75R2TEF13SKZYZ3DSBS5BZ` · status: todo
+`01KZ75R2TEF13SKZYZ3DSBS5BZ` · status: done
 - belongs-to: Incremental materialize
 - references: [github#11](https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/11)
 - targets: release/v0.5.0

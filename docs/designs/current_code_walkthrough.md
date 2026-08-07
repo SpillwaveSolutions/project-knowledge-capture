@@ -58,6 +58,8 @@ Both halves set `source_fingerprint` in the frontmatter they write. That is the 
 
 **The guard pattern to preserve.** Both halves use `if <path> and not force and fingerprint_matches(...)` / `elif <path>` rather than wrapping the build in a conditional. Keep the short-circuit above the frontmatter construction — putting it below would still write correctly but would forfeit the entire point.
 
+**Why the short-circuit reports `unchanged` and not `skipped`.** `write_concept()` also returns `skipped` for byte-identical content, and did so before fingerprints existed. If both paths shared a label, no observer outside the process could tell whether an item was short-circuited or rendered-then-discarded — and neither could a file-mtime check, since nothing is written in either case. The distinct label is the only external evidence the optimization is working, which is what CI asserts.
+
 ## 4. Catalogs and the log
 
 **`ensure_bundle()` — lines 467–496** creates `index.md` with `okf_version`, seeds `log.md`, and ensures a catalog index for every entry in `CATALOGS`.

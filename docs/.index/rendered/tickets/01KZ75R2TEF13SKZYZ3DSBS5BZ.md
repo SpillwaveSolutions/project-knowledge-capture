@@ -1,6 +1,6 @@
 # Assert zero-write re-materialize in CI
 
-`01KZ75R2TEF13SKZYZ3DSBS5BZ` · story/feature · **open**
+`01KZ75R2TEF13SKZYZ3DSBS5BZ` · story/feature · **done**
 
 CI already asserts a second materialize run reports '0 created'.
 

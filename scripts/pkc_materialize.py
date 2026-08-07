@@ -131,7 +131,7 @@ def materialize_item(
             slug = slugify(f"{title}-{str(ulid)[-6:].lower()}")
         feature_rel = path_for_type("Feature", slug)
     if feature_rel and not force and fingerprint_matches(bundle / feature_rel, fingerprint):
-        results.append((feature_rel, "skipped", "Feature"))
+        results.append((feature_rel, "unchanged", "Feature"))
     elif feature_rel:
         fm: dict[str, Any] = {
             "type": "Feature",
@@ -187,7 +187,7 @@ def materialize_item(
     if ulid and "tickets" in include:
         trel = path_for_type("TicketLink", slugify(f"ticket-{ulid}"))
     if trel and not force and fingerprint_matches(bundle / trel, fingerprint):
-        results.append((trel, "skipped", "TicketLink"))
+        results.append((trel, "unchanged", "TicketLink"))
     elif trel:
         tfm: dict[str, Any] = {
             "type": "TicketLink",
@@ -374,22 +374,28 @@ def main(argv: list[str] | None = None) -> int:
         created = sum(1 for r in report if r["action"] == "created")
         updated = sum(1 for r in report if r["action"] == "updated")
         skipped = sum(1 for r in report if r["action"] == "skipped")
+        unchanged = sum(1 for r in report if r["action"] == "unchanged")
         append_log(
             bundle,
-            f"Materialize: {created} created, {updated} updated, {skipped} skipped",
+            f"Materialize: {created} created, {updated} updated, "
+            f"{skipped} skipped, {unchanged} unchanged",
         )
 
     if args.json:
         print(json.dumps({"bundle": str(bundle), "results": report}, indent=2))
     else:
         print(f"Bundle: {bundle}")
-        counts = {"created": 0, "updated": 0, "skipped": 0}
+        counts = {"created": 0, "updated": 0, "skipped": 0, "unchanged": 0}
         for r in report:
             counts[r["action"]] = counts.get(r["action"], 0) + 1
-            print(f"  [{r['action']:7}] {r['type']:14} {r['path']}")
+            print(f"  [{r['action']:9}] {r['type']:14} {r['path']}")
+        # `unchanged` = short-circuited on fingerprint, never rendered.
+        # `skipped`   = rendered, compared, found identical (or truth_state barrier).
+        # The split is what lets CI prove incremental materialize actually works.
         print(
             f"Summary: {counts.get('created', 0)} created, "
-            f"{counts.get('updated', 0)} updated, {counts.get('skipped', 0)} skipped"
+            f"{counts.get('updated', 0)} updated, {counts.get('skipped', 0)} skipped, "
+            f"{counts.get('unchanged', 0)} unchanged"
         )
     return 0
 

@@ -79,6 +79,19 @@ jobs:
             --fold tests/fixtures/fold.json | tee /tmp/mat2.txt
           grep -q "0 created" /tmp/mat2.txt
 
+      # `0 created` was already true before incremental materialize existed --
+      # write_concept declines to write byte-identical content either way. The
+      # claim that needs proving is that nothing was RENDERED, which shows up
+      # as `unchanged` (short-circuited on fingerprint) rather than `skipped`
+      # (rendered, compared, discarded).
+      - name: Re-materialize renders nothing
+        run: |
+          python3 scripts/pkc_materialize.py --repo /tmp/pkc-ci --bundle knowledge \
+            --fold tests/fixtures/fold.json --json > /tmp/mat3.json
+          python3 -c "import json; r=json.load(open('/tmp/mat3.json'))['results']; \
+            a={x['action'] for x in r}; assert a == {'unchanged'}, a; \
+            print(len(r), 'concepts, none rendered')"
+
   okf-interop:
     runs-on: ubuntu-latest
     continue-on-error: true
