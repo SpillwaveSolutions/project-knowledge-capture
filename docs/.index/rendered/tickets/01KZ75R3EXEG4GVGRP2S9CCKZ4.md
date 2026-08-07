@@ -10,7 +10,7 @@ Stand up an MCP server exposing pkc_pack as a tool, resolving the bundle root th
 
 ## Release
 
-- [[Release-v0.5.0]]
+- [[Release-v0.6.0]]
 
 ## Related tickets
 

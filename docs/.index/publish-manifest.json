@@ -24,7 +24,7 @@
    "frozen": false,
    "page_name": "Index-Releases",
    "render": "as-is",
-   "render_hash": "413532be480c",
+   "render_hash": "efec6c31008e",
    "source": "docs/.index/rendered/releases.md",
    "title": "Releases Index",
    "truth_state": "current",
@@ -44,7 +44,7 @@
    "frozen": false,
    "page_name": "Index-Traceability",
    "render": "as-is",
-   "render_hash": "39ac4b9eb50f",
+   "render_hash": "dc18a86db0e8",
    "source": "docs/.index/rendered/traceability.md",
    "title": "Traceability Index",
    "truth_state": "current",
@@ -79,6 +79,16 @@
    "title": "Release v0.5.0",
    "truth_state": "shipped",
    "wiki_key": "release/v0.5.0"
+  },
+  {
+   "frozen": false,
+   "page_name": "Release-v0.6.0",
+   "render": "as-is",
+   "render_hash": "6139054e670e",
+   "source": "docs/.index/rendered/releases/v0.6.0.md",
+   "title": "Release v0.6.0",
+   "truth_state": "shipped",
+   "wiki_key": "release/v0.6.0"
   },
   {
    "frozen": false,
@@ -124,7 +134,7 @@
    "frozen": false,
    "page_name": "Ticket-01KZ75R1ZYFEZVPWDY73CK4P4N",
    "render": "as-is",
-   "render_hash": "bfbb7edeeef6",
+   "render_hash": "05c0b72c354b",
    "source": "docs/.index/rendered/tickets/01KZ75R1ZYFEZVPWDY73CK4P4N.md",
    "title": "Detect Feature path or ULID in agent context",
    "truth_state": "open",
@@ -134,7 +144,7 @@
    "frozen": false,
    "page_name": "Ticket-01KZ75R254CS97W8MNX9CV3SNF",
    "render": "as-is",
-   "render_hash": "dd103e15a081",
+   "render_hash": "b1f9432abd97",
    "source": "docs/.index/rendered/tickets/01KZ75R254CS97W8MNX9CV3SNF.md",
    "title": "Inject tiny pack for the detected Feature",
    "truth_state": "open",
@@ -144,7 +154,7 @@
    "frozen": false,
    "page_name": "Ticket-01KZ75R2ADREHM3JD22V5C5HE7",
    "render": "as-is",
-   "render_hash": "97574cb3828b",
+   "render_hash": "d97cb32d660c",
    "source": "docs/.index/rendered/tickets/01KZ75R2ADREHM3JD22V5C5HE7.md",
    "title": "Gate injection behind pack.auto_inject_on_feature",
    "truth_state": "open",
@@ -214,7 +224,7 @@
    "frozen": false,
    "page_name": "Ticket-01KZ75R3EXEG4GVGRP2S9CCKZ4",
    "render": "as-is",
-   "render_hash": "61983b91a7e6",
+   "render_hash": "217a15c1067e",
    "source": "docs/.index/rendered/tickets/01KZ75R3EXEG4GVGRP2S9CCKZ4.md",
    "title": "Expose pack over MCP",
    "truth_state": "open",
@@ -224,7 +234,7 @@
    "frozen": false,
    "page_name": "Ticket-01KZ75R3M6BYQ643NKDCCSEEZC",
    "render": "as-is",
-   "render_hash": "1106162ce1f6",
+   "render_hash": "aefe2cb5a9a0",
    "source": "docs/.index/rendered/tickets/01KZ75R3M6BYQ643NKDCCSEEZC.md",
    "title": "Expose validate over MCP",
    "truth_state": "open",
@@ -234,7 +244,7 @@
    "frozen": false,
    "page_name": "Ticket-01KZ75R3S2X1G4PCTGMMSR8BWA",
    "render": "as-is",
-   "render_hash": "bc66ffc5d9ed",
+   "render_hash": "e9d6b5d014f9",
    "source": "docs/.index/rendered/tickets/01KZ75R3S2X1G4PCTGMMSR8BWA.md",
    "title": "Expose capture over MCP",
    "truth_state": "open",
@@ -321,6 +331,16 @@
    "wiki_key": "item/01KZD6QRF62XDCPBDH5BN0H1RD"
   },
   {
+   "frozen": false,
+   "page_name": "Ticket-01KZD893CKNBNZZSA51Q3C6HKS",
+   "render": "as-is",
+   "render_hash": "e8ff248b0787",
+   "source": "docs/.index/rendered/tickets/01KZD893CKNBNZZSA51Q3C6HKS.md",
+   "title": "Release v0.5.0",
+   "truth_state": "open",
+   "wiki_key": "item/01KZD893CKNBNZZSA51Q3C6HKS"
+  },
+  {
    "banner": "> **Current** \u2014 this is the living version; regenerated at 2026-08-06T18:42:39Z. Historical snapshots are linked from [[Index-Releases]].",
    "frozen": false,
    "page_name": "Code-Walkthrough",
@@ -387,11 +407,11 @@
    "wiki_key": "guide/worklog-spec"
   },
   {
-   "banner": "> **Current** \u2014 this is the living version; regenerated at 2026-08-07T04:12:11Z. Historical snapshots are linked from [[Index-Releases]].",
+   "banner": "> **Current** \u2014 this is the living version; regenerated at 2026-08-07T04:39:08Z. Historical snapshots are linked from [[Index-Releases]].",
    "frozen": false,
    "page_name": "Roadmap",
    "render": "doc+banner",
-   "render_hash": "409879b197ac",
+   "render_hash": "b57728f11ba3",
    "source": "docs/roadmap.md",
    "title": "Roadmap",
    "truth_state": "current",
@@ -418,10 +438,21 @@
    "title": "Roadmap",
    "truth_state": "snapshot",
    "wiki_key": "roadmap-snapshot/2026-08-06_v0.4.2-release"
+  },
+  {
+   "banner": "> **Snapshot** of release v0.5.0 (2026-08-07) \u2014 frozen record. The current version is [[Roadmap]].",
+   "frozen": true,
+   "page_name": "Roadmap-2026-08-07_v0.5.0-release",
+   "render": "doc+banner",
+   "render_hash": "6bf9905628c7",
+   "source": "docs/roadmap/2026-08-07_v0.5.0-release.md",
+   "title": "Roadmap",
+   "truth_state": "snapshot",
+   "wiki_key": "roadmap-snapshot/2026-08-07_v0.5.0-release"
   }
  ],
  "sidebar": {
-  "render_hash": "19c2ab72cdea",
+  "render_hash": "0e33f0d4bca5",
   "source": "docs/.index/rendered/_Sidebar.md"
  },
  "version": 1

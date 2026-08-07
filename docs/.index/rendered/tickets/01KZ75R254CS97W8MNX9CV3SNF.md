@@ -10,7 +10,7 @@ Given a detected Feature, produce the tiny pack (1 hop, max 8 nodes) and place i
 
 ## Release
 
-- [[Release-v0.5.0]]
+- [[Release-v0.6.0]]
 
 ## Related tickets
 

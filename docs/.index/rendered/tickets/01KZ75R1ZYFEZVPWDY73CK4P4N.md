@@ -10,7 +10,7 @@ Recognise when the current work is about a specific Feature: a path under featur
 
 ## Release
 
-- [[Release-v0.5.0]]
+- [[Release-v0.6.0]]
 
 ## Related tickets
 
