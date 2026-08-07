@@ -16,6 +16,7 @@ from typing import Any
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from pkc_common import (  # noqa: E402
     append_log,
+    concept_ref,
     ensure_bundle,
     path_for_type,
     refresh_catalog_index,
@@ -63,7 +64,7 @@ def materialize_pr(
 
     links = []
     for t in implements or []:
-        target = t if t.startswith("/") else f"/features/{slugify(t)}.md"
+        target = concept_ref(t, "features")
         links.append({"target": target, "rel": "implements"})
 
     fm: dict[str, Any] = {

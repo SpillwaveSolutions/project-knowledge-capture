@@ -33,7 +33,8 @@ Plugin root: `${CLAUDE_PLUGIN_ROOT}`.
 1. OKF format only (frontmatter + body + absolute links + `links[].rel`).
 2. Prefer deterministic scripts; agents extract structure from free text.
 3. Idempotent writes; respect `truth_state`.
-4. Never invent edges.
+4. Never invent edges. Direction matters: `Decision --mitigates--> Risk` and
+   `Acceptance --satisfies--> Feature`, never the reverse.
 5. WikiTicket owns work **status** — use `bin/worklog`, never hand-edit jsonl.
 6. Default context pack: **2 hops**, ~**20 nodes** (`pkc_pack` or okf pack).
 7. After capture: catalogs + log.

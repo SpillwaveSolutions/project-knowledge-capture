@@ -2,6 +2,9 @@
 
 _The evidence chain: plan → item → ticket → code → release, forward and backward. Generated from `docs/.index/_graph.json`; do not edit._
 
+### pkc_pack misses concepts that point at the seed
+`01KZD6QRF62XDCPBDH5BN0H1RD` · status: todo
+
 ### Re-materialize with no changes still churns catalogs and log
 `01KZD15ZR0JEKW6FA0HXM7W9CG` · status: todo
 
@@ -44,19 +47,19 @@ _The evidence chain: plan → item → ticket → code → release, forward and 
 - targets: release/v0.5.0
 
 ### Cover Risk and Acceptance in sample-knowledge
-`01KZ75R39PENN65G92HKA108H3` · status: todo
+`01KZ75R39PENN65G92HKA108H3` · status: done
 - belongs-to: Risk and Acceptance concepts
 - references: [github#14](https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/14)
 - targets: release/v0.5.0
 
 ### Add Acceptance type with verified_by edge
-`01KZ75R34PGN7WH6HCP44B85A2` · status: todo
+`01KZ75R34PGN7WH6HCP44B85A2` · status: done
 - belongs-to: Risk and Acceptance concepts
 - references: [github#13](https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/13)
 - targets: release/v0.5.0
 
 ### Add Risk type with mitigates and exposes edges
-`01KZ75R2ZJGMNBHD82WZXPCNX4` · status: todo
+`01KZ75R2ZJGMNBHD82WZXPCNX4` · status: done
 - belongs-to: Risk and Acceptance concepts
 - references: [github#12](https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/12)
 - targets: release/v0.5.0

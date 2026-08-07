@@ -1,6 +1,6 @@
 # Add Risk type with mitigates and exposes edges
 
-`01KZ75R2ZJGMNBHD82WZXPCNX4` · story/feature · **open**
+`01KZ75R2ZJGMNBHD82WZXPCNX4` · story/feature · **done**
 
 Add a Risk concept type with mitigates and exposes edges, wired through TYPE_TO_DIR, CATALOGS, a template, and the curate hook's catalog list.
 

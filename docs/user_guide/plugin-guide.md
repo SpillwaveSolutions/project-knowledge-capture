@@ -155,6 +155,8 @@ Skipping 5 means the post-edit hook silently stops refreshing that catalog. Skip
 
 If the type is materialized from worklog, also add its fields to `FINGERPRINT_FIELDS` in `pkc_materialize.py` — otherwise changes to it will never trigger a re-render.
 
+If concepts of the new type point *at* an existing concept, decide whether the existing one needs an inverse edge. `pack()` walks outbound edges only, so an inbound-only concept never appears in its target's context pack. `Risk` and `Acceptance` (v0.5) are the worked examples.
+
 ## Frontmatter constraints
 
 Frontmatter is parsed by a hand-written YAML subset (`_parse_simple_yaml()`), not PyYAML. **Do not add a dependency** — the zero-dep property is what lets the plugin run on bare `python3` in any sandbox.

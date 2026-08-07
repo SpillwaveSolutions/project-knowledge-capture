@@ -43,7 +43,7 @@ links:
 | `originates_from` | DecisionRecord → Meeting/Experiment | Provenance |
 | `lands_in` | CodeChange/Feature → Release | Ships in release |
 | `released_in` | CodeChange/Feature → Release | Alias of lands_in |
-| `verified_by` | Test/Acceptance → Feature | Verification |
+| `verified_by` | Feature → Acceptance, Acceptance → CodeChange | Verification. Read it as "is verified by" |
 
 ## Rules
 
@@ -69,3 +69,20 @@ python3 scripts/pkc_link.py decisions/use-jwt-for-session.md \
 | `answers` | Decision/Discovery → Question | Resolves a question |
 | `validates` | Experiment/Evidence → Assumption | Confirms assumption |
 | `invalidates` | Experiment/Evidence → Assumption | Falsifies assumption |
+
+## v0.5 relations
+
+| rel | Direction | Meaning |
+|-----|-----------|---------|
+| `exposes` | Risk → Feature | The risk threatens this |
+| `mitigates` | Decision → Risk | The decision reduces the risk |
+| `satisfies` | Acceptance → Feature | Meeting this criterion satisfies part of the feature |
+
+Direction matters and is not symmetric. `Decision --mitigates--> Risk`, never
+the reverse: a risk does not mitigate anything. `pkc_capture.py risk
+--mitigated-by <decision>` therefore writes its edge on the *decision*.
+
+Because `pack()` walks outbound edges only, a concept that points at a Feature
+is invisible from that Feature's pack unless the Feature points back.
+`capture_acceptance` writes the inverse `Feature --verified_by--> Acceptance`
+for exactly this reason.

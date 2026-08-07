@@ -62,6 +62,8 @@ You get a `Meeting` concept, a separate `DecisionRecord` for each decision found
 | `/pkc-capture-decision` | You want a lightweight ADR without a meeting behind it |
 | `/pkc-capture-assumption` | A working hypothesis you are proceeding on but have not proven |
 | `/pkc-capture-question` | An open question that blocks a feature until answered |
+| `pkc_capture.py risk` | Something that could go wrong, and what holds it back |
+| `pkc_capture.py acceptance` | One checkable condition for calling a feature done |
 
 Assumptions and questions matter more than they look. They are the two things teams carry in their heads and lose when someone leaves.
 
@@ -120,6 +122,8 @@ Start tiny and escalate. A pack you actually read beats a complete one you skim.
 | Feature / Requirement | `features/`, `requirements/` | Formalized work |
 | Specification / Design | `specs/`, `designs/` | Plans and designs |
 | CodeChange / Release | `code/`, `releases/` | What shipped |
+| Risk | `risks/` | What could go wrong, with a severity |
+| Acceptance | `acceptance/` | One atomic condition that decides whether a Feature is done |
 | TicketLink | `tickets/` | A bridge to a work item; never the source of truth for status |
 
 Every concept is Markdown with YAML frontmatter. Open one and read it — that is the whole format.
