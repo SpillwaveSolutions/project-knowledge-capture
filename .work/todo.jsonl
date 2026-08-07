@@ -62,3 +62,4 @@
 {"actor":"richardhightower","ev":"01KZD89416G9J66YGDB4C33Q8K","item":"01KZ75R3EXEG4GVGRP2S9CCKZ4","op":"update","set":{"milestone":"v0.6.0"},"ts":"2026-08-07T04:39:08Z"}
 {"actor":"richardhightower","ev":"01KZD8946CNQHZ5MB68HTZDCAJ","item":"01KZ75R3M6BYQ643NKDCCSEEZC","op":"update","set":{"milestone":"v0.6.0"},"ts":"2026-08-07T04:39:08Z"}
 {"actor":"richardhightower","ev":"01KZD894BM6W0CPXPR29NC9WVG","item":"01KZ75R3S2X1G4PCTGMMSR8BWA","op":"update","set":{"milestone":"v0.6.0"},"ts":"2026-08-07T04:39:08Z"}
+{"actor":"richardhightower","ev":"01KZD8NK9KCXX2TRAYJ4RWYV6W","item":"01KZD893CKNBNZZSA51Q3C6HKS","op":"close","set":{"status":"done"},"ts":"2026-08-07T04:45:57Z"}

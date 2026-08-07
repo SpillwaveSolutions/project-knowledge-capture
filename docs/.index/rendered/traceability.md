@@ -3,7 +3,7 @@
 _The evidence chain: plan → item → ticket → code → release, forward and backward. Generated from `docs/.index/_graph.json`; do not edit._
 
 ### Release v0.5.0
-`01KZD893CKNBNZZSA51Q3C6HKS` · status: todo
+`01KZD893CKNBNZZSA51Q3C6HKS` · status: done
 
 ### pkc_pack misses concepts that point at the seed
 `01KZD6QRF62XDCPBDH5BN0H1RD` · status: todo
