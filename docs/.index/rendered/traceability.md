@@ -2,6 +2,9 @@
 
 _The evidence chain: plan → item → ticket → code → release, forward and backward. Generated from `docs/.index/_graph.json`; do not edit._
 
+### Release v0.5.0
+`01KZD893CKNBNZZSA51Q3C6HKS` · status: todo
+
 ### pkc_pack misses concepts that point at the seed
 `01KZD6QRF62XDCPBDH5BN0H1RD` · status: todo
 
@@ -32,19 +35,19 @@ _The evidence chain: plan → item → ticket → code → release, forward and 
 `01KZ75R3S2X1G4PCTGMMSR8BWA` · status: todo
 - belongs-to: MCP server mode
 - references: [github#17](https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/17)
-- targets: release/v0.5.0
+- targets: release/v0.6.0
 
 ### Expose validate over MCP
 `01KZ75R3M6BYQ643NKDCCSEEZC` · status: todo
 - belongs-to: MCP server mode
 - references: [github#16](https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/16)
-- targets: release/v0.5.0
+- targets: release/v0.6.0
 
 ### Expose pack over MCP
 `01KZ75R3EXEG4GVGRP2S9CCKZ4` · status: todo
 - belongs-to: MCP server mode
 - references: [github#15](https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/15)
-- targets: release/v0.5.0
+- targets: release/v0.6.0
 
 ### Cover Risk and Acceptance in sample-knowledge
 `01KZ75R39PENN65G92HKA108H3` · status: done
@@ -86,19 +89,19 @@ _The evidence chain: plan → item → ticket → code → release, forward and 
 `01KZ75R2ADREHM3JD22V5C5HE7` · status: todo
 - belongs-to: Agent auto-context injection
 - references: [github#8](https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/8)
-- targets: release/v0.5.0
+- targets: release/v0.6.0
 
 ### Inject tiny pack for the detected Feature
 `01KZ75R254CS97W8MNX9CV3SNF` · status: todo
 - belongs-to: Agent auto-context injection
 - references: [github#7](https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/7)
-- targets: release/v0.5.0
+- targets: release/v0.6.0
 
 ### Detect Feature path or ULID in agent context
 `01KZ75R1ZYFEZVPWDY73CK4P4N` · status: todo
 - belongs-to: Agent auto-context injection
 - references: [github#6](https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/6)
-- targets: release/v0.5.0
+- targets: release/v0.6.0
 
 ### MCP server mode
 `01KZ75NQCMYGFYRCVJATEBVBRB` · status: todo

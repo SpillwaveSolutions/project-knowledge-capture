@@ -78,10 +78,10 @@
   {
    "canonical_key": "roadmap",
    "doc_type": "roadmap",
-   "generated_at": "2026-08-07T04:12:11Z",
+   "generated_at": "2026-08-07T04:39:08Z",
    "slug": "roadmap",
    "source": "docs/roadmap.md",
-   "source_hash": "22beae40",
+   "source_hash": "ba5bd29d",
    "title": "Roadmap",
    "truth_state": "current",
    "wiki": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Roadmap",
@@ -113,11 +113,27 @@
    "slug": "2026-08-06_v0.4.2-release",
    "source": "docs/roadmap/2026-08-06_v0.4.2-release.md",
    "source_hash": "59b91d72",
+   "superseded_by": "roadmap-snapshot/2026-08-07_v0.5.0-release",
    "supersedes": "roadmap-snapshot/2026-08-06_v0.4.1-release",
    "title": "Roadmap",
    "truth_state": "snapshot",
    "wiki": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Roadmap-2026-08-06_v0.4.2-release",
    "wiki_key": "roadmap-snapshot/2026-08-06_v0.4.2-release"
+  },
+  {
+   "canonical_key": "roadmap-snapshot/2026-08-07_v0.5.0-release",
+   "date": "2026-08-07",
+   "doc_type": "roadmap-snapshot",
+   "generated_at": "2026-08-07T04:12:11Z",
+   "name": "v0.5.0-release",
+   "release": "v0.5.0",
+   "slug": "2026-08-07_v0.5.0-release",
+   "source": "docs/roadmap/2026-08-07_v0.5.0-release.md",
+   "source_hash": "22beae40",
+   "supersedes": "roadmap-snapshot/2026-08-06_v0.4.2-release",
+   "title": "Roadmap",
+   "truth_state": "snapshot",
+   "wiki_key": "roadmap-snapshot/2026-08-07_v0.5.0-release"
   }
  ],
  "version": 1

@@ -1,5 +1,29 @@
 # Changelog
 
+## 0.5.0 — 2026-08-06
+
+Two new concept types. Minor bump: the plugin tree gains types, templates, and capture subcommands.
+
+### Added
+- **`Risk` concept type** (`risks/`) — what could go wrong, with a `severity` of low/medium/high/critical. New relations `exposes` (Risk → Feature) and `mitigates` (Decision → Risk).
+- **`Acceptance` concept type** (`acceptance/`) — one atomic, checkable condition for calling a Feature done, linked by `satisfies` to the Feature and `verified_by` to whatever proves it.
+- `pkc_capture.py risk` and `pkc_capture.py acceptance`, plus `templates/risk.md` and `templates/acceptance.md`.
+- Both types on the sample auth chain, so they are covered by validate, doctor, search, and the golden pack like every other type.
+- `concept_ref()` in `pkc_common.py` — normalizes a concept reference that may be an absolute path, a relative path, or a bare title.
+- **Incremental materialize is now verifiable.** Fingerprint short-circuits report a distinct `unchanged` action, separate from `write_concept()`'s `skipped`. CI asserts every action is `unchanged` on a second run.
+- `tools/ci-local.sh` and `npm run ci` — 19 steps mirroring both CI workflows.
+
+### Fixed
+- **Relative concept paths were mangled.** Ten call sites did `t if t.startswith("/") else f"/{dir}/{slugify(t)}.md"`; `slugify` strips `/` and `.`, so `--decides features/user-auth.md` produced `/features/featuresuser-authmd.md`. All sites now use `concept_ref()`. Affects `--decides`, `--informs`, `--links-to`, `--for`, `--originates-from`, `--blocks`, and `pkc_pr_capture`'s `--implements`.
+- Capture warns on stderr when an inverse-edge target does not exist, instead of dropping the edge silently.
+
+### Notes
+- **Edge direction is not symmetric.** `Decision --mitigates--> Risk`, never the reverse. `--mitigated-by` therefore writes its edge on the decision.
+- **`pack()` walks outbound edges only**, so a concept pointing at a Feature does not appear in that Feature's pack unless the Feature points back. `capture_acceptance` writes the inverse `Feature --verified_by--> Acceptance` for this reason. The general fix — a reverse index in `pack()` — is tracked, not shipped.
+- The golden auth pack grows from 9 to 12 nodes. The tiny pack now sits exactly on its 8-node ceiling.
+- Stories still open under the v0.5.0 milestone (agent auto-context injection, MCP server mode) were re-milestoned to **v0.6.0** rather than left claiming a shipped version.
+- GitHub Actions resumed producing runs during this release, after the blackout recorded in 0.4.2. This release is verified by both CI and `npm run ci`.
+
 ## 0.4.2 — 2026-08-06
 
 Documentation release. No plugin code changed.

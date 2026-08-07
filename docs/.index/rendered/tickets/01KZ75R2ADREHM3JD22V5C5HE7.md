@@ -10,7 +10,7 @@ Auto-injection must be opt-out.
 
 ## Release
 
-- [[Release-v0.5.0]]
+- [[Release-v0.6.0]]
 
 ## Related tickets
 
