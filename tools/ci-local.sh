@@ -72,6 +72,14 @@ step "second run reports 0 created" bash -c "
   python3 scripts/pkc_materialize.py --repo $TMP/mat --bundle knowledge --fold tests/fixtures/fold.json >/dev/null
   python3 scripts/pkc_materialize.py --repo $TMP/mat --bundle knowledge --fold tests/fixtures/fold.json \
     | grep -q '0 created'"
+# `0 created` was true before incremental materialize existed. `unchanged`
+# (short-circuited on fingerprint) vs `skipped` (rendered, then discarded) is
+# the distinction that actually proves nothing was rendered.
+step "re-materialize renders nothing" bash -c "
+  python3 scripts/pkc_materialize.py --repo $TMP/mat --bundle knowledge \
+    --fold tests/fixtures/fold.json --json > $TMP/mat3.json
+  python3 -c \"import json; r=json.load(open('$TMP/mat3.json'))['results']; \
+    a={x['action'] for x in r}; assert a == {'unchanged'}, a\""
 
 echo "== worklog invariants =="
 step "hooks/pre-commit" env WORKLOG_SKIP_BRANCH_GUARD=1 hooks/pre-commit

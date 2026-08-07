@@ -330,7 +330,7 @@
   },
   "item/01KZ75R2TEF13SKZYZ3DSBS5BZ": {
    "doc_type": "item",
-   "status": "todo",
+   "status": "done",
    "title": "Assert zero-write re-materialize in CI"
   },
   "item/01KZ75R2ZJGMNBHD82WZXPCNX4": {
@@ -392,6 +392,11 @@
    "doc_type": "item",
    "status": "done",
    "title": "Add tools/ci-local.sh mirroring both CI workflows"
+  },
+  "item/01KZD15ZR0JEKW6FA0HXM7W9CG": {
+   "doc_type": "item",
+   "status": "todo",
+   "title": "Re-materialize with no changes still churns catalogs and log"
   },
   "release/v0.4.1": {
    "doc_type": "release"

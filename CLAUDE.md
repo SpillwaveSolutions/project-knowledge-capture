@@ -52,6 +52,8 @@ All concept writes go through `write_concept()` in `pkc_common.py`. It owns the 
 
 Materialized concepts additionally carry `source_fingerprint` — a hash of the worklog fields that reach the rendered output (`FINGERPRINT_FIELDS` in `pkc_materialize.py`). On the next run a matching fingerprint short-circuits *before* the frontmatter and body are built, so unchanged items never reach `write_concept()`. Adding a field to the rendered concept means adding it to `FINGERPRINT_FIELDS`, or that field will never trigger a re-render.
 
+`pkc_materialize.py` reports these as **`unchanged`**, distinct from `write_concept()`'s **`skipped`**. The split is load-bearing: `skipped` means rendered, compared, and discarded — which was already happening before fingerprints existed. Only `unchanged` proves nothing was rendered, and CI asserts on exactly that.
+
 Bypassing this function (writing Markdown directly) breaks idempotency and the truth-state contract.
 
 ### Concept types → directories

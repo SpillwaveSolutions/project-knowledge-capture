@@ -98,6 +98,8 @@ Idempotency is not a feature bolted on top; it is this function's return value. 
 
 *Sharp edge:* a field added to the rendered concept but not to `FINGERPRINT_FIELDS` will never trigger a re-render.
 
+*Observability:* short-circuited items report `unchanged`; `write_concept()`'s byte-identical result reports `skipped`. Keeping them distinct is what makes the optimization verifiable from outside the process — an mtime check cannot tell them apart, because `write_concept()` declined to write in both cases even before fingerprints existed.
+
 ### 6.4 Bundle root resolution
 
 `resolve_knowledge_root()` (`scripts/pkc_common.py`, lines 158–167) resolves in strict order: explicit `--bundle` → `.pkc/config.yml` `knowledge_root` → the first of `knowledge/`, `sample-knowledge/`, `.okf/` that contains an `index.md`.

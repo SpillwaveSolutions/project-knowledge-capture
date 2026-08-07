@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import json
 import shutil
 import subprocess
@@ -18,11 +19,18 @@ sys.path.insert(0, str(SCRIPTS))
 from pkc_common import (  # noqa: E402
     add_typed_link,
     ensure_bundle,
+    iter_concepts,
     parse_frontmatter,
     path_for_type,
     slugify,
     write_concept,
 )
+
+
+def mtimes(bundle: Path) -> dict[str, int]:
+    """Concept path -> mtime_ns. Uses iter_concepts so the generated catalog
+    indexes and log.md — which are rewritten every run by design — stay out."""
+    return {str(p.relative_to(bundle)): p.stat().st_mtime_ns for p in iter_concepts(bundle)}
 from pkc_capture import capture_decision, capture_meeting  # noqa: E402
 from pkc_materialize import main as materialize_main  # noqa: E402
 
@@ -236,13 +244,17 @@ class TestIncrementalMaterialize(unittest.TestCase):
         shutil.rmtree(self.tmp)
 
     def run_fold(self, item):
+        """Materialize a one-item fold; returns the parsed --json report."""
         fold = self.tmp / "fold.json"
         fold.write_text(json.dumps([item]), encoding="utf-8")
-        rc = materialize_main(
-            ["--repo", str(self.tmp), "--bundle", "knowledge",
-             "--fold", str(fold), "--include", "features,tickets"]
-        )
+        out = self.tmp / "report.json"
+        with out.open("w") as fh, contextlib.redirect_stdout(fh):
+            rc = materialize_main(
+                ["--repo", str(self.tmp), "--bundle", "knowledge", "--json",
+                 "--fold", str(fold), "--include", "features,tickets"]
+            )
         self.assertEqual(rc, 0)
+        return json.loads(out.read_text())["results"]
 
     def feature_file(self):
         hits = [p for p in (self.bundle / "features").glob("*.md") if p.name != "index.md"]
@@ -281,6 +293,33 @@ class TestIncrementalMaterialize(unittest.TestCase):
         after = parse_frontmatter(after_text)[0]
         self.assertNotEqual(before.get("source_fingerprint"), after.get("source_fingerprint"))
         self.assertIn("Rewritten body.", after_text)
+
+    def test_rerun_reports_unchanged_not_skipped(self):
+        """Short-circuited items report `unchanged`, distinct from `skipped`.
+
+        Neither mtimes nor `0 created` can prove incremental materialize
+        works: write_concept() already declined to write byte-identical
+        content before the fingerprint existed, so both were true either
+        way. A distinct action label is the only signal visible from
+        outside the process -- which is what CI needs.
+        """
+        self.run_fold(dict(self.ITEM))
+        report = self.run_fold(dict(self.ITEM))
+        actions = {r["action"] for r in report}
+        self.assertEqual(actions, {"unchanged"}, f"expected all unchanged, got {actions}")
+
+    def test_rerun_touches_no_files(self):
+        """Guards write_concept's byte-compare, NOT the fingerprint skip.
+
+        This passes with the fingerprint short-circuit removed -- verified.
+        Kept because it catches a different regression: materialize starting
+        to rewrite files whose content did not change.
+        """
+        self.run_fold(dict(self.ITEM))
+        before = mtimes(self.bundle)
+        self.assertTrue(before, "expected concepts on disk after the first run")
+        self.run_fold(dict(self.ITEM))
+        self.assertEqual(before, mtimes(self.bundle), "re-materialize rewrote files")
 
 
 class TestSampleKnowledge(unittest.TestCase):
