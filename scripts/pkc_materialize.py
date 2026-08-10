@@ -385,7 +385,7 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps({"bundle": str(bundle), "results": report}, indent=2))
     else:
         print(f"Bundle: {bundle}")
-        counts = {"created": 0, "updated": 0, "skipped": 0, "unchanged": 0}
+        counts = {"created": 0, "updated": 0, "skipped": 0, "unchanged": 0, "refused": 0}
         for r in report:
             counts[r["action"]] = counts.get(r["action"], 0) + 1
             print(f"  [{r['action']:9}] {r['type']:14} {r['path']}")

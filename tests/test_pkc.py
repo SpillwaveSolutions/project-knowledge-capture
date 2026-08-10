@@ -18,6 +18,7 @@ sys.path.insert(0, str(SCRIPTS))
 
 from pkc_common import (  # noqa: E402
     add_typed_link,
+    append_log,
     ensure_bundle,
     iter_concepts,
     parse_frontmatter,
@@ -25,6 +26,49 @@ from pkc_common import (  # noqa: E402
     slugify,
     write_concept,
 )
+
+
+class TestWriteConceptModes(unittest.TestCase):
+    def test_create_only_does_not_touch_an_existing_body(self):
+        """`merge` protects frontmatter, never the body. Right for re-capture,
+        catastrophic for a scaffolding pass re-run after enrichment."""
+        with tempfile.TemporaryDirectory() as td:
+            b = Path(td)
+            ensure_bundle(b)
+            fm = {"type": "Decision", "title": "X"}
+            write_concept(b, "decisions/x.md", fm, "# X\n\nEnriched body\n")
+            _, action = write_concept(b, "decisions/x.md", fm, "# X\n\nStub\n",
+                                      create_only=True)
+            self.assertEqual(action, "exists")
+            self.assertIn("Enriched body", (b / "decisions" / "x.md").read_text(encoding="utf-8"))
+
+    def test_default_still_replaces_the_body(self):
+        with tempfile.TemporaryDirectory() as td:
+            b = Path(td)
+            ensure_bundle(b)
+            fm = {"type": "Decision", "title": "X"}
+            write_concept(b, "decisions/x.md", fm, "# X\n\nOld\n")
+            _, action = write_concept(b, "decisions/x.md", fm, "# X\n\nNew\n")
+            self.assertEqual(action, "updated")
+
+
+class TestAppendLog(unittest.TestCase):
+    def test_entries_are_not_lost(self):
+        with tempfile.TemporaryDirectory() as td:
+            b = Path(td)
+            ensure_bundle(b)
+            for i in range(6):
+                append_log(b, f"entry {i}")
+            body = (b / "log.md").read_text(encoding="utf-8")
+        for i in range(6):
+            self.assertIn(f"entry {i}", body)
+
+    def test_no_sidecar_lock_file_is_left_in_the_bundle(self):
+        with tempfile.TemporaryDirectory() as td:
+            b = Path(td)
+            ensure_bundle(b)
+            append_log(b, "one")
+            self.assertEqual(list(b.glob("*.lock")), [])
 
 
 def mtimes(bundle: Path) -> dict[str, int]:
@@ -94,7 +138,8 @@ class TestWriteConcept(unittest.TestCase):
             },
             "# Changed\n",
         )
-        self.assertEqual(action, "skipped")
+        # Was "skipped", which made a refusal indistinguishable from a no-op.
+        self.assertEqual(action, "refused")
         text = (self.tmp / rel).read_text(encoding="utf-8")
         self.assertIn("snapshot", text)
         self.assertNotIn("# Changed", text)

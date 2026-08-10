@@ -46,8 +46,8 @@ Most scripts also take `--json` for machine-readable output — that's how CI as
 All concept writes go through `write_concept()` in `pkc_common.py`. It owns the invariants that everything else assumes:
 
 - **Merge** — existing frontmatter is preserved and updated key-by-key, never clobbered.
-- **`truth_state` barrier** — a file marked `snapshot` / `superseded` / `archived` is *skipped* by a `current` write unless `force: true` is passed in the frontmatter dict.
-- **Return code** — `"created" | "updated" | "skipped"`; identical content returns `skipped`, which is what makes re-running capture/materialize idempotent (and what CI's `0 created` check depends on).
+- **`truth_state` barrier** — a file marked `snapshot` / `superseded` / `archived` is *refused* by a `current` write unless `force: true` is passed in the frontmatter dict. It returns `refused`, not `skipped`: a rejected write must be distinguishable from a no-op.
+- **Return code** — `"created" | "updated" | "skipped" | "exists" | "refused"`. Identical content returns `skipped`, which is what makes re-running capture/materialize idempotent (and what CI's `0 created` check depends on). `exists` means `create_only=True` found the file already there; `refused` means the `truth_state` barrier blocked the write.
 - `stable_timestamp: true` keeps the original `timestamp` when title is unchanged, so re-captures don't churn diffs.
 
 Materialized concepts additionally carry `source_fingerprint` — a hash of the worklog fields that reach the rendered output (`FINGERPRINT_FIELDS` in `pkc_materialize.py`). On the next run a matching fingerprint short-circuits *before* the frontmatter and body are built, so unchanged items never reach `write_concept()`. Adding a field to the rendered concept means adding it to `FINGERPRINT_FIELDS`, or that field will never trigger a re-render.

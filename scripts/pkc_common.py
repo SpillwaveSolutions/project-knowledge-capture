@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import contextlib
 import hashlib
 import re
 import sys
@@ -366,12 +367,31 @@ def write_concept(
     body: str,
     *,
     merge: bool = True,
+    create_only: bool = False,
 ) -> tuple[Path, str]:
+    """Write a concept. Returns (path, action).
+
+    action is one of "created", "updated", "skipped", "exists", "refused".
+
+    - "skipped"  — content was byte-identical; nothing to do.
+    - "exists"   — create_only and the file was already there.
+    - "refused"  — a truth_state barrier blocked the write.
+
+    "refused" used to be reported as "skipped", so a rejected write was
+    indistinguishable from a no-op: a caller got back "skipped" and reported
+    success having written nothing.
+
+    create_only exists because `merge` protects frontmatter, never the body — a
+    non-empty body always wins, which is right for re-capture and wrong for a
+    scaffolding pass.
+    """
     path = bundle / rel_path.lstrip("/")
     path.parent.mkdir(parents=True, exist_ok=True)
     if "timestamp" not in frontmatter:
         frontmatter = {**frontmatter, "timestamp": utc_now()}
     if path.is_file():
+        if create_only:
+            return path, "exists"
         existing = path.read_text(encoding="utf-8")
         if merge:
             old_fm, old_body = parse_frontmatter(existing)
@@ -380,7 +400,7 @@ def write_concept(
                 "truth_state", "current"
             ) == "current":
                 if not frontmatter.get("force"):
-                    return path, "skipped"
+                    return path, "refused"
             new_fm = {**old_fm, **{k: v for k, v in frontmatter.items() if k != "force"}}
             if "timestamp" in old_fm and old_fm.get("title") == new_fm.get("title"):
                 if frontmatter.get("stable_timestamp"):
@@ -450,8 +470,52 @@ def refresh_catalog_index(bundle: Path, catalog: str) -> None:
     index.write_text(dump_frontmatter(fm) + "\n" + body, encoding="utf-8")
 
 
+@contextlib.contextmanager
+def _file_lock(target: Path):
+    """Advisory lock around a whole-file read-modify-write.
+
+    `append_log` and `refresh_catalog_index` both read a file, edit it in memory
+    and write it back. Two processes whose read/write windows overlap lose one
+    side's change silently. Not hypothetical here: pkc-curate.sh fires a catalog
+    refresh from a PostToolUse hook on every edit.
+
+    O_APPEND is not usable for the log: entries are inserted under today's
+    heading mid-file, not appended at the end.
+
+    Locks the target file itself rather than a sidecar `.lock`, so nothing extra
+    is left in the bundle for `git status` or a directory walk to trip over.
+
+    Best-effort: fcntl is POSIX-only and some filesystems refuse it, so failing
+    to lock degrades to the previous behaviour rather than blocking a capture.
+    """
+    fh = None
+    try:
+        target.parent.mkdir(parents=True, exist_ok=True)
+        fh = open(target, "a+")
+        try:
+            import fcntl
+
+            fcntl.flock(fh.fileno(), fcntl.LOCK_EX)
+        except Exception:
+            pass
+        yield
+    except OSError:
+        yield
+    finally:
+        if fh is not None:
+            try:
+                fh.close()
+            except Exception:
+                pass
+
+
 def append_log(bundle: Path, message: str) -> None:
     log = bundle / "log.md"
+    with _file_lock(log):
+        _append_log_locked(log, message)
+
+
+def _append_log_locked(log: Path, message: str) -> None:
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     entry = f"- {utc_now()}: {message}\n"
     if not log.is_file():
