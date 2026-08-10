@@ -248,6 +248,33 @@ def _is_quoted(value: str) -> bool:
     )
 
 
+def _unescape(s: str) -> str:
+    """Reverse the escaping `_fmt_scalar` applies to a quoted scalar.
+
+    Without this, `parse(dump(x)) != x` for any value containing a quote or a
+    backslash: the dumper escapes, the reader only strips the quotes, and every
+    read-modify-write cycle re-escapes what was already escaped. Backslash count
+    doubles per pass, so a script that edits one field corrupts every quoted
+    string in the file.
+
+    It is also self-concealing -- reading the file back with this same parser
+    returns a value that looks right, because the escaping is never undone, so
+    the damage lives only in the bytes on disk.
+
+    Single-pass, so a literal backslash-quote in the source survives intact.
+    """
+    out: list[str] = []
+    i = 0
+    while i < len(s):
+        if s[i] == "\\" and i + 1 < len(s) and s[i + 1] in ('"', "\\"):
+            out.append(s[i + 1])
+            i += 2
+        else:
+            out.append(s[i])
+            i += 1
+    return "".join(out)
+
+
 def _scalar(value: str) -> Any:
     if value.startswith("[") and value.endswith("]"):
         inner = value[1:-1].strip()
@@ -255,7 +282,7 @@ def _scalar(value: str) -> Any:
             return []
         return [_scalar(p.strip()) for p in _split_csv(inner)]
     if _is_quoted(value):
-        return value[1:-1]
+        return _unescape(value[1:-1])
     if value.lower() in ("true", "yes"):
         return True
     if value.lower() in ("false", "no"):
