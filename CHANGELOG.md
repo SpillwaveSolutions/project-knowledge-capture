@@ -1,5 +1,63 @@
 # Changelog
 
+## 0.6.0 — 2026-08-10
+
+Seven fixes, found by running this plugin alongside `system-architecture-capture`
+and `data-engineering-knowledge-capture` against a single shared bundle.
+
+### Fixed
+
+- **Frontmatter round-trip doubled backslash escaping.** `_fmt_scalar` escaped
+  backslashes and quotes; `_scalar` stripped only the surrounding quotes. Every
+  write-modify-write cycle re-escaped already-escaped text, so a script editing
+  one field corrupted every quoted string in the file. Self-concealing: reading
+  back with the same parser returned a value that looked correct, so the damage
+  lived only in the bytes on disk. (#32)
+
+- **A bracketed concept title dropped the catalog edge, at both renderers.**
+  `[AREA] Thing` rendered as `[[AREA] Thing](/cat/x.md)`, which the graph
+  reader's link regex cannot match — a *missing* edge rather than a broken one,
+  which `validate` does not report. Both `ensure_catalog_index` and
+  `refresh_catalog_index` interpolated the title raw; they now share one escape
+  helper. This half needs the matching reader change to take effect: escaping
+  does not rescue a reader whose label class is `[^\]]+`. (#31)
+
+- **`refresh_catalog_index` accepted any catalog name**, so a caller could drive
+  this renderer over a sibling plugin's catalog. It now refuses catalogs this
+  plugin does not declare. This alone does *not* stabilise a shared bundle — for
+  a catalog two plugins both declare it passes in both. (#34)
+
+- **`resolve_knowledge_root` fell through to `sample-knowledge/` in silence.**
+  The order is documented; the gap was that only `pkc_materialize` announced
+  which bundle it used. It now names the intended and actual root on stderr.
+  This repo ships a `sample-knowledge/`, so a capture run inside a clone wrote
+  there. The configured root still wins whenever it is usable. (#33)
+
+- **`append_log` lost concurrent updates.** Whole-file read-modify-write with no
+  synchronisation, and `pkc-curate.sh` fires a catalog refresh from a
+  `PostToolUse` hook on every edit. Takes an advisory `flock` on the target file
+  itself, so no sidecar `.lock` is left in the bundle. `O_APPEND` is not usable:
+  entries are inserted under today's heading mid-file. (#37)
+
+### Added
+
+- **`write_concept(..., create_only=True)`.** `merge` protects frontmatter,
+  never the body — correct for re-capture, and the reason a scaffolding pass
+  re-run after enrichment flattens concepts back to stubs. Default behaviour
+  unchanged and now pinned by a test. (#35)
+
+### Changed
+
+- **`write_concept` now returns `"refused"` for a `truth_state` barrier**,
+  distinct from `"skipped"`. Previously a rejected write was indistinguishable
+  from a byte-identical no-op, so a caller reported success having written
+  nothing. **Breaking**: the documented return contract, the test that pinned
+  it, and `pkc_materialize`'s counts all move with it. CI's `0 created`
+  assertion is unaffected — identical content still returns `"skipped"`. This
+  mirrors the existing `unchanged` / `skipped` split, which `CLAUDE.md` already
+  calls load-bearing. (#36)
+
+
 ## 0.5.0 — 2026-08-06
 
 Two new concept types. Minor bump: the plugin tree gains types, templates, and capture subcommands.
