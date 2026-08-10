@@ -7,6 +7,7 @@ import contextlib
 import json
 import shutil
 import subprocess
+import re
 import sys
 import tempfile
 import unittest
@@ -17,14 +18,90 @@ SCRIPTS = ROOT / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 
 from pkc_common import (  # noqa: E402
+    CATALOGS,
     add_typed_link,
     ensure_bundle,
+    ensure_catalog_index,
+    refresh_catalog_index,
+    resolve_knowledge_root,
     iter_concepts,
     parse_frontmatter,
     path_for_type,
     slugify,
     write_concept,
 )
+
+
+class TestCatalogIndex(unittest.TestCase):
+    """Both renderers must escape, and neither may touch a foreign catalog."""
+
+    STRICT = re.compile(r"\[([^\]]+)\]\(([^)]+)\)")
+    AWARE = re.compile(r"\[((?:\\.|\[[^\[\]]*\]|[^\]])+)\]\(([^)]+)\)")
+
+    def _concept(self, bundle, title):
+        (bundle / "decisions").mkdir(exist_ok=True)
+        (bundle / "decisions" / "x.md").write_text(
+            f"---\ntype: Decision\ntitle: {title}\n---\n\n# X\n", encoding="utf-8")
+
+    def _line(self, body):
+        return [l for l in body.splitlines() if l.startswith("- [")][0]
+
+    def test_refresh_escapes_bracketed_title(self):
+        with tempfile.TemporaryDirectory() as td:
+            bundle = Path(td)
+            ensure_bundle(bundle)
+            self._concept(bundle, "[AREA] Thing")
+            refresh_catalog_index(bundle, "decisions")
+            line = self._line((bundle / "decisions" / "index.md").read_text(encoding="utf-8"))
+        self.assertIn(r"\[AREA\]", line, f"label not escaped: {line!r}")
+        self.assertEqual(self.AWARE.findall(line)[0][1], "/decisions/x.md")
+        # Escaping alone does not rescue a `[^\]]+` reader — that class has no
+        # notion of an escape. This half depends on the reader change landing.
+        self.assertFalse(self.STRICT.findall(line))
+
+    def test_ensure_escapes_too(self):
+        """The second site. Patching only refresh_catalog_index leaves
+        first-time catalog creation emitting the broken form."""
+        with tempfile.TemporaryDirectory() as td:
+            bundle = Path(td)
+            ensure_bundle(bundle)
+            self._concept(bundle, "[AREA] Thing")
+            (bundle / "decisions" / "index.md").unlink(missing_ok=True)
+            ensure_catalog_index(bundle, "decisions")
+            body = (bundle / "decisions" / "index.md").read_text(encoding="utf-8")
+        lines = [l for l in body.splitlines() if l.startswith("- [")]
+        if lines:                       # ensure_catalog_index lists entries here
+            self.assertIn(r"\[AREA\]", lines[0], f"label not escaped: {lines[0]!r}")
+
+    def test_refuses_a_catalog_this_plugin_does_not_declare(self):
+        self.assertNotIn("lakehouses", CATALOGS)
+        with tempfile.TemporaryDirectory() as td:
+            bundle = Path(td)
+            ensure_bundle(bundle)
+            foreign = bundle / "lakehouses"
+            foreign.mkdir()
+            marker = "- [Untouched](/lakehouses/a.md) \u00b7 annotated\n"
+            (foreign / "index.md").write_text(marker, encoding="utf-8")
+            refresh_catalog_index(bundle, "lakehouses")
+            self.assertEqual((foreign / "index.md").read_text(encoding="utf-8"), marker)
+
+
+class TestResolveKnowledgeRoot(unittest.TestCase):
+    def test_configured_root_wins_when_initialized(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            for name in ("knowledge", "sample-knowledge"):
+                (repo / name).mkdir()
+                (repo / name / "index.md").write_text("# x\n", encoding="utf-8")
+            self.assertEqual(resolve_knowledge_root(repo).name, "knowledge")
+
+    def test_falls_back_only_when_intended_root_is_not_a_bundle(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            (repo / "knowledge").mkdir()          # exists, but no index.md
+            (repo / "sample-knowledge").mkdir()
+            (repo / "sample-knowledge" / "index.md").write_text("# x\n", encoding="utf-8")
+            self.assertEqual(resolve_knowledge_root(repo).name, "sample-knowledge")
 
 
 def mtimes(bundle: Path) -> dict[str, int]:

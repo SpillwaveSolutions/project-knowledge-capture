@@ -167,10 +167,22 @@ def resolve_knowledge_root(repo_root: Path, override: str | None = None) -> Path
         return root if root.is_absolute() else (repo_root / root)
     cfg = load_config(repo_root)
     name = cfg.get("knowledge_root") or "knowledge"
-    for candidate in (repo_root / name, repo_root / "sample-knowledge", repo_root / ".okf"):
+    intended = repo_root / name
+    for candidate in (intended, repo_root / "sample-knowledge", repo_root / ".okf"):
         if candidate.is_dir() and (candidate / "index.md").is_file():
+            # Say so when we did NOT land on the intended root. The docs do
+            # describe this order, but falling through to `sample-knowledge/` is
+            # easy to hit -- the plugin repo ships one, so a capture run inside a
+            # clone before initializing a bundle writes there -- and only one of
+            # the entry points announced the bundle it used.
+            if candidate != intended:
+                print(
+                    f"pkc: '{intended}' is not an initialized bundle; "
+                    f"using '{candidate}' instead. Pass --bundle to be explicit.",
+                    file=sys.stderr,
+                )
             return candidate
-    return repo_root / name
+    return intended
 
 
 def _parse_simple_yaml(text: str) -> dict[str, Any]:
@@ -402,6 +414,20 @@ def write_concept(
     return path, "created"
 
 
+def _escape_link_label(label: str) -> str:
+    """Make a concept title safe to use as a Markdown link label.
+
+    An unescaped `[AREA]` title renders as `[[AREA]](/cat/x.md)`, which the OKF
+    graph reader's link regex cannot match. That yields a MISSING edge rather
+    than a broken one, and validate reports only broken edges -- so the concept
+    silently loses its catalog backlink. Bracketed titles are ordinary in
+    exported wiki content.
+
+    One helper, used by both catalog renderers, so they cannot drift apart.
+    """
+    return label.replace("[", "\\[").replace("]", "\\]")
+
+
 def ensure_catalog_index(bundle: Path, catalog: str, title: str | None = None) -> Path:
     cat_dir = bundle / catalog
     cat_dir.mkdir(parents=True, exist_ok=True)
@@ -421,7 +447,7 @@ def ensure_catalog_index(bundle: Path, catalog: str, title: str | None = None) -
         if p.name == "index.md":
             continue
         fm_c, _ = parse_frontmatter(p.read_text(encoding="utf-8"))
-        label = fm_c.get("title") or p.stem
+        label = _escape_link_label(fm_c.get("title") or p.stem)
         body += f"- [{label}](/{catalog}/{p.name})\n"
     if body.endswith(":\n\n"):
         body += "_None yet._\n"
@@ -430,6 +456,17 @@ def ensure_catalog_index(bundle: Path, catalog: str, title: str | None = None) -
 
 
 def refresh_catalog_index(bundle: Path, catalog: str) -> None:
+    # Refuse catalogs this plugin does not declare. Bundles are routinely shared
+    # with the sibling capture plugins, which own catalogs we know nothing about
+    # and render them differently, so driving this renderer over one of theirs
+    # rewrites their file into our format. Every built-in caller passes a
+    # declared catalog; the exposure is an outside caller iterating directories.
+    #
+    # This does NOT make a shared bundle stable on its own: for a catalog two
+    # plugins both declare, the guard passes in both. That needs the renderers
+    # to agree on a format, which is a cross-repo conversation.
+    if catalog not in CATALOGS:
+        return
     cat_dir = bundle / catalog
     if not cat_dir.is_dir():
         return
@@ -444,7 +481,7 @@ def refresh_catalog_index(bundle: Path, catalog: str) -> None:
         if p.name == "index.md":
             continue
         fm_c, _ = parse_frontmatter(p.read_text(encoding="utf-8"))
-        label = fm_c.get("title") or p.stem
+        label = _escape_link_label(fm_c.get("title") or p.stem)
         entries.append(f"- [{label}](/{catalog}/{p.name})")
     body += "\n".join(entries) + ("\n" if entries else "_None yet._\n")
     index.write_text(dump_frontmatter(fm) + "\n" + body, encoding="utf-8")
