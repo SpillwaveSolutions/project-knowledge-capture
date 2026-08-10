@@ -18,6 +18,7 @@ sys.path.insert(0, str(SCRIPTS))
 
 from pkc_common import (  # noqa: E402
     add_typed_link,
+    dump_frontmatter,
     ensure_bundle,
     iter_concepts,
     parse_frontmatter,
@@ -25,6 +26,36 @@ from pkc_common import (  # noqa: E402
     slugify,
     write_concept,
 )
+
+
+class TestFrontmatterRoundTrip(unittest.TestCase):
+    """parse(dump(x)) == x.
+
+    Regression: `_fmt_scalar` escaped backslashes and quotes on write, `_scalar`
+    stripped only the surrounding quotes on read. Every write-modify-write cycle
+    re-escaped already-escaped text, doubling the backslash count each pass, so
+    a script that edited one field corrupted every quoted string in the file.
+    Self-concealing too: reading back with the same parser looked correct.
+    """
+
+    VALUES = ['[{"a":"b"}]', "back\\slash", 'quote"inside', 'both\\"mixed', ":colon", "plain"]
+
+    def test_single_round_trip_is_identity(self):
+        for v in self.VALUES:
+            with self.subTest(value=v):
+                fm = {"type": "Concept", "title": "T", "v": v}
+                self.assertEqual(parse_frontmatter(dump_frontmatter(fm))[0]["v"], v)
+
+    def test_repeated_round_trips_do_not_grow(self):
+        fm = {"type": "Concept", "title": "T", "sources_json": '[{"a":"b"}]'}
+        first = None
+        for _ in range(5):
+            text = dump_frontmatter(fm)
+            line = [l for l in text.splitlines() if l.startswith("sources_json")][0]
+            if first is None:
+                first = line
+            self.assertEqual(line, first, "escaping grew across a round trip")
+            fm, _ = parse_frontmatter(text)
 
 
 def mtimes(bundle: Path) -> dict[str, int]:
