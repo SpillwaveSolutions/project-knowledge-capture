@@ -300,7 +300,7 @@
   },
   "item/01KZ75NC58VJD8E219BYAYPBPA": {
    "doc_type": "item",
-   "status": "todo",
+   "status": "done",
    "title": "Agent auto-context injection"
   },
   "item/01KZ75NQ2VDVFD3R9F0SV38YEN": {
@@ -320,17 +320,17 @@
   },
   "item/01KZ75R1ZYFEZVPWDY73CK4P4N": {
    "doc_type": "item",
-   "status": "todo",
+   "status": "done",
    "title": "Detect Feature path or ULID in agent context"
   },
   "item/01KZ75R254CS97W8MNX9CV3SNF": {
    "doc_type": "item",
-   "status": "todo",
+   "status": "done",
    "title": "Inject tiny pack for the detected Feature"
   },
   "item/01KZ75R2ADREHM3JD22V5C5HE7": {
    "doc_type": "item",
-   "status": "todo",
+   "status": "done",
    "title": "Gate injection behind pack.auto_inject_on_feature"
   },
   "item/01KZ75R2FPH92VY79KNR6MP59E": {
@@ -422,6 +422,11 @@
    "doc_type": "item",
    "status": "done",
    "title": "Release v0.5.0"
+  },
+  "item/01KZWJ2MP422DZAZ9A08R8QTJ0": {
+   "doc_type": "item",
+   "status": "done",
+   "title": "CI py_compile list drifted five scripts behind"
   },
   "release/v0.4.1": {
    "doc_type": "release"

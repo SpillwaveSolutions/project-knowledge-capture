@@ -21,7 +21,7 @@ npm run doctor                               # pkc_doctor on sample-knowledge
 npm run dev                                  # docs preview server on :8080
 ```
 
-There is no build step and no lint config. `npm run typecheck` and CI both hard-code the script list — **add new `scripts/pkc_*.py` to `package.json` and `.github/workflows/ci.yml`** or they go unchecked.
+There is no build step and no lint config. `npm run typecheck` and CI both `py_compile scripts/pkc_*.py`, so a new script is covered the moment it lands. (Both used to hard-code the list; the CI copy had silently drifted five scripts behind since 0.4.0.)
 
 CI (`.github/workflows/ci.yml`) is the real spec: it runs the suite, compiles scripts, validates + doctors `sample-knowledge`, asserts the golden pack shape (`node_count>=5`, tiny `<=8` nodes / 1 hop, mermaid emits `flowchart`), exercises search/digest/release-notes/thread/ADR fixtures, and asserts re-running `pkc_materialize.py` on the same fold reports **`0 created`**. Reproduce a CI failure by running that step's command verbatim.
 
@@ -69,7 +69,7 @@ Edges are typed and live in two places at once: `links: [{target, rel}]` in fron
 1. `skills/<name>/SKILL.md` — the agent procedure (frontmatter `name` + `description`; the description is what triggers it)
 2. `commands/<name>.md` — thin wrapper that says "run the `<name>` skill", passing `$ARGUMENTS`
 3. `scripts/pkc_<name>.py` — the deterministic part
-4. CI step + `package.json` `typecheck` list + README/AGENTS.md tables
+4. CI step (`.github/workflows/ci.yml` **and** `tools/ci-local.sh`) + README/AGENTS.md tables
 
 Skills reference scripts as `"${CLAUDE_PLUGIN_ROOT}/scripts/…"` — never a relative path, since the plugin runs from an install directory, not the repo.
 
@@ -77,7 +77,9 @@ Skills reference scripts as `"${CLAUDE_PLUGIN_ROOT}/scripts/…"` — never a re
 
 Do not "tidy" this directory — it is deliberately dual-purpose:
 
-- `hooks/hooks.json` — the **Claude plugin** manifest. Fires `scripts/pkc-curate.sh` on `Write|Edit|MultiEdit`. It walks up from the edited file looking for an `index.md` containing `okf_version` (or `.okf/`, `knowledge/`), refreshes that catalog's `index.md`, and runs a non-fatal validate. Silent no-op outside a bundle — keep it that way; a hook that errors blocks edits.
+- `hooks/hooks.json` — the **Claude plugin** manifest, registering two hooks at opposite ends of a turn:
+  - `UserPromptSubmit` → `scripts/pkc_auto_context.py`. Detects a `features/` path (that exists, and is `type: Feature`) or a ULID matching a Feature's `worklog_id`, and emits that Feature's tiny pack as `hookSpecificOutput.additionalContext`. Gated by `pkc.pack.auto_inject_on_feature`. **Silence is the contract** — its stdout lands in context on every single turn, so detection stays narrow and every failure path exits 0 printing nothing. Both halves are asserted in CI; a loose matcher here is a permanent context tax.
+  - `PostToolUse` on `Write|Edit|MultiEdit` → `scripts/pkc-curate.sh`. Walks up from the edited file looking for an `index.md` containing `okf_version` (or `.okf/`, `knowledge/`), refreshes that catalog's `index.md`, and runs a non-fatal validate. Silent no-op outside a bundle — keep it that way; a hook that errors blocks edits.
 - `hooks/pre-commit`, `hooks/pre-merge-commit`, `hooks/commit-msg` — **git** hooks installed by worklog, active via `git config core.hooksPath hooks`.
 
 They don't shadow each other: `hooks.json` is not a valid git hook name, so git ignores it.

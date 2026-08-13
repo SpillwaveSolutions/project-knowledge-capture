@@ -801,6 +801,133 @@ class TestAdrImport(unittest.TestCase):
             shutil.rmtree(tmp)
 
 
+from pkc_auto_context import detect_feature, build_injection  # noqa: E402
+
+FEATURE_ULID = "01KZ75R1ZYFEZVPWDY73CK4P4N"
+
+
+class TestAutoContext(unittest.TestCase):
+    """A Feature named in a prompt pulls its tiny pack into context.
+
+    Detection is deliberately narrow: only a `features/` path or a ULID that
+    resolves to a concept of type Feature. Anything looser injects on prompts
+    that never meant to ask about a Feature, and an injection nobody wanted is
+    worse than none -- it costs context on every turn.
+    """
+
+    def setUp(self):
+        self.repo = Path(tempfile.mkdtemp())
+        self.bundle = self.repo / "knowledge"
+        ensure_bundle(self.bundle, "Test")
+        write_concept(
+            self.bundle,
+            "features/user-authentication.md",
+            {
+                "type": "Feature",
+                "title": "User authentication",
+                "description": "Sign-in with sessions",
+                "timestamp": "2026-08-03T00:00:00Z",
+                "worklog_id": FEATURE_ULID,
+                "links": [{"target": "/decisions/use-jwt.md", "rel": "decided_by"}],
+            },
+            "# User authentication\n\nSessions expire in 15 minutes.\n",
+            merge=False,
+        )
+        write_concept(
+            self.bundle,
+            "decisions/use-jwt.md",
+            {
+                "type": "DecisionRecord",
+                "title": "Use JWT",
+                "description": "d",
+                "timestamp": "2026-08-03T00:00:00Z",
+            },
+            "# Use JWT\n",
+            merge=False,
+        )
+
+    def tearDown(self):
+        shutil.rmtree(self.repo)
+
+    def _hook(self, prompt: str) -> str:
+        proc = subprocess.run(
+            [sys.executable, str(ROOT / "scripts/pkc_auto_context.py")],
+            input=json.dumps({"prompt": prompt, "cwd": str(self.repo)}),
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        return proc.stdout
+
+    # -- detection ------------------------------------------------------
+    def test_detects_feature_path_in_prompt(self):
+        for prompt in (
+            "why did we pick JWT in features/user-authentication.md?",
+            "look at `/features/user-authentication.md`",
+            "recap features/user-authentication for me",
+        ):
+            with self.subTest(prompt=prompt):
+                self.assertEqual(
+                    detect_feature(self.bundle, prompt),
+                    "/features/user-authentication.md",
+                )
+
+    def test_detects_ulid_that_maps_to_a_feature(self):
+        self.assertEqual(
+            detect_feature(self.bundle, f"what is the story on {FEATURE_ULID}"),
+            "/features/user-authentication.md",
+        )
+
+    def test_ignores_a_non_feature_concept(self):
+        self.assertIsNone(detect_feature(self.bundle, "read decisions/use-jwt.md"))
+
+    def test_ignores_a_ulid_with_no_concept(self):
+        self.assertIsNone(
+            detect_feature(self.bundle, "close 01KZ75R254CS97W8MNX9CV3SNF please")
+        )
+
+    def test_ignores_a_feature_path_that_does_not_exist(self):
+        self.assertIsNone(detect_feature(self.bundle, "features/not-a-thing.md"))
+
+    def test_ignores_a_prompt_with_no_reference(self):
+        self.assertIsNone(detect_feature(self.bundle, "run the tests and fix what breaks"))
+
+    # -- injection ------------------------------------------------------
+    def test_injection_is_a_tiny_pack(self):
+        text = build_injection(self.bundle, "/features/user-authentication.md")
+        self.assertIn("User authentication", text)
+        self.assertIn("Use JWT", text)  # one hop out
+        self.assertIn("features/user-authentication.md", text)
+
+    # -- the hook itself ------------------------------------------------
+    def test_hook_emits_additional_context(self):
+        out = json.loads(self._hook("recap features/user-authentication.md"))
+        spec = out["hookSpecificOutput"]
+        self.assertEqual(spec["hookEventName"], "UserPromptSubmit")
+        self.assertIn("User authentication", spec["additionalContext"])
+
+    def test_hook_is_silent_when_nothing_matches(self):
+        self.assertEqual(self._hook("just run the tests").strip(), "")
+
+    def test_hook_is_silent_when_gated_off(self):
+        (self.repo / ".pkc").mkdir(exist_ok=True)
+        (self.repo / ".pkc" / "config.yml").write_text(
+            "pkc:\n  knowledge_root: knowledge\n  pack:\n    auto_inject_on_feature: false\n",
+            encoding="utf-8",
+        )
+        self.assertEqual(self._hook("recap features/user-authentication.md").strip(), "")
+
+    def test_hook_survives_garbage_on_stdin(self):
+        proc = subprocess.run(
+            [sys.executable, str(ROOT / "scripts/pkc_auto_context.py")],
+            input="not json at all",
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        self.assertEqual(proc.stdout.strip(), "")
+
+
 def main() -> int:
     suite = unittest.defaultTestLoader.loadTestsFromModule(sys.modules[__name__])
     result = unittest.TextTestRunner(verbosity=2).run(suite)

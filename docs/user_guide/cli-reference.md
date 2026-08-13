@@ -269,6 +269,23 @@ python3 scripts/pkc_common.py resolve-root --repo .
 
 Post-edit hook helper. Takes a file path as `$1` or reads `tool_input.file_path` from JSON on stdin. Refreshes the catalog index and runs a non-fatal validate. Silent no-op outside a bundle.
 
+### `pkc_auto_context.py`
+
+`UserPromptSubmit` hook. Reads the hook payload from stdin (`prompt` or `user_prompt`, plus `cwd`) and prints `hookSpecificOutput.additionalContext` containing the tiny pack for a Feature the prompt named — or prints nothing.
+
+| Flag | Purpose |
+|---|---|
+| `--repo` | repo root; defaults to the payload's `cwd`, then `.` |
+| `--bundle` | bundle override, as everywhere else |
+| `--prompt` | supply the prompt directly instead of reading stdin (debugging) |
+
+Detection: a `features/<slug>` path whose file exists and is `type: Feature`, else a ULID matching a Feature's `worklog_id`, else nothing. Gated by `pkc.pack.auto_inject_on_feature` (default true) and `pkc.enabled`. Always exits 0, even on malformed input — a hook that fails would fail the turn it decorates.
+
+```bash
+python3 scripts/pkc_auto_context.py --bundle sample-knowledge \
+  --prompt "recap features/user-authentication.md"
+```
+
 ---
 
 ## npm shortcuts
