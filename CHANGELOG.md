@@ -3,9 +3,13 @@
 ## 0.7.0 — unreleased
 
 ### Added
+- **Shared OKF concept schemas.** `schemas/okf-concepts/` plus `pkc_validate.py` now loads the okf-plugin BaseConcept pack (required: `type` + `title` only). Soft by default. `truth_state` accepts the DEKC values `historical` and `proposed` in addition to `current|snapshot|superseded|archived`.
+- **TicketLink `kind=bug` refinement.** Warns (does not error) when a bug ticket has no structural link to a Module/Package/Release/CodeChange and no `branch`.
+- **Project type** maps to `projects/` (not a catalog — no index rewrite).
 - **Auto-context injection.** A `UserPromptSubmit` hook (`scripts/pkc_auto_context.py`) injects a Feature's tiny pack when the prompt names one. Detection is a `features/` path that exists and is `type: Feature`, or a 26-char ULID matching a Feature's `worklog_id`; a path wins over a ULID, since it is what the human actually typed. Gated by `pkc.pack.auto_inject_on_feature` (default true) and `pkc.enabled`.
 
   `UserPromptSubmit` is the only hook whose output reaches the model *before* the turn runs, which is why detection lives there — a `PostToolUse` hook fires after Claude has already decided what to read.
+
 
 ### Fixed
 - **The CI compile list had drifted five scripts behind.** `.github/workflows/ci.yml` hand-listed the scripts to `py_compile` and never gained `digest`, `release_notes`, `thread`, `federate`, or `adr_import` — all shipped in 0.4.0, none compiled by CI since. Both CI and `npm run typecheck` now glob `scripts/pkc_*.py`, as `tools/ci-local.sh` always did.

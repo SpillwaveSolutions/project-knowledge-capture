@@ -50,6 +50,7 @@ TYPE_TO_DIR = {
     "Acceptance": "acceptance",
     "TicketLink": "tickets",
     "ContextPack": "packs",
+    "Project": "projects",
 }
 
 DEFAULT_RELATIONS = (
