@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Meeting",
+  "type": "object",
+  "required": ["type", "title"],
+  "properties": {
+    "type": { "const": "Meeting" },
+    "title": { "type": "string", "minLength": 1 },
+    "description": { "type": "string" },
+    "timestamp": { "type": "string" },
+    "date": { "type": "string" },
+    "attendees": { "type": "array" },
+    "duration_minutes": { "type": "number" },
+    "status": { "type": "string" },
+    "verified": { "type": "boolean" },
+    "wiki_key": { "type": "string" },
+    "truth_state": { "type": "string" },
+    "tags": { "type": "array", "items": { "type": "string" } },
+    "links": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["target"],
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

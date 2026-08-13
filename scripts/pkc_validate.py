@@ -4,10 +4,11 @@
 Checks:
   - root index.md with okf_version
   - catalogs present (optional warn)
-  - concept frontmatter minimum fields
+  - concept frontmatter minimum fields (type + title)
+  - shared JSON Schema pack when okf_schema is importable
   - absolute link targets resolve inside the bundle
   - typed links are dicts with target + rel
-  - truth_state / wiki_key consistency (info)
+  - truth_state union (PKC/SAC + DEKC)
 
 Exit 0 = ok (warnings allowed); exit 1 = errors.
 """
@@ -23,9 +24,24 @@ from typing import Any
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from pkc_common import CATALOGS, parse_frontmatter, resolve_knowledge_root  # noqa: E402
 
+# Shared schema pack lives in okf-plugin; sibling checkout is the default.
+_OKF_SCRIPTS = Path(__file__).resolve().parent.parent.parent / "okf-plugin" / "scripts"
+if _OKF_SCRIPTS.is_dir() and str(_OKF_SCRIPTS) not in sys.path:
+    sys.path.insert(0, str(_OKF_SCRIPTS))
+try:
+    from okf_schema import TRUTH_STATES, load_default_registry  # type: ignore
+except ImportError:
+    TRUTH_STATES = frozenset(
+        {"current", "snapshot", "superseded", "archived", "historical", "proposed"}
+    )
+    load_default_registry = None  # type: ignore
+
 MD_LINK = re.compile(r"\[([^\]]+)\]\((/[^)]+)\)")
 REQUIRED_FM = ("type", "title")
 RECOMMENDED_FM = ("description", "timestamp")
+BUG_RECOMMENDED_RELS = frozenset(
+    {"affects", "reproduces_in", "fixed_in", "lands_in", "implements"}
+)
 
 
 def iter_concepts(bundle: Path) -> list[Path]:
@@ -50,7 +66,6 @@ def validate_bundle(bundle: Path, *, strict: bool = False) -> tuple[list[str], l
 
     idx_fm, _ = parse_frontmatter(index.read_text(encoding="utf-8"))
     if "okf_version" not in idx_fm and "okf_version" not in index.read_text(encoding="utf-8"):
-        # also allow bare okf_version in frontmatter parsed
         if "okf_version" not in index.read_text(encoding="utf-8"):
             errors.append("root index.md missing okf_version")
 
@@ -63,6 +78,13 @@ def validate_bundle(bundle: Path, *, strict: bool = False) -> tuple[list[str], l
 
     if not (bundle / "log.md").is_file():
         warnings.append("missing log.md")
+
+    schema_reg = None
+    if load_default_registry:
+        schema_reg = load_default_registry(start=bundle.parent)
+        pkc_schemas = Path(__file__).resolve().parent.parent / "schemas" / "okf-concepts"
+        if pkc_schemas.is_dir():
+            schema_reg.load_dir(pkc_schemas)
 
     for path in iter_concepts(bundle):
         rel = path.relative_to(bundle).as_posix()
@@ -96,7 +118,6 @@ def validate_bundle(bundle: Path, *, strict: bool = False) -> tuple[list[str], l
                         warnings.append(f"{rel}: links[{i}] missing rel")
                     tgt = link.get("target") or ""
                     if tgt.startswith("/") and not (bundle / tgt.lstrip("/")).is_file():
-                        # allow missing targets as warning (WIP graphs)
                         msg = f"{rel}: broken typed link → {tgt}"
                         (errors if strict else warnings).append(msg)
 
@@ -107,8 +128,36 @@ def validate_bundle(bundle: Path, *, strict: bool = False) -> tuple[list[str], l
                 (errors if strict else warnings).append(msg)
 
         ts = fm.get("truth_state")
-        if ts and ts not in ("current", "snapshot", "superseded", "archived"):
+        if ts and ts not in TRUTH_STATES:
             warnings.append(f"{rel}: unusual truth_state `{ts}`")
+
+        if fm.get("type") == "TicketLink" and fm.get("kind") == "bug":
+            rels = set()
+            if isinstance(fm.get("links"), list):
+                for link in fm["links"]:
+                    if isinstance(link, dict) and link.get("rel"):
+                        rels.add(str(link["rel"]))
+            if not (rels & BUG_RECOMMENDED_RELS) and not fm.get("branch"):
+                warnings.append(
+                    f"{rel}: kind=bug should link to a Module/Package/Release/CodeChange "
+                    f"(rels {sorted(BUG_RECOMMENDED_RELS)}) or set `branch`"
+                )
+
+        if schema_reg is not None:
+            for issue in schema_reg.validate_frontmatter(fm, path=rel):
+                if issue.severity == "error":
+                    # type/title already reported above
+                    if "missing required" in issue.message and (
+                        "`type`" in issue.message or "`title`" in issue.message
+                    ):
+                        continue
+                    errors.append(f"{rel}: {issue.message}")
+                elif issue.severity == "warn":
+                    if issue.message.startswith("unusual truth_state"):
+                        continue
+                    if "kind=bug" in issue.message:
+                        continue
+                    warnings.append(f"{rel}: {issue.message}")
 
     return errors, warnings
 

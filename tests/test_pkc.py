@@ -638,6 +638,33 @@ class TestValidate(unittest.TestCase):
         errors, warnings = validate_bundle(ROOT / "sample-knowledge")
         self.assertEqual(errors, [], errors)
 
+    def test_dekc_truth_state_is_accepted(self):
+        tmp = Path(tempfile.mkdtemp())
+        (tmp / "index.md").write_text("---\nokf_version: \"0.2\"\ntitle: t\n---\n", encoding="utf-8")
+        feat = tmp / "features"
+        feat.mkdir()
+        (feat / "x.md").write_text(
+            "---\ntype: Feature\ntitle: X\ndescription: d\ntimestamp: 2026-01-01T00:00:00Z\n"
+            "truth_state: historical\n---\n# X\n",
+            encoding="utf-8",
+        )
+        errors, warnings = validate_bundle(tmp)
+        self.assertEqual(errors, [], errors)
+        self.assertFalse(any("truth_state" in w for w in warnings), warnings)
+
+    def test_bug_ticket_warns_without_target(self):
+        tmp = Path(tempfile.mkdtemp())
+        (tmp / "index.md").write_text("---\nokf_version: \"0.2\"\ntitle: t\n---\n", encoding="utf-8")
+        tickets = tmp / "tickets"
+        tickets.mkdir()
+        (tickets / "bug.md").write_text(
+            "---\ntype: TicketLink\ntitle: crash\nkind: bug\nworklog_id: 01TEST\n---\n# crash\n",
+            encoding="utf-8",
+        )
+        errors, warnings = validate_bundle(tmp)
+        self.assertEqual(errors, [], errors)
+        self.assertTrue(any("kind=bug" in w for w in warnings), warnings)
+
 
 class TestPack(unittest.TestCase):
     def test_feature_pack_has_decision(self):

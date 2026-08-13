@@ -1,0 +1,49 @@
+{
+  "name": "pkc-okf-concept-schemas",
+  "version": "1.0.0",
+  "okf_version": "0.2",
+  "plugin": "project-knowledge-capture",
+  "base": "okf-plugin/schemas/okf-concepts/BaseConcept.schema.json",
+  "concepts": [
+    "Meeting",
+    "Experiment",
+    "Discovery",
+    "DecisionRecord",
+    "Assumption",
+    "Question",
+    "Feature",
+    "Requirement",
+    "Specification",
+    "Design",
+    "Release",
+    "CodeChange",
+    "Package",
+    "Module",
+    "Risk",
+    "Acceptance",
+    "TicketLink",
+    "ContextPack",
+    "Project",
+    "Catalog"
+  ],
+  "catalog_ownership": {
+    "project-knowledge-capture": [
+      "meetings",
+      "experiments",
+      "discoveries",
+      "decisions",
+      "assumptions",
+      "questions",
+      "features",
+      "requirements",
+      "specs",
+      "designs",
+      "releases",
+      "code",
+      "packages",
+      "tickets",
+      "risks",
+      "acceptance"
+    ]
+  }
+}
