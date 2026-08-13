@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.7.0 — unreleased
+
+### Added
+- **Auto-context injection.** A `UserPromptSubmit` hook (`scripts/pkc_auto_context.py`) injects a Feature's tiny pack when the prompt names one. Detection is a `features/` path that exists and is `type: Feature`, or a 26-char ULID matching a Feature's `worklog_id`; a path wins over a ULID, since it is what the human actually typed. Gated by `pkc.pack.auto_inject_on_feature` (default true) and `pkc.enabled`.
+
+  `UserPromptSubmit` is the only hook whose output reaches the model *before* the turn runs, which is why detection lives there — a `PostToolUse` hook fires after Claude has already decided what to read.
+
+### Fixed
+- **The CI compile list had drifted five scripts behind.** `.github/workflows/ci.yml` hand-listed the scripts to `py_compile` and never gained `digest`, `release_notes`, `thread`, `federate`, or `adr_import` — all shipped in 0.4.0, none compiled by CI since. Both CI and `npm run typecheck` now glob `scripts/pkc_*.py`, as `tools/ci-local.sh` always did.
+
+### Notes
+- **Silence is the hook's contract.** A `UserPromptSubmit` hook's stdout becomes model context on every turn, so every failure path — no match, no bundle, no config, malformed stdin — exits 0 printing nothing. Both halves have tests and a CI step; the silent half is the one a regression breaks invisibly.
+- The prompt field is named `prompt` in the hooks reference and `user_prompt` in the plugin-dev skill. The script reads both rather than betting on one.
+- No mermaid in the injected pack: a diagram costs tokens the model cannot act on any better than the edge list printed beside it.
+
 ## 0.6.0 — 2026-08-10
 
 Seven fixes, found by running this plugin alongside `system-architecture-capture`

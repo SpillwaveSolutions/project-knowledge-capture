@@ -24,7 +24,7 @@ BUNDLE=sample-knowledge
 TMP=$(mktemp -d); trap 'rm -rf "$TMP"' EXIT
 
 echo "== unit tests =="
-step "test_pkc.py (27 tests)" python3 tests/test_pkc.py
+step "test_pkc.py" python3 tests/test_pkc.py
 
 echo "== compile =="
 step "py_compile all scripts" bash -c 'python3 -m py_compile scripts/pkc_*.py'
@@ -66,6 +66,19 @@ step "thread capture" bash -c "
     | python3 -c \"import json,sys;assert json.load(sys.stdin)['attendees']\""
 step "ADR import" bash -c "
   python3 scripts/pkc_adr_import.py --from tests/fixtures/adr --repo $TMP/adr --dry-run | grep -q proposed"
+
+echo "== auto-context hook =="
+# Two jobs: inject on a Feature, stay silent otherwise. Silence is the half a
+# regression breaks invisibly, so it is asserted rather than assumed.
+step "injects a tiny pack on a Feature" bash -c "
+  python3 scripts/pkc_auto_context.py --bundle $BUNDLE \
+    --prompt 'recap features/user-authentication.md' > $TMP/inject.json
+  python3 -c \"import json; c=json.load(open('$TMP/inject.json'))['hookSpecificOutput']; \
+    assert c['hookEventName']=='UserPromptSubmit', c; \
+    assert 'User authentication' in c['additionalContext']\""
+step "silent on an unrelated prompt" bash -c "
+  test -z \"\$(python3 scripts/pkc_auto_context.py --bundle $BUNDLE \
+    --prompt 'run the tests and fix what breaks')\""
 
 echo "== materialize idempotency =="
 step "second run reports 0 created" bash -c "

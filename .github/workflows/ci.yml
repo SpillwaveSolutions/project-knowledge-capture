@@ -19,22 +19,11 @@ jobs:
       - name: Unit tests
         run: python3 tests/test_pkc.py
 
+      # Glob, not a list. The hand-maintained list drifted: it was missing
+      # digest, release_notes, thread, federate, and adr_import, all of which
+      # shipped in 0.4.0 and were never compiled here.
       - name: Compile scripts
-        run: |
-          python3 -m py_compile \
-            scripts/pkc_common.py \
-            scripts/pkc_capture.py \
-            scripts/pkc_materialize.py \
-            scripts/pkc_link.py \
-            scripts/pkc_promote.py \
-            scripts/pkc_validate.py \
-            scripts/pkc_pack.py \
-            scripts/pkc_action_items.py \
-            scripts/pkc_doctor.py \
-            scripts/pkc_scrub.py \
-            scripts/pkc_transcript.py \
-            scripts/pkc_pr_capture.py \
-            scripts/pkc_search.py
+        run: python3 -m py_compile scripts/pkc_*.py
 
       - name: Validate sample-knowledge
         run: python3 scripts/pkc_validate.py --bundle sample-knowledge
@@ -70,6 +59,20 @@ jobs:
           python3 scripts/pkc_release_notes.py --bundle sample-knowledge | grep -qi release
           python3 scripts/pkc_thread.py --file tests/fixtures/thread_slack.txt --json | python3 -c "import json,sys; d=json.load(sys.stdin); assert d['attendees']"
           python3 scripts/pkc_adr_import.py --from tests/fixtures/adr --repo /tmp/pkc-adr --dry-run | grep -q proposed
+
+      # The hook has exactly two jobs: inject on a Feature, stay silent
+      # otherwise. Silence is the half that regressions break invisibly, so it
+      # is asserted, not assumed.
+      - name: Auto-context hook injects on a Feature and is otherwise silent
+        run: |
+          python3 scripts/pkc_auto_context.py --bundle sample-knowledge \
+            --prompt "recap features/user-authentication.md" > /tmp/inject.json
+          python3 -c "import json; c=json.load(open('/tmp/inject.json'))['hookSpecificOutput']; \
+            assert c['hookEventName']=='UserPromptSubmit', c; \
+            assert 'User authentication' in c['additionalContext']; \
+            print(len(c['additionalContext']), 'chars injected')"
+          test -z "$(python3 scripts/pkc_auto_context.py --bundle sample-knowledge \
+            --prompt 'run the tests and fix what breaks')"
 
       - name: Materialize fixture idempotency
         run: |

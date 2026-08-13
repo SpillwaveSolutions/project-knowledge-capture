@@ -20,7 +20,7 @@ Turn project reasoning into a durable OKF knowledge graph: capture informal know
 - **Skills** — `skills/*/SKILL.md` (includes `pkc-context`)
 - **Commands** — `commands/*.md`
 - **Agent** — `agents/knowledge-capturer.md`
-- **Hooks** — `hooks/hooks.json` → `scripts/pkc-curate.sh`
+- **Hooks** — `hooks/hooks.json` → `scripts/pkc-curate.sh` (PostToolUse), `scripts/pkc_auto_context.py` (UserPromptSubmit)
 - **Scripts** — `scripts/pkc_*.py`, `pkc-curate.sh`
 - **Sample** — `sample-knowledge/` (+ `packs/`)
 - **Work log** — `.work/*.jsonl` via `bin/worklog` (this repo now runs WikiTicket SDD on itself)

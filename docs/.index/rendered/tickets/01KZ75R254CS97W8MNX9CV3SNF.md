@@ -1,6 +1,6 @@
 # Inject tiny pack for the detected Feature
 
-`01KZ75R254CS97W8MNX9CV3SNF` · story/feature · **open**
+`01KZ75R254CS97W8MNX9CV3SNF` · story/feature · **done**
 
 Given a detected Feature, produce the tiny pack (1 hop, max 8 nodes) and place it where the agent will read it.
 

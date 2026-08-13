@@ -100,6 +100,7 @@ Post-edit curation refreshes catalog indexes and runs a light validate when you 
 | `pkc_validate.py` | Structure + links |
 | `pkc_action_items.py` | Meeting actions → TicketLink / worklog |
 | `pkc-curate.sh` | Post-edit hook helper |
+| `pkc_auto_context.py` | Prompt hook — injects a tiny pack when a Feature is named |
 | `pkc_doctor.py` | One-screen health check |
 | `pkc_scrub.py` | Secret/PII redaction |
 | `pkc_transcript.py` | Transcript normalizer |

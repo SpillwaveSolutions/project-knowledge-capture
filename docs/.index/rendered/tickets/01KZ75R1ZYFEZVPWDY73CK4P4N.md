@@ -1,6 +1,6 @@
 # Detect Feature path or ULID in agent context
 
-`01KZ75R1ZYFEZVPWDY73CK4P4N` · story/feature · **open**
+`01KZ75R1ZYFEZVPWDY73CK4P4N` · story/feature · **done**
 
 Recognise when the current work is about a specific Feature: a path under features/ in the conversation, or a worklog item whose materialized concept points at one.
 

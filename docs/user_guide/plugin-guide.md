@@ -94,11 +94,23 @@ The plugin runs from an install directory, not from a checkout of this repo. A r
 
 ## Hooks
 
-`hooks/hooks.json` registers a `PostToolUse` hook on `Write|Edit|MultiEdit` that runs `scripts/pkc-curate.sh`.
+`hooks/hooks.json` registers two, and they run at opposite ends of a turn.
+
+| Event | Script | Job |
+|---|---|---|
+| `UserPromptSubmit` | `scripts/pkc_auto_context.py` | inject a tiny pack when the prompt names a Feature |
+| `PostToolUse` on `Write\|Edit\|MultiEdit` | `scripts/pkc-curate.sh` | refresh the catalog index and validate after a knowledge edit |
 
 ```json
 {
   "hooks": {
+    "UserPromptSubmit": [{
+      "hooks": [{
+        "type": "command",
+        "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/pkc_auto_context.py\"",
+        "timeout": 10
+      }]
+    }],
     "PostToolUse": [{
       "matcher": "Write|Edit|MultiEdit",
       "hooks": [{
@@ -111,10 +123,34 @@ The plugin runs from an install directory, not from a checkout of this repo. A r
 }
 ```
 
-Two rules for hook scripts:
+`UserPromptSubmit` takes no `matcher` — it has no tool to match on.
 
-1. **Exit 0 outside your domain.** `pkc-curate.sh` returns immediately for non-Markdown files and for anything outside a bundle. A hook that errors blocks the user's edit.
-2. **Never assume argv.** The path arrives as `$1` or as `tool_input.file_path` in JSON on stdin, depending on the host. Handle both.
+Three rules for hook scripts:
+
+1. **Exit 0 outside your domain.** `pkc-curate.sh` returns immediately for non-Markdown files and for anything outside a bundle; `pkc_auto_context.py` swallows every exception. A hook that errors blocks the user's edit or fails their turn.
+2. **Never assume argv.** The path arrives as `$1` or as `tool_input.file_path` in JSON on stdin, depending on the host. Handle both. `UserPromptSubmit` has the same problem one level down: the prompt is `prompt` in the hooks reference and `user_prompt` in the plugin-dev skill, so read both keys.
+3. **Say nothing by default.** A `UserPromptSubmit` hook's stdout becomes model context on *every* turn. `pkc_auto_context.py` prints only when it resolved a real Feature; the silent path is covered by its own test and its own CI step, because that is the half a regression breaks invisibly.
+
+### Auto-context injection
+
+`UserPromptSubmit` is the only hook whose output reaches the model *before* the turn runs, which is why detection lives there and not in `PostToolUse` — by then Claude has already chosen what to read.
+
+Detection is deliberately narrow. A path wins over a ULID, since it is what the human actually typed:
+
+1. `features/<slug>` or `/features/<slug>.md` in the prompt, where that file exists **and** its `type` is `Feature`
+2. a 26-char ULID matching some Feature's `worklog_id` (materialize writes it)
+3. otherwise nothing
+
+On a hit it emits the tiny pack (1 hop, ≤8 nodes — `pack.tiny_hops` / `pack.tiny_max_nodes`) as `hookSpecificOutput.additionalContext`, with no mermaid: a diagram costs tokens the model cannot act on better than the edge list it already gets.
+
+Turn it off with `pkc.pack.auto_inject_on_feature: false`, or the whole plugin with `pkc.enabled: false`.
+
+Debug it without a host:
+
+```bash
+python3 scripts/pkc_auto_context.py --bundle sample-knowledge \
+  --prompt "why did we pick JWT in features/user-authentication.md?"
+```
 
 > `hooks/` also holds worklog's git hooks (`pre-commit`, `pre-merge-commit`, `commit-msg`) because `core.hooksPath` points there. They coexist — `hooks.json` is not a valid git hook name. Do not "tidy" this directory.
 

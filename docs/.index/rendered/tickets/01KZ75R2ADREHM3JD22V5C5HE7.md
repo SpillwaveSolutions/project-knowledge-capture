@@ -1,6 +1,6 @@
 # Gate injection behind pack.auto_inject_on_feature
 
-`01KZ75R2ADREHM3JD22V5C5HE7` · story/feature · **open**
+`01KZ75R2ADREHM3JD22V5C5HE7` · story/feature · **done**
 
 Auto-injection must be opt-out.
 

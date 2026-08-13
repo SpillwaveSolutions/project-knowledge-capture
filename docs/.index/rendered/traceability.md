@@ -2,6 +2,9 @@
 
 _The evidence chain: plan → item → ticket → code → release, forward and backward. Generated from `docs/.index/_graph.json`; do not edit._
 
+### CI py_compile list drifted five scripts behind
+`01KZWJ2MP422DZAZ9A08R8QTJ0` · status: done
+
 ### Release v0.5.0
 `01KZD893CKNBNZZSA51Q3C6HKS` · status: done
 
@@ -86,19 +89,19 @@ _The evidence chain: plan → item → ticket → code → release, forward and 
 - targets: release/v0.5.0
 
 ### Gate injection behind pack.auto_inject_on_feature
-`01KZ75R2ADREHM3JD22V5C5HE7` · status: todo
+`01KZ75R2ADREHM3JD22V5C5HE7` · status: done
 - belongs-to: Agent auto-context injection
 - references: [github#8](https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/8)
 - targets: release/v0.6.0
 
 ### Inject tiny pack for the detected Feature
-`01KZ75R254CS97W8MNX9CV3SNF` · status: todo
+`01KZ75R254CS97W8MNX9CV3SNF` · status: done
 - belongs-to: Agent auto-context injection
 - references: [github#7](https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/7)
 - targets: release/v0.6.0
 
 ### Detect Feature path or ULID in agent context
-`01KZ75R1ZYFEZVPWDY73CK4P4N` · status: todo
+`01KZ75R1ZYFEZVPWDY73CK4P4N` · status: done
 - belongs-to: Agent auto-context injection
 - references: [github#6](https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/6)
 - targets: release/v0.6.0
@@ -125,7 +128,7 @@ _The evidence chain: plan → item → ticket → code → release, forward and 
 - contains: Assert zero-write re-materialize in CI
 
 ### Agent auto-context injection
-`01KZ75NC58VJD8E219BYAYPBPA` · status: todo
+`01KZ75NC58VJD8E219BYAYPBPA` · status: done
 - references: [github#2](https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/2)
 - contains: Detect Feature path or ULID in agent context
 - contains: Inject tiny pack for the detected Feature

@@ -63,3 +63,9 @@
 {"actor":"richardhightower","ev":"01KZD8946CNQHZ5MB68HTZDCAJ","item":"01KZ75R3M6BYQ643NKDCCSEEZC","op":"update","set":{"milestone":"v0.6.0"},"ts":"2026-08-07T04:39:08Z"}
 {"actor":"richardhightower","ev":"01KZD894BM6W0CPXPR29NC9WVG","item":"01KZ75R3S2X1G4PCTGMMSR8BWA","op":"update","set":{"milestone":"v0.6.0"},"ts":"2026-08-07T04:39:08Z"}
 {"actor":"richardhightower","ev":"01KZD8NK9KCXX2TRAYJ4RWYV6W","item":"01KZD893CKNBNZZSA51Q3C6HKS","op":"close","set":{"status":"done"},"ts":"2026-08-07T04:45:57Z"}
+{"actor":"richardhightower","ev":"01KZWJ2MP4APXBJA6J68G5YEGA","item":"01KZWJ2MP422DZAZ9A08R8QTJ0","op":"create","set":{"body":"ci.yml hand-listed scripts to compile and never gained digest, release_notes, thread, federate, adr_import (all 0.4.0). Both CI and npm typecheck now glob scripts/pkc_*.py.","discovered_during":"01KZ75R1ZYFEZVPWDY73CK4P4N","kind":"bug","level":"task","priority":"P2","status":"todo","title":"CI py_compile list drifted five scripts behind","unplanned":true},"ts":"2026-08-13T03:18:58Z"}
+{"actor":"richardhightower","ev":"01KZWJ2TFJEPB3CGJ83KA9YPTJ","item":"01KZ75R1ZYFEZVPWDY73CK4P4N","op":"close","set":{"status":"done"},"ts":"2026-08-13T03:19:04Z"}
+{"actor":"richardhightower","ev":"01KZWJ2TMXPRZCK0K6GZ9EWZYW","item":"01KZ75R254CS97W8MNX9CV3SNF","op":"close","set":{"status":"done"},"ts":"2026-08-13T03:19:04Z"}
+{"actor":"richardhightower","ev":"01KZWJ2TSZTM1NV0VTRZHV5BK4","item":"01KZ75R2ADREHM3JD22V5C5HE7","op":"close","set":{"status":"done"},"ts":"2026-08-13T03:19:04Z"}
+{"actor":"richardhightower","ev":"01KZWJ2TZ4H8JMDZYERQ7P746S","item":"01KZWJ2MP422DZAZ9A08R8QTJ0","op":"close","set":{"status":"done"},"ts":"2026-08-13T03:19:04Z"}
+{"actor":"richardhightower","ev":"01KZWJ2V4DXDR52M6A2N3040VH","item":"01KZ75NC58VJD8E219BYAYPBPA","op":"close","set":{"status":"done"},"ts":"2026-08-13T03:19:05Z"}
