@@ -27,6 +27,13 @@ CATALOGS = (
     "code",
     "packages",
     "tickets",
+    "epics",
+    "stories",
+    "tasks",
+    "subtasks",
+    "bugs",
+    "branches",
+    "projects",
     "risks",
     "acceptance",
 )
@@ -49,6 +56,12 @@ TYPE_TO_DIR = {
     "Risk": "risks",
     "Acceptance": "acceptance",
     "TicketLink": "tickets",
+    "Epic": "epics",
+    "Story": "stories",
+    "Task": "tasks",
+    "Subtask": "subtasks",
+    "Bug": "bugs",
+    "Branch": "branches",
     "ContextPack": "packs",
     "Project": "projects",
 }
@@ -80,6 +93,13 @@ DEFAULT_RELATIONS = (
     "invalidates",
     "mitigates",
     "exposes",
+    "child_of",
+    "parent_of",
+    "on_branch",
+    "heads",
+    "affects",
+    "reproduces_in",
+    "fixed_in",
 )
 
 SECRET_PATTERNS: list[tuple[re.Pattern[str], str]] = [

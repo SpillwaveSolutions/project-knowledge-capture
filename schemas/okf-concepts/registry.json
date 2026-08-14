@@ -1,6 +1,6 @@
 {
   "name": "pkc-okf-concept-schemas",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "okf_version": "0.2",
   "plugin": "project-knowledge-capture",
   "base": "okf-plugin/schemas/okf-concepts/BaseConcept.schema.json",
@@ -22,6 +22,12 @@
     "Risk",
     "Acceptance",
     "TicketLink",
+    "Epic",
+    "Story",
+    "Task",
+    "Subtask",
+    "Bug",
+    "Branch",
     "ContextPack",
     "Project",
     "Catalog"
@@ -42,6 +48,13 @@
       "code",
       "packages",
       "tickets",
+      "epics",
+      "stories",
+      "tasks",
+      "subtasks",
+      "bugs",
+      "branches",
+      "projects",
       "risks",
       "acceptance"
     ]
