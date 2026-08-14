@@ -40,7 +40,7 @@ MD_LINK = re.compile(r"\[([^\]]+)\]\((/[^)]+)\)")
 REQUIRED_FM = ("type", "title")
 RECOMMENDED_FM = ("description", "timestamp")
 BUG_RECOMMENDED_RELS = frozenset(
-    {"affects", "reproduces_in", "fixed_in", "lands_in", "implements"}
+    {"affects", "reproduces_in", "fixed_in", "lands_in", "implements", "on_branch"}
 )
 
 
@@ -139,7 +139,19 @@ def validate_bundle(bundle: Path, *, strict: bool = False) -> tuple[list[str], l
                         rels.add(str(link["rel"]))
             if not (rels & BUG_RECOMMENDED_RELS) and not fm.get("branch"):
                 warnings.append(
-                    f"{rel}: kind=bug should link to a Module/Package/Release/CodeChange "
+                    f"{rel}: kind=bug should link to a Module/Package/Release/CodeChange/Branch "
+                    f"(rels {sorted(BUG_RECOMMENDED_RELS)}) or set `branch`"
+                )
+
+        if fm.get("type") == "Bug":
+            rels = set()
+            if isinstance(fm.get("links"), list):
+                for link in fm["links"]:
+                    if isinstance(link, dict) and link.get("rel"):
+                        rels.add(str(link["rel"]))
+            if not (rels & BUG_RECOMMENDED_RELS) and not fm.get("branch"):
+                warnings.append(
+                    f"{rel}: Bug should link to a Module/Package/Release/CodeChange/Branch "
                     f"(rels {sorted(BUG_RECOMMENDED_RELS)}) or set `branch`"
                 )
 
@@ -155,7 +167,9 @@ def validate_bundle(bundle: Path, *, strict: bool = False) -> tuple[list[str], l
                 elif issue.severity == "warn":
                     if issue.message.startswith("unusual truth_state"):
                         continue
-                    if "kind=bug" in issue.message:
+                    if "kind=bug" in issue.message or "recommended link rel" in issue.message:
+                        continue
+                    if issue.message.startswith("Bug should link"):
                         continue
                     warnings.append(f"{rel}: {issue.message}")
 

@@ -33,6 +33,19 @@ from pkc_common import (  # noqa: E402
 
 LEVEL_FEATURE = {"epic", "story"}
 
+LEVEL_TO_WORK_TYPE = {
+    "epic": "Epic",
+    "story": "Story",
+    "task": "Task",
+    "subtask": "Subtask",
+}
+
+
+def work_concept_type(level: str, kind: str) -> str:
+    if kind == "bug":
+        return "Bug"
+    return LEVEL_TO_WORK_TYPE.get(level, "Task")
+
 
 def load_fold(path: str | None) -> dict[str, Any]:
     if path:
@@ -221,6 +234,104 @@ def materialize_item(
         tbody += f"\n## Status\n\n`{status}` · level `{level}` · kind `{kind}`\n"
         _, action = write_concept(bundle, trel, tfm, tbody)
         results.append((trel, action, "TicketLink"))
+
+    work_type = work_concept_type(level, kind)
+    wrel: str | None = None
+    if ulid and "tickets" in include:
+        wrel = path_for_type(work_type, slugify(f"{work_type.lower()}-{ulid}"))
+    if wrel and not force and fingerprint_matches(bundle / wrel, fingerprint):
+        results.append((wrel, "unchanged", work_type))
+    elif wrel:
+        wfm: dict[str, Any] = {
+            "type": work_type,
+            "title": title,
+            "description": (body_src or title)[:200],
+            "tags": ["work", "materialized", kind, level],
+            "timestamp": ts,
+            "status": status,
+            "verified": False,
+            "generated": True,
+            "stable_timestamp": True,
+            "worklog_id": ulid,
+            "level": level,
+            "kind": kind,
+            "truth_state": truth,
+            "source_fingerprint": fingerprint,
+        }
+        if wiki_key:
+            wfm["wiki_key"] = wiki_key
+        if external_id:
+            wfm["external_id"] = external_id
+            wfm["external_system"] = external_system
+        if parent:
+            wfm["parent"] = str(parent)
+        if item.get("priority") is not None:
+            wfm["priority"] = item.get("priority")
+        branch_name = item.get("branch")
+        if branch_name:
+            wfm["branch"] = str(branch_name)
+        wlinks: list[dict[str, str]] = []
+        if trel:
+            wlinks.append({"target": f"/{trel}", "rel": "tracks"})
+        if feature_rel:
+            wlinks.append({"target": f"/{feature_rel}", "rel": "implements"})
+        if parent:
+            parent_ticket = path_for_type("TicketLink", slugify(f"ticket-{parent}"))
+            wlinks.append({"target": f"/{parent_ticket}", "rel": "child_of"})
+            parent_work = work_concept_type(
+                str(item.get("parent_level") or "task"),
+                str(item.get("parent_kind") or "feature"),
+            )
+            parent_rel = path_for_type(parent_work, slugify(f"{parent_work.lower()}-{parent}"))
+            if parent_rel != parent_ticket:
+                wlinks.append({"target": f"/{parent_rel}", "rel": "child_of"})
+        if branch_name:
+            brel = path_for_type("Branch", slugify(str(branch_name)))
+            wlinks.append({"target": f"/{brel}", "rel": "on_branch"})
+        if wlinks:
+            wfm["links"] = wlinks
+        if force:
+            wfm["force"] = True
+        wbody = f"# {title}\n\n`{work_type}` · `{status}` · level `{level}` · kind `{kind}`\n"
+        if body_src:
+            wbody += "\n" + body_src.strip() + "\n"
+        if ulid:
+            wbody += f"\n## Provenance\n\n- Worklog ULID: `{ulid}`\n"
+        _, action = write_concept(bundle, wrel, wfm, wbody)
+        results.append((wrel, action, work_type))
+
+    branch_name = item.get("branch")
+    if branch_name and "tickets" in include:
+        brel = path_for_type("Branch", slugify(str(branch_name)))
+        if not force and fingerprint_matches(bundle / brel, fingerprint):
+            results.append((brel, "unchanged", "Branch"))
+        elif not (bundle / brel).is_file() or force:
+            bfm = {
+                "type": "Branch",
+                "title": str(branch_name),
+                "name": str(branch_name),
+                "description": f"Branch {branch_name}",
+                "tags": ["branch", "materialized"],
+                "timestamp": ts,
+                "status": "active",
+                "verified": False,
+                "generated": True,
+                "stable_timestamp": True,
+                "truth_state": "current",
+                "source_fingerprint": fingerprint,
+            }
+            blinks: list[dict[str, str]] = []
+            if wrel:
+                blinks.append({"target": f"/{wrel}", "rel": "heads"})
+            if trel:
+                blinks.append({"target": f"/{trel}", "rel": "related_to"})
+            if blinks:
+                bfm["links"] = blinks
+            if force:
+                bfm["force"] = True
+            bbody = f"# {branch_name}\n\nSource-control branch materialized from a work item.\n"
+            _, action = write_concept(bundle, brel, bfm, bbody)
+            results.append((brel, action, "Branch"))
 
     return results
 

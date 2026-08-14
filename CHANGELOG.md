@@ -3,6 +3,12 @@
 ## 0.7.0 — unreleased
 
 ### Added
+- **First-class work items.** `Epic`, `Story`, `Task`, `Subtask`, `Bug`, and
+  `Branch` map to their own catalogs. Materialize still writes `TicketLink` for
+  compatibility and now also writes the specialized type. A work item with
+  `branch:` also upserts a `Branch` node.
+- **Per-type recommended fields** come from the shared schema pack
+  (`x-recommended`). Existing bundles still validate with zero errors.
 - **Shared OKF concept schemas.** `schemas/okf-concepts/` plus `pkc_validate.py` now loads the okf-plugin BaseConcept pack (required: `type` + `title` only). Soft by default. `truth_state` accepts the DEKC values `historical` and `proposed` in addition to `current|snapshot|superseded|archived`.
 - **TicketLink `kind=bug` refinement.** Warns (does not error) when a bug ticket has no structural link to a Module/Package/Release/CodeChange and no `branch`.
 - **Project type** maps to `projects/` (not a catalog — no index rewrite).

@@ -55,7 +55,7 @@ echo "pkc-curate: bundle $BUNDLE_ROOT (touched: $FILE)"
 # Refresh catalog for the directory of the edited file when it is a catalog concept
 CAT="$(basename "$(dirname "$FILE")")"
 case "$CAT" in
-  meetings|experiments|discoveries|decisions|assumptions|questions|features|requirements|specs|designs|releases|code|packages|tickets|risks|acceptance)
+  meetings|experiments|discoveries|decisions|assumptions|questions|features|requirements|specs|designs|releases|code|packages|tickets|epics|stories|tasks|subtasks|bugs|branches|projects|risks|acceptance)
     python3 "${PLUGIN_SCRIPTS}/pkc_common.py" resolve-root --repo "$(dirname "$BUNDLE_ROOT")" >/dev/null 2>&1 || true
     python3 - <<PY
 from pathlib import Path

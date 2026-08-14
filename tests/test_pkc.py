@@ -518,11 +518,17 @@ class TestRiskAndAcceptance(unittest.TestCase):
     def test_types_map_to_their_own_catalogs(self):
         self.assertEqual(path_for_type("Risk", "x"), "risks/x.md")
         self.assertEqual(path_for_type("Acceptance", "x"), "acceptance/x.md")
+        self.assertEqual(path_for_type("Epic", "x"), "epics/x.md")
+        self.assertEqual(path_for_type("Story", "x"), "stories/x.md")
+        self.assertEqual(path_for_type("Task", "x"), "tasks/x.md")
+        self.assertEqual(path_for_type("Subtask", "x"), "subtasks/x.md")
+        self.assertEqual(path_for_type("Bug", "x"), "bugs/x.md")
+        self.assertEqual(path_for_type("Branch", "x"), "branches/x.md")
 
     def test_new_relations_are_known(self):
         from pkc_common import DEFAULT_RELATIONS
 
-        for rel in ("mitigates", "exposes"):
+        for rel in ("mitigates", "exposes", "child_of", "on_branch", "affects"):
             self.assertIn(rel, DEFAULT_RELATIONS)
 
     def test_ensure_bundle_creates_both_catalogs(self):
@@ -664,6 +670,79 @@ class TestValidate(unittest.TestCase):
         errors, warnings = validate_bundle(tmp)
         self.assertEqual(errors, [], errors)
         self.assertTrue(any("kind=bug" in w for w in warnings), warnings)
+
+    def test_bug_type_warns_without_target(self):
+        tmp = Path(tempfile.mkdtemp())
+        (tmp / "index.md").write_text("---\nokf_version: \"0.2\"\ntitle: t\n---\n", encoding="utf-8")
+        bugs = tmp / "bugs"
+        bugs.mkdir()
+        (bugs / "crash.md").write_text(
+            "---\ntype: Bug\ntitle: crash\nkind: bug\nworklog_id: 01TEST\n---\n# crash\n",
+            encoding="utf-8",
+        )
+        errors, warnings = validate_bundle(tmp)
+        self.assertEqual(errors, [], errors)
+        self.assertTrue(any("Bug should link" in w for w in warnings), warnings)
+
+
+class TestWorkItemMaterialize(unittest.TestCase):
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp())
+        self.bundle = self.tmp / "knowledge"
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp)
+
+    def test_materialize_writes_typed_work_items_and_branch(self):
+        fold = self.tmp / "fold.json"
+        fold.write_text(
+            json.dumps(
+                [
+                    {
+                        "id": "01KTEST000000000000000EPIC",
+                        "title": "Checkout platform",
+                        "level": "epic",
+                        "kind": "feature",
+                        "status": "todo",
+                    },
+                    {
+                        "id": "01KTEST000000000000000BUGX",
+                        "title": "Timeout on pay",
+                        "level": "task",
+                        "kind": "bug",
+                        "status": "todo",
+                        "branch": "fix/pay-timeout",
+                    },
+                ]
+            ),
+            encoding="utf-8",
+        )
+        rc = materialize_main(
+            [
+                "--repo", str(self.tmp), "--bundle", "knowledge",
+                "--fold", str(fold), "--include", "features,tickets",
+            ]
+        )
+        self.assertEqual(rc, 0)
+        epics = [p for p in (self.bundle / "epics").glob("*.md") if p.name != "index.md"]
+        bugs = [p for p in (self.bundle / "bugs").glob("*.md") if p.name != "index.md"]
+        branches = [p for p in (self.bundle / "branches").glob("*.md") if p.name != "index.md"]
+        tickets = [p for p in (self.bundle / "tickets").glob("*.md") if p.name != "index.md"]
+        self.assertEqual(len(epics), 1)
+        self.assertEqual(len(bugs), 1)
+        self.assertEqual(len(branches), 1)
+        self.assertEqual(len(tickets), 2)
+        bfm, _ = parse_frontmatter(bugs[0].read_text(encoding="utf-8"))
+        self.assertEqual(bfm["type"], "Bug")
+        self.assertEqual(bfm["branch"], "fix/pay-timeout")
+        rels = {l.get("rel") for l in bfm.get("links") or []}
+        self.assertIn("on_branch", rels)
+        br, _ = parse_frontmatter(branches[0].read_text(encoding="utf-8"))
+        self.assertEqual(br["type"], "Branch")
+        self.assertEqual(br["name"], "fix/pay-timeout")
+        errors, _ = validate_bundle(self.bundle)
+        self.assertEqual(errors, [], errors)
+
 
 
 class TestPack(unittest.TestCase):
