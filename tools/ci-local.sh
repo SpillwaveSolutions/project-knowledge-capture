@@ -94,6 +94,16 @@ step "re-materialize renders nothing" bash -c "
   python3 -c \"import json; r=json.load(open('$TMP/mat3.json'))['results']; \
     a={x['action'] for x in r}; assert a == {'unchanged'}, a\""
 
+# Rendering nothing is not the same as writing nothing: every catalog index
+# and log.md were rewritten on every run regardless.
+export DIGEST="import hashlib,json,sys,pathlib; b=pathlib.Path(sys.argv[1]); print(json.dumps({str(p.relative_to(b)): hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(b.rglob('*')) if p.is_file()}, sort_keys=True))"
+step "re-materialize leaves the bundle byte-identical" bash -c "
+  python3 -c \"\$DIGEST\" $TMP/mat/knowledge > $TMP/before.json
+  python3 scripts/pkc_materialize.py --repo $TMP/mat --bundle knowledge \
+    --fold tests/fixtures/fold.json > /dev/null
+  python3 -c \"\$DIGEST\" $TMP/mat/knowledge > $TMP/after.json
+  diff $TMP/before.json $TMP/after.json"
+
 echo "== worklog invariants =="
 step "hooks/pre-commit" env WORKLOG_SKIP_BRANCH_GUARD=1 hooks/pre-commit
 step "commit-msg on commits vs origin/main" bash -c '

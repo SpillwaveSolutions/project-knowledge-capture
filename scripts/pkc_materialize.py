@@ -427,9 +427,18 @@ def _doc_to_concept(
     return [(rel, action, concept_type)]
 
 
+# Only these two actions put new bytes on disk. `skipped` compared and
+# discarded, `unchanged` short-circuited on the fingerprint, `refused` was
+# blocked by the truth_state barrier -- none of them change what a catalog
+# index would say, so none of them justify rewriting one.
+WROTE = ("created", "updated")
+
+
 def catalogs_touched(report: list[dict[str, str]]) -> set[str]:
     cats: set[str] = set()
     for r in report:
+        if r["action"] not in WROTE:
+            continue
         top = r["path"].split("/", 1)[0]
         cats.add(top)
     return cats
@@ -486,11 +495,16 @@ def main(argv: list[str] | None = None) -> int:
         updated = sum(1 for r in report if r["action"] == "updated")
         skipped = sum(1 for r in report if r["action"] == "skipped")
         unchanged = sum(1 for r in report if r["action"] == "unchanged")
-        append_log(
-            bundle,
-            f"Materialize: {created} created, {updated} updated, "
-            f"{skipped} skipped, {unchanged} unchanged",
-        )
+        # A run where every item short-circuited on its fingerprint wrote
+        # nothing. Appending a log line would be the only diff it produced,
+        # which is exactly the churn the fingerprint exists to prevent.
+        # `refused` still logs -- a blocked write is worth a record.
+        if any(r["action"] != "unchanged" for r in report):
+            append_log(
+                bundle,
+                f"Materialize: {created} created, {updated} updated, "
+                f"{skipped} skipped, {unchanged} unchanged",
+            )
 
     if args.json:
         print(json.dumps({"bundle": str(bundle), "results": report}, indent=2))

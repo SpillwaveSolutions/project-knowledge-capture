@@ -177,7 +177,7 @@
   },
   {
    "from": "item/01KZ75R3EXEG4GVGRP2S9CCKZ4",
-   "to": "release/v0.6.0",
+   "to": "release/v0.8.0",
    "type": "targets"
   },
   {
@@ -192,7 +192,7 @@
   },
   {
    "from": "item/01KZ75R3M6BYQ643NKDCCSEEZC",
-   "to": "release/v0.6.0",
+   "to": "release/v0.8.0",
    "type": "targets"
   },
   {
@@ -207,7 +207,7 @@
   },
   {
    "from": "item/01KZ75R3S2X1G4PCTGMMSR8BWA",
-   "to": "release/v0.6.0",
+   "to": "release/v0.8.0",
    "type": "targets"
   },
   {
@@ -305,12 +305,12 @@
   },
   "item/01KZ75NQ2VDVFD3R9F0SV38YEN": {
    "doc_type": "item",
-   "status": "todo",
+   "status": "done",
    "title": "Incremental materialize"
   },
   "item/01KZ75NQ7VFPF3YESB5P90DR29": {
    "doc_type": "item",
-   "status": "todo",
+   "status": "done",
    "title": "Risk and Acceptance concepts"
   },
   "item/01KZ75NQCMYGFYRCVJATEBVBRB": {
@@ -410,12 +410,12 @@
   },
   "item/01KZD15ZR0JEKW6FA0HXM7W9CG": {
    "doc_type": "item",
-   "status": "todo",
+   "status": "done",
    "title": "Re-materialize with no changes still churns catalogs and log"
   },
   "item/01KZD6QRF62XDCPBDH5BN0H1RD": {
    "doc_type": "item",
-   "status": "todo",
+   "status": "done",
    "title": "pkc_pack misses concepts that point at the seed"
   },
   "item/01KZD893CKNBNZZSA51Q3C6HKS": {
@@ -438,6 +438,9 @@
    "doc_type": "release"
   },
   "release/v0.6.0": {
+   "doc_type": "release"
+  },
+  "release/v0.8.0": {
    "doc_type": "release"
   },
   "roadmap": {

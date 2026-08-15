@@ -9,10 +9,10 @@ _The evidence chain: plan → item → ticket → code → release, forward and 
 `01KZD893CKNBNZZSA51Q3C6HKS` · status: done
 
 ### pkc_pack misses concepts that point at the seed
-`01KZD6QRF62XDCPBDH5BN0H1RD` · status: todo
+`01KZD6QRF62XDCPBDH5BN0H1RD` · status: done
 
 ### Re-materialize with no changes still churns catalogs and log
-`01KZD15ZR0JEKW6FA0HXM7W9CG` · status: todo
+`01KZD15ZR0JEKW6FA0HXM7W9CG` · status: done
 
 ### Add tools/ci-local.sh mirroring both CI workflows
 `01KZCA0DK74YQW82H4HZ1DJ8Q8` · status: done
@@ -38,19 +38,19 @@ _The evidence chain: plan → item → ticket → code → release, forward and 
 `01KZ75R3S2X1G4PCTGMMSR8BWA` · status: todo
 - belongs-to: MCP server mode
 - references: [github#17](https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/17)
-- targets: release/v0.6.0
+- targets: release/v0.8.0
 
 ### Expose validate over MCP
 `01KZ75R3M6BYQ643NKDCCSEEZC` · status: todo
 - belongs-to: MCP server mode
 - references: [github#16](https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/16)
-- targets: release/v0.6.0
+- targets: release/v0.8.0
 
 ### Expose pack over MCP
 `01KZ75R3EXEG4GVGRP2S9CCKZ4` · status: todo
 - belongs-to: MCP server mode
 - references: [github#15](https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/15)
-- targets: release/v0.6.0
+- targets: release/v0.8.0
 
 ### Cover Risk and Acceptance in sample-knowledge
 `01KZ75R39PENN65G92HKA108H3` · status: done
@@ -114,14 +114,14 @@ _The evidence chain: plan → item → ticket → code → release, forward and 
 - contains: Expose capture over MCP
 
 ### Risk and Acceptance concepts
-`01KZ75NQ7VFPF3YESB5P90DR29` · status: todo
+`01KZ75NQ7VFPF3YESB5P90DR29` · status: done
 - references: [github#4](https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/4)
 - contains: Add Risk type with mitigates and exposes edges
 - contains: Add Acceptance type with verified_by edge
 - contains: Cover Risk and Acceptance in sample-knowledge
 
 ### Incremental materialize
-`01KZ75NQ2VDVFD3R9F0SV38YEN` · status: todo
+`01KZ75NQ2VDVFD3R9F0SV38YEN` · status: done
 - references: [github#3](https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/3)
 - contains: Fingerprint worklog items on materialize
 - contains: Skip unchanged ULIDs without rewriting

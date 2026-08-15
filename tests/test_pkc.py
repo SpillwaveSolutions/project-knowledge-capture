@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import contextlib
+import hashlib
 import json
 import shutil
 import subprocess
@@ -181,7 +182,8 @@ class TestResolveKnowledgeRoot(unittest.TestCase):
 
 def mtimes(bundle: Path) -> dict[str, int]:
     """Concept path -> mtime_ns. Uses iter_concepts so the generated catalog
-    indexes and log.md — which are rewritten every run by design — stay out."""
+    indexes and log.md stay out. They no longer churn on an unchanged run --
+    see test_rerun_leaves_whole_bundle_identical, which covers them by hash."""
     return {str(p.relative_to(bundle)): p.stat().st_mtime_ns for p in iter_concepts(bundle)}
 from pkc_capture import capture_decision, capture_meeting  # noqa: E402
 from pkc_materialize import main as materialize_main  # noqa: E402
@@ -474,6 +476,39 @@ class TestIncrementalMaterialize(unittest.TestCase):
         self.run_fold(dict(self.ITEM))
         self.assertEqual(before, mtimes(self.bundle), "re-materialize rewrote files")
 
+    def test_rerun_leaves_whole_bundle_identical(self):
+        """A run that renders nothing must produce no diff at all.
+
+        Wider than test_rerun_touches_no_files, which uses iter_concepts and
+        so cannot see the two files that actually churned: every catalog
+        index.md and log.md were rewritten on every run, including runs where
+        each item short-circuited on its fingerprint.
+        """
+
+        def digest():
+            return {
+                str(p.relative_to(self.bundle)): hashlib.sha256(p.read_bytes()).hexdigest()
+                for p in sorted(self.bundle.rglob("*"))
+                if p.is_file()
+            }
+
+        self.run_fold(dict(self.ITEM))
+        before = digest()
+        self.assertIn("log.md", before, "expected a log line from the first run")
+        report = self.run_fold(dict(self.ITEM))
+        self.assertEqual({r["action"] for r in report}, {"unchanged"})
+        self.assertEqual(before, digest(), "no-op materialize dirtied the bundle")
+
+    def test_changed_item_still_refreshes_catalog_and_log(self):
+        """The churn fix must not silence a run that did write something."""
+        self.run_fold(dict(self.ITEM))
+        log_before = (self.bundle / "log.md").read_text(encoding="utf-8")
+        self.run_fold({**self.ITEM, "body": "Rewritten body."})
+        log_after = (self.bundle / "log.md").read_text(encoding="utf-8")
+        self.assertNotEqual(log_before, log_after, "a real write must reach log.md")
+        index = (self.bundle / "features" / "index.md").read_text(encoding="utf-8")
+        self.assertIn("Incremental demo", index)
+
 
 class TestConceptRef(unittest.TestCase):
     """Capture flags accept a path or a bare name; slugify must not eat paths."""
@@ -599,8 +634,10 @@ class TestRiskAndAcceptance(unittest.TestCase):
         rels = {(l["rel"], l["target"]) for l in fm["links"]}
         self.assertIn(("satisfies", "/features/user-authentication.md"), rels)
         self.assertIn(("verified_by", "/code/pr-12-jwt-middleware.md"), rels)
-        # pack() walks outbound only, so the Feature must point back or the
-        # criterion never appears in that Feature's context pack
+        # pack() now reads inbound edges too, so `satisfies` alone would make
+        # the criterion reachable. The inverse edge stays because `verified_by`
+        # is a distinct typed edge the Feature genuinely asserts, not a
+        # workaround for the traversal.
         ffm, _ = parse_frontmatter(
             (self.tmp / "features/user-authentication.md").read_text(encoding="utf-8")
         )
@@ -754,6 +791,62 @@ class TestPack(unittest.TestCase):
         types = {n["type"] for n in result["nodes"]}
         self.assertIn("DecisionRecord", types)
         self.assertIn("Meeting", types)
+
+
+    def test_pack_reaches_a_concept_that_only_points_inbound(self):
+        """The seed must see a concept that names it, without pointing back.
+
+        pack() walked outbound links only, so anything authored by hand -- or
+        by another plugin sharing the bundle -- stayed invisible from the seed
+        unless the seed happened to name it too.
+        """
+        tmp = Path(tempfile.mkdtemp())
+        try:
+            bundle = tmp / "knowledge"
+            (bundle / "features").mkdir(parents=True)
+            (bundle / "decisions").mkdir(parents=True)
+            (bundle / "index.md").write_text(
+                "---\ntype: Index\ntitle: Bundle\nokf_version: 0.1\n---\n", encoding="utf-8"
+            )
+            # The Feature names nobody.
+            (bundle / "features" / "lonely.md").write_text(
+                "---\ntype: Feature\ntitle: Lonely feature\n---\n\nNo links.\n",
+                encoding="utf-8",
+            )
+            # The Decision names the Feature. Nothing points back at it.
+            (bundle / "decisions" / "admirer.md").write_text(
+                "---\ntype: DecisionRecord\ntitle: Admiring decision\n"
+                "links:\n  - target: /features/lonely.md\n    rel: implements\n---\n",
+                encoding="utf-8",
+            )
+            seed = resolve_concept(bundle, "features/lonely.md")
+            result = pack(bundle, seed, hops=1, max_nodes=8)
+            paths = {n["path"] for n in result["nodes"]}
+            self.assertIn("/decisions/admirer.md", paths, paths)
+            # The edge keeps the direction it was authored in.
+            self.assertIn(
+                {
+                    "from": "/decisions/admirer.md",
+                    "to": "/features/lonely.md",
+                    "rel": "implements",
+                    "label": "lonely",
+                },
+                result["edges"],
+            )
+        finally:
+            shutil.rmtree(tmp)
+
+    def test_pack_ignores_catalog_and_generated_packs(self):
+        """Every concept is listed by its catalog index, so following those
+        inbound edges would pull whole directories into every pack."""
+        bundle = ROOT / "sample-knowledge"
+        seed = resolve_concept(bundle, "features/user-authentication.md")
+        result = pack(bundle, seed, hops=2, max_nodes=20)
+        paths = {n["path"] for n in result["nodes"]}
+        self.assertFalse(
+            [p for p in paths if p.endswith("/index.md") or p.startswith("/packs/")],
+            paths,
+        )
 
 
 class TestActionItems(unittest.TestCase):

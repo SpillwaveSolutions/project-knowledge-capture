@@ -1,6 +1,6 @@
 # Risk and Acceptance concepts
 
-`01KZ75NQ7VFPF3YESB5P90DR29` · epic/feature · **open**
+`01KZ75NQ7VFPF3YESB5P90DR29` · epic/feature · **done**
 
 Two kinds of project knowledge have no home in the graph today: risks (things that might go wrong, and what mitigates them) and acceptance criteria (the atomic conditions that decide whether a Feature is actually done).
 

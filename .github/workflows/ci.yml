@@ -95,6 +95,18 @@ jobs:
             a={x['action'] for x in r}; assert a == {'unchanged'}, a; \
             print(len(r), 'concepts, none rendered')"
 
+      # Rendering nothing is not the same as writing nothing: every catalog
+      # index and log.md were rewritten on every run regardless, so a no-op
+      # materialize still produced a diff.
+      - name: Re-materialize leaves the bundle byte-identical
+        run: |
+          DIGEST="import hashlib,json,sys,pathlib; b=pathlib.Path(sys.argv[1]); print(json.dumps({str(p.relative_to(b)): hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(b.rglob('*')) if p.is_file()}, sort_keys=True))"
+          python3 -c "$DIGEST" /tmp/pkc-ci/knowledge > /tmp/before.json
+          python3 scripts/pkc_materialize.py --repo /tmp/pkc-ci --bundle knowledge \
+            --fold tests/fixtures/fold.json > /dev/null
+          python3 -c "$DIGEST" /tmp/pkc-ci/knowledge > /tmp/after.json
+          diff /tmp/before.json /tmp/after.json || { echo "no-op materialize dirtied the bundle"; exit 1; }
+
   okf-interop:
     runs-on: ubuntu-latest
     continue-on-error: true

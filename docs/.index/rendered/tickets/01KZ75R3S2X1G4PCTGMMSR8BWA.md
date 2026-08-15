@@ -10,7 +10,7 @@ Expose capture over MCP.
 
 ## Release
 
-- [[Release-v0.6.0]]
+- [[Release-v0.8.0]]
 
 ## Related tickets
 

@@ -82,7 +82,9 @@ Direction matters and is not symmetric. `Decision --mitigates--> Risk`, never
 the reverse: a risk does not mitigate anything. `pkc_capture.py risk
 --mitigated-by <decision>` therefore writes its edge on the *decision*.
 
-Because `pack()` walks outbound edges only, a concept that points at a Feature
-is invisible from that Feature's pack unless the Feature points back.
-`capture_acceptance` writes the inverse `Feature --verified_by--> Acceptance`
-for exactly this reason.
+`pack()` reads inbound edges too, so a concept that points at a Feature is
+reachable from that Feature's pack without the Feature pointing back. Write an
+inverse edge only when the source genuinely asserts it. `capture_acceptance`
+still writes `Feature --verified_by--> Acceptance` because the Feature does
+assert it — `satisfies` and `verified_by` are two claims, not one claim stated
+twice.

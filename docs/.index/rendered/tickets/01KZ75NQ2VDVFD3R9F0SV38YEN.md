@@ -1,6 +1,6 @@
 # Incremental materialize
 
-`01KZ75NQ2VDVFD3R9F0SV38YEN` · epic/feature · **open**
+`01KZ75NQ2VDVFD3R9F0SV38YEN` · epic/feature · **done**
 
 Re-materializing a large worklog rewrites every concept file even when nothing changed, which churns git diffs and makes the operation O(all work) instead of O(changed work).
 
