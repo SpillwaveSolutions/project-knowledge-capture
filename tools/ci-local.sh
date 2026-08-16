@@ -8,6 +8,8 @@
 # Usage: tools/ci-local.sh          (from the repo root)
 set -uo pipefail
 cd "$(git rev-parse --show-toplevel)"
+# CI is an actor. Write paths fail closed without identity.
+export SECOND_BRAIN_IDENTITY="${SECOND_BRAIN_IDENTITY:-claude-code/lumenfield-detector}"
 
 pass=0; fail=0
 step() {

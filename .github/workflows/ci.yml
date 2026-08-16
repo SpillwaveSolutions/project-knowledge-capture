@@ -8,6 +8,8 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      SECOND_BRAIN_IDENTITY: claude-code/lumenfield-detector
     steps:
       - uses: actions/checkout@v4
 
