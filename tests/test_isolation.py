@@ -24,11 +24,18 @@ def git(repo: Path, *args: str) -> subprocess.CompletedProcess:
     )
 
 
-def run_session(*args: str) -> subprocess.CompletedProcess:
+def run_session(*args: str, env: dict | None = None) -> subprocess.CompletedProcess:
+    import os
+    run_env = os.environ.copy()
+    if env is None:
+        run_env.pop("SECOND_BRAIN_IDENTITY", None)
+    else:
+        run_env.update(env)
     return subprocess.run(
         [sys.executable, str(SESSION), *args],
         capture_output=True,
         text=True,
+        env=run_env,
     )
 
 

@@ -18,7 +18,7 @@ from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from pkc_capture import capture_discovery, capture_meeting  # noqa: E402
-from pkc_common import ensure_bundle, resolve_knowledge_root, scrub_text, utc_now  # noqa: E402
+from pkc_common import ensure_bundle, resolve_author, resolve_knowledge_root, scrub_text, utc_now  # noqa: E402
 
 # Slack-ish: [10:32 AM] Alice: message   or Alice  [10:32]
 # Discord-ish: Alice — Today at 10:32 AM
@@ -80,6 +80,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--repo", default=".")
     parser.add_argument("--bundle", default=None)
     parser.add_argument("--capture", action="store_true", help="Write concept (default: print only)")
+    parser.add_argument("--author", default="")
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args(argv)
 
@@ -89,9 +90,11 @@ def main(argv: list[str] | None = None) -> int:
     if args.capture:
         bundle = resolve_knowledge_root(Path(args.repo).resolve(), args.bundle)
         ensure_bundle(bundle)
+        author = resolve_author(args.author)
         if args.kind == "meeting":
             written = capture_meeting(
                 bundle,
+                author=author,
                 title=result["title"],
                 date=result["date"],
                 attendees=result["attendees"],
@@ -100,6 +103,7 @@ def main(argv: list[str] | None = None) -> int:
         else:
             written = capture_discovery(
                 bundle,
+                author=author,
                 title=result["title"],
                 source=args.source,
                 notes=result["notes"],

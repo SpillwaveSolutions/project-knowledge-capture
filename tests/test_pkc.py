@@ -23,16 +23,22 @@ from pkc_common import (  # noqa: E402
     add_typed_link,
     dump_frontmatter,
     append_log,
+    emit_write_event,
     ensure_bundle,
     ensure_catalog_index,
     refresh_catalog_index,
+    resolve_author,
     resolve_knowledge_root,
     iter_concepts,
     parse_frontmatter,
     path_for_type,
     slugify,
     write_concept,
+    write_knowledge,
 )
+
+AUTHOR = "claude-code/lumenfield-detector"
+
 
 
 class TestFrontmatterRoundTrip(unittest.TestCase):
@@ -266,6 +272,7 @@ class TestCapture(unittest.TestCase):
     def test_meeting_with_decision(self):
         results = capture_meeting(
             self.tmp,
+            author=AUTHOR,
             title="Auth design",
             date="2026-08-03",
             attendees=["rick"],
@@ -283,6 +290,7 @@ class TestCapture(unittest.TestCase):
     def test_decision_links(self):
         results = capture_decision(
             self.tmp,
+            author=AUTHOR,
             title="Use JWT",
             context="scale",
             decision="JWT",
@@ -351,6 +359,8 @@ class TestMaterialize(unittest.TestCase):
                 str(fold),
                 "--include",
                 "features,tickets",
+                "--author",
+                AUTHOR,
             ]
         )
         self.assertEqual(rc, 0)
@@ -371,6 +381,8 @@ class TestMaterialize(unittest.TestCase):
                 str(fold),
                 "--include",
                 "features,tickets",
+                "--author",
+                AUTHOR,
             ]
         )
         self.assertEqual(rc2, 0)
@@ -406,7 +418,8 @@ class TestIncrementalMaterialize(unittest.TestCase):
         with out.open("w") as fh, contextlib.redirect_stdout(fh):
             rc = materialize_main(
                 ["--repo", str(self.tmp), "--bundle", "knowledge", "--json",
-                 "--fold", str(fold), "--include", "features,tickets"]
+                 "--fold", str(fold), "--include", "features,tickets",
+                 "--author", AUTHOR]
             )
         self.assertEqual(rc, 0)
         return json.loads(out.read_text())["results"]
@@ -426,18 +439,18 @@ class TestIncrementalMaterialize(unittest.TestCase):
         import pkc_materialize
 
         calls = []
-        original = pkc_materialize.write_concept
+        original = pkc_materialize.write_knowledge
 
         def counting(*args, **kwargs):
             calls.append(args[1])
             return original(*args, **kwargs)
 
-        pkc_materialize.write_concept = counting
+        pkc_materialize.write_knowledge = counting
         try:
             self.run_fold(dict(self.ITEM))
         finally:
-            pkc_materialize.write_concept = original
-        self.assertEqual(calls, [], "unchanged item must not reach write_concept")
+            pkc_materialize.write_knowledge = original
+        self.assertEqual(calls, [], "unchanged item must not reach write_knowledge")
 
     def test_changed_field_rerenders(self):
         self.run_fold(dict(self.ITEM))
@@ -584,6 +597,7 @@ class TestRiskAndAcceptance(unittest.TestCase):
 
         results = capture_risk(
             self.tmp,
+            author=AUTHOR,
             title="Token replay after logout",
             statement="A stolen access token stays valid until it expires.",
             severity="high",
@@ -622,6 +636,7 @@ class TestRiskAndAcceptance(unittest.TestCase):
 
         results = capture_acceptance(
             self.tmp,
+            author=AUTHOR,
             title="Session expires within 15 minutes",
             criterion="An access token is rejected 15 minutes after issue.",
             satisfies="features/user-authentication.md",
@@ -648,7 +663,7 @@ class TestRiskAndAcceptance(unittest.TestCase):
     def test_captures_are_idempotent(self):
         from pkc_capture import capture_risk
 
-        kw = dict(title="Same risk", statement="Same statement.")
+        kw = dict(author=AUTHOR, title="Same risk", statement="Same statement.")
         self.assertEqual(capture_risk(self.tmp, **kw)[0][1], "created")
         self.assertEqual(capture_risk(self.tmp, **kw)[0][1], "skipped")
 
@@ -758,6 +773,7 @@ class TestWorkItemMaterialize(unittest.TestCase):
             [
                 "--repo", str(self.tmp), "--bundle", "knowledge",
                 "--fold", str(fold), "--include", "features,tickets",
+                "--author", AUTHOR,
             ]
         )
         self.assertEqual(rc, 0)
@@ -899,7 +915,7 @@ class TestPRCapture(unittest.TestCase):
         try:
             ensure_bundle(tmp, "T")
             pr = json.loads((ROOT / "tests/fixtures/pr.json").read_text())
-            rel, action = materialize_pr(tmp, pr, implements=["user-authentication"])
+            rel, action = materialize_pr(tmp, pr, author=AUTHOR, implements=["user-authentication"])
             self.assertEqual(action, "created")
             self.assertTrue((tmp / rel).is_file())
         finally:
@@ -911,8 +927,8 @@ class TestAssumptionQuestion(unittest.TestCase):
         tmp = Path(tempfile.mkdtemp())
         try:
             ensure_bundle(tmp, "T")
-            a = capture_assumption(tmp, title="A1", statement="S", assumes_for=["feat"])
-            q = capture_question(tmp, title="Q1", question="Why?", blocks=["feat"])
+            a = capture_assumption(tmp, author=AUTHOR, title="A1", statement="S", assumes_for=["feat"])
+            q = capture_question(tmp, author=AUTHOR, title="Q1", question="Why?", blocks=["feat"])
             self.assertTrue(a[0][0].startswith("assumptions/"))
             self.assertTrue(q[0][0].startswith("questions/"))
         finally:
@@ -993,7 +1009,7 @@ class TestAdrImport(unittest.TestCase):
         tmp = Path(tempfile.mkdtemp())
         try:
             ensure_bundle(tmp, "T")
-            results = import_dir(tmp, ROOT / "tests/fixtures/adr", dry_run=False)
+            results = import_dir(tmp, ROOT / "tests/fixtures/adr", author=AUTHOR, dry_run=False)
             self.assertGreaterEqual(len(results), 1)
             self.assertTrue((tmp / results[0][0]).is_file())
         finally:
@@ -1125,6 +1141,92 @@ class TestAutoContext(unittest.TestCase):
         )
         self.assertEqual(proc.returncode, 0, proc.stderr)
         self.assertEqual(proc.stdout.strip(), "")
+
+
+class TestRequiredIdentity(unittest.TestCase):
+    """Wave C: write without identity fails; write with identity stamps + WriteEvent."""
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp())
+        ensure_bundle(self.tmp, "T")
+        self._saved_ident = __import__("os").environ.pop("SECOND_BRAIN_IDENTITY", None)
+        self._saved_host = __import__("os").environ.pop("SECOND_BRAIN_HOST", None)
+
+    def tearDown(self):
+        import os
+        if self._saved_ident is None:
+            os.environ.pop("SECOND_BRAIN_IDENTITY", None)
+        else:
+            os.environ["SECOND_BRAIN_IDENTITY"] = self._saved_ident
+        if self._saved_host is None:
+            os.environ.pop("SECOND_BRAIN_HOST", None)
+        else:
+            os.environ["SECOND_BRAIN_HOST"] = self._saved_host
+        shutil.rmtree(self.tmp)
+
+    def test_resolve_author_fails_without_flag_or_env(self):
+        with self.assertRaises(SystemExit) as ctx:
+            resolve_author(None)
+        self.assertEqual(ctx.exception.code, 1)
+        with self.assertRaises(SystemExit):
+            resolve_author("")
+        with self.assertRaises(SystemExit):
+            resolve_author("   ")
+
+    def test_resolve_author_accepts_flag_or_env(self):
+        self.assertEqual(resolve_author("grok-bot/northstar-console"), "grok-bot/northstar-console")
+        import os
+        os.environ["SECOND_BRAIN_IDENTITY"] = "claude-code/lumenfield-detector"
+        self.assertEqual(resolve_author(None), "claude-code/lumenfield-detector")
+        self.assertEqual(resolve_author("flag-wins"), "flag-wins")
+
+    def test_capture_without_identity_raises(self):
+        from pkc_capture import main as capture_main
+        with self.assertRaises(SystemExit) as ctx:
+            capture_main(
+                [
+                    "--repo", str(self.tmp), "--bundle", str(self.tmp),
+                    "question", "--title", "Anon", "--question", "who wrote this?",
+                ]
+            )
+        self.assertEqual(ctx.exception.code, 1)
+
+    def test_write_stamps_author_and_emits_event(self):
+        from pkc_capture import capture_question
+        results = capture_question(
+            self.tmp,
+            author=AUTHOR,
+            title="Who owns the write path?",
+            question="Must every write carry an actor?",
+        )
+        rel, action = results[0]
+        self.assertEqual(action, "created")
+        fm, _ = parse_frontmatter((self.tmp / rel).read_text(encoding="utf-8"))
+        self.assertEqual(fm.get("author"), AUTHOR)
+        events = list((self.tmp / "write-events").glob("*.md"))
+        events = [p for p in events if p.name != "index.md"]
+        self.assertGreaterEqual(len(events), 1)
+        ev_fm, ev_body = parse_frontmatter(events[-1].read_text(encoding="utf-8"))
+        self.assertEqual(ev_fm.get("type"), "WriteEvent")
+        self.assertEqual(ev_fm.get("author"), AUTHOR)
+        self.assertIn(AUTHOR, ev_body)
+        self.assertIn(rel, ev_body)
+
+    def test_cli_capture_with_author_flag(self):
+        from pkc_capture import main as capture_main
+        rc = capture_main(
+            [
+                "--repo", str(self.tmp), "--bundle", str(self.tmp),
+                "--author", "grok-bot/northstar-console",
+                "assumption", "--title", "Identity is required",
+                "--statement", "No anonymous writes.",
+            ]
+        )
+        self.assertEqual(rc, 0)
+        assumptions = [p for p in (self.tmp / "assumptions").glob("*.md") if p.name != "index.md"]
+        self.assertEqual(len(assumptions), 1)
+        fm, _ = parse_frontmatter(assumptions[0].read_text(encoding="utf-8"))
+        self.assertEqual(fm.get("author"), "grok-bot/northstar-console")
 
 
 def main() -> int:

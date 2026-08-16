@@ -23,10 +23,11 @@ from pkc_common import (  # noqa: E402
     parse_frontmatter,
     path_for_type,
     refresh_catalog_index,
+    resolve_author,
     resolve_knowledge_root,
     slugify,
     utc_now,
-    write_concept,
+    write_knowledge,
 )
 
 ACTION_HEADER = re.compile(r"^##\s+Action items\s*$", re.I | re.M)
@@ -102,6 +103,7 @@ def emit_ticketlinks(
     items: list[dict[str, Any]],
     *,
     meeting_rel: str,
+    author: str,
     dry_run: bool = True,
 ) -> list[tuple[str, str]]:
     results = []
@@ -135,7 +137,7 @@ def emit_ticketlinks(
         if dry_run:
             results.append((rel, "proposed"))
         else:
-            _, action = write_concept(bundle, rel, fm, body)
+            _, action = write_knowledge(bundle, rel, fm, body, author=author)
             results.append((rel, action))
     if not dry_run and results:
         refresh_catalog_index(bundle, "tickets")
@@ -150,6 +152,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--apply", action="store_true", help="Create TicketLinks (and worklog if available)")
     parser.add_argument("--worklog", action="store_true", help="Also run bin/worklog add when applying")
     parser.add_argument("--parent", default=None, help="Parent worklog ULID for tasks")
+    parser.add_argument("--author", default="")
     args = parser.parse_args(argv)
 
     repo = Path(args.repo).resolve()
@@ -185,8 +188,9 @@ def main(argv: list[str] | None = None) -> int:
         print(f"  {cmd}")
 
     meeting_rel = "/" + path.resolve().relative_to(bundle.resolve()).as_posix()
+    author = resolve_author(args.author) if args.apply else (args.author or "dry-run")
     results = emit_ticketlinks(
-        bundle, items, meeting_rel=meeting_rel, dry_run=not args.apply
+        bundle, items, meeting_rel=meeting_rel, author=author, dry_run=not args.apply
     )
     print("\nTicketLinks:")
     for rel, action in results:

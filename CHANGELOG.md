@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.7.1 — unreleased
+
+### Added
+- **Required identity on every knowledge write.** `--author` or
+  `SECOND_BRAIN_IDENTITY` is fail-closed. Successful created/updated writes
+  stamp `author` on the concept and emit a `WriteEvent` under `write-events/`.
+  Wired through capture, materialize, pr_capture, adr_import, promote,
+  action_items, thread, and transcript. Matches the second-brain-core
+  `resolve_author` / `emit_write_event` pattern.
+
 ## 0.7.0 — unreleased
 
 ### Added

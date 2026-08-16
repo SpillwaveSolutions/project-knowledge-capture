@@ -177,6 +177,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--date", default=None)
     parser.add_argument("--json", action="store_true")
     parser.add_argument("--capture", action="store_true", help="Also write via pkc_capture meeting")
+    parser.add_argument("--author", default="")
     parser.add_argument("--repo", default=".")
     parser.add_argument("--bundle", default=None)
     args = parser.parse_args(argv)
@@ -186,15 +187,17 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.capture:
         from pkc_capture import capture_meeting
-        from pkc_common import ensure_bundle, resolve_knowledge_root
+        from pkc_common import ensure_bundle, resolve_author, resolve_knowledge_root
 
         bundle = resolve_knowledge_root(Path(args.repo).resolve(), args.bundle)
         ensure_bundle(bundle)
+        author = resolve_author(args.author)
         notes = result["notes"]
         if result["actions"]:
             notes += "\n\n## Action items\n\n" + "\n".join(f"- {a}" for a in result["actions"])
         written = capture_meeting(
             bundle,
+            author=author,
             title=result["title"],
             date=result["date"],
             attendees=[str(a) for a in result["attendees"]],

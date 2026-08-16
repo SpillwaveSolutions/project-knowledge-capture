@@ -25,10 +25,11 @@ from pkc_common import (  # noqa: E402
     parse_frontmatter,
     path_for_type,
     refresh_catalog_index,
+    resolve_author,
     resolve_knowledge_root,
     slugify,
     utc_now,
-    write_concept,
+    write_knowledge,
 )
 
 LEVEL_FEATURE = {"epic", "story"}
@@ -121,6 +122,7 @@ def materialize_item(
     item: dict[str, Any],
     *,
     include: set[str],
+    author: str,
     force: bool = False,
 ) -> list[tuple[str, str, str]]:
     results: list[tuple[str, str, str]] = []
@@ -193,7 +195,7 @@ def materialize_item(
             body += f"- Worklog ULID: `{ulid}`\n"
         if external_id:
             body += f"- External: {external_system} `{external_id}`\n"
-        _, action = write_concept(bundle, feature_rel, fm, body)
+        _, action = write_knowledge(bundle, feature_rel, fm, body, author=author)
         results.append((feature_rel, action, "Feature"))
 
     trel: str | None = None
@@ -232,7 +234,7 @@ def materialize_item(
         if external_id:
             tbody += f"- System: {external_system}\n- ID: `{external_id}`\n"
         tbody += f"\n## Status\n\n`{status}` · level `{level}` · kind `{kind}`\n"
-        _, action = write_concept(bundle, trel, tfm, tbody)
+        _, action = write_knowledge(bundle, trel, tfm, tbody, author=author)
         results.append((trel, action, "TicketLink"))
 
     work_type = work_concept_type(level, kind)
@@ -297,7 +299,7 @@ def materialize_item(
             wbody += "\n" + body_src.strip() + "\n"
         if ulid:
             wbody += f"\n## Provenance\n\n- Worklog ULID: `{ulid}`\n"
-        _, action = write_concept(bundle, wrel, wfm, wbody)
+        _, action = write_knowledge(bundle, wrel, wfm, wbody, author=author)
         results.append((wrel, action, work_type))
 
     branch_name = item.get("branch")
@@ -330,7 +332,7 @@ def materialize_item(
             if force:
                 bfm["force"] = True
             bbody = f"# {branch_name}\n\nSource-control branch materialized from a work item.\n"
-            _, action = write_concept(bundle, brel, bfm, bbody)
+            _, action = write_knowledge(bundle, brel, bfm, bbody, author=author)
             results.append((brel, action, "Branch"))
 
     return results
@@ -341,6 +343,7 @@ def materialize_docs(
     bundle: Path,
     *,
     include: set[str],
+    author: str,
     force: bool = False,
 ) -> list[tuple[str, str, str]]:
     results: list[tuple[str, str, str]] = []
@@ -353,28 +356,28 @@ def materialize_docs(
             for path in docs.glob(pattern):
                 if path.name.lower() in ("index.md", "readme.md"):
                     continue
-                results.extend(_doc_to_concept(path, bundle, "DecisionRecord", "decisions", force))
+                results.extend(_doc_to_concept(path, bundle, "DecisionRecord", "decisions", force, author))
 
     if "designs" in include:
         for pattern in ("**/design*/**/*.md", "**/walkthrough*/**/*.md"):
             for path in docs.glob(pattern):
                 if path.name.lower() in ("index.md", "readme.md"):
                     continue
-                results.extend(_doc_to_concept(path, bundle, "Design", "designs", force))
+                results.extend(_doc_to_concept(path, bundle, "Design", "designs", force, author))
 
     if "specs" in include:
         for pattern in ("**/plans/**/*.md", "**/plan*.md"):
             for path in docs.glob(pattern):
                 if path.name.lower() in ("index.md", "readme.md"):
                     continue
-                results.extend(_doc_to_concept(path, bundle, "Specification", "specs", force))
+                results.extend(_doc_to_concept(path, bundle, "Specification", "specs", force, author))
 
     if "releases" in include:
         for pattern in ("**/releases/**/*.md",):
             for path in docs.glob(pattern):
                 if path.name.lower() in ("index.md", "readme.md"):
                     continue
-                results.extend(_doc_to_concept(path, bundle, "Release", "releases", force))
+                results.extend(_doc_to_concept(path, bundle, "Release", "releases", force, author))
 
     # de-dupe by path (glob overlaps)
     seen: set[str] = set()
@@ -393,6 +396,7 @@ def _doc_to_concept(
     concept_type: str,
     catalog: str,
     force: bool,
+    author: str,
 ) -> list[tuple[str, str, str]]:
     text = path.read_text(encoding="utf-8")
     body = text
@@ -423,7 +427,7 @@ def _doc_to_concept(
     if force:
         fm["force"] = True
     content_body = f"# {title}\n\n> Source: `{path.as_posix()}`\n\n{body.strip()}\n"
-    _, action = write_concept(bundle, rel, fm, content_body)
+    _, action = write_knowledge(bundle, rel, fm, content_body, author=author)
     return [(rel, action, concept_type)]
 
 
@@ -459,6 +463,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--force", action="store_true")
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--json", action="store_true", help="Machine-readable report")
+    parser.add_argument("--author", default="")
     args = parser.parse_args(argv)
 
     repo = Path(args.repo).resolve()
@@ -468,6 +473,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if not args.dry_run:
         ensure_bundle(bundle)
+        author = resolve_author(args.author)
+    else:
+        author = args.author or "dry-run"
 
     report: list[dict[str, str]] = []
     if from_worklog:
@@ -478,13 +486,13 @@ def main(argv: list[str] | None = None) -> int:
             if item_status(item) == "cancelled" and not args.force:
                 continue
             for rel, action, kind in materialize_item(
-                bundle, item, include=include, force=args.force
+                bundle, item, include=include, author=author, force=args.force
             ):
                 report.append({"path": rel, "action": action, "type": kind})
 
     if args.from_docs:
         for rel, action, kind in materialize_docs(
-            repo, bundle, include=include, force=args.force
+            repo, bundle, include=include, author=author, force=args.force
         ):
             report.append({"path": rel, "action": action, "type": kind})
 

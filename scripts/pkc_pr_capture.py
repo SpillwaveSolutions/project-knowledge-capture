@@ -20,11 +20,12 @@ from pkc_common import (  # noqa: E402
     ensure_bundle,
     path_for_type,
     refresh_catalog_index,
+    resolve_author,
     resolve_knowledge_root,
     scrub_text,
     slugify,
     utc_now,
-    write_concept,
+    write_knowledge,
 )
 
 
@@ -49,6 +50,7 @@ def materialize_pr(
     bundle: Path,
     pr: dict[str, Any],
     *,
+    author: str,
     implements: list[str] | None = None,
 ) -> tuple[str, str]:
     number = pr.get("number") or pr.get("pr_number")
@@ -117,7 +119,7 @@ def materialize_pr(
         for link in links:
             content += f"- [{link['target']}]({link['target']})\n"
 
-    path, action = write_concept(bundle, rel, fm, content)
+    path, action = write_knowledge(bundle, rel, fm, content, author=author)
     refresh_catalog_index(bundle, "code")
     append_log(bundle, f"Captured CodeChange from PR #{number}: {title}")
     return rel, action
@@ -131,6 +133,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--gh-repo", default=None, help="owner/name for gh --repo")
     parser.add_argument("--bundle", default=None)
     parser.add_argument("--implements", action="append", default=[])
+    parser.add_argument("--author", default="")
     args = parser.parse_args(argv)
 
     if args.json_file:
@@ -148,7 +151,8 @@ def main(argv: list[str] | None = None) -> int:
 
     bundle = resolve_knowledge_root(Path(args.repo).resolve(), args.bundle)
     ensure_bundle(bundle)
-    rel, action = materialize_pr(bundle, pr, implements=args.implements)
+    author = resolve_author(args.author)
+    rel, action = materialize_pr(bundle, pr, author=author, implements=args.implements)
     print(f"[{action}] {rel}")
     return 0
 
