@@ -51,3 +51,7 @@ screenshots/*.png
 .env
 .env.*
 !.env.example
+
+# Isolation session bookkeeping
+.brain-sessions/
+.brain-worktrees/

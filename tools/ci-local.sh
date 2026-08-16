@@ -25,9 +25,10 @@ TMP=$(mktemp -d); trap 'rm -rf "$TMP"' EXIT
 
 echo "== unit tests =="
 step "test_pkc.py" python3 tests/test_pkc.py
+step "test_isolation.py" python3 tests/test_isolation.py
 
 echo "== compile =="
-step "py_compile all scripts" bash -c 'python3 -m py_compile scripts/pkc_*.py'
+step "py_compile all scripts" bash -c 'python3 -m py_compile scripts/pkc_*.py scripts/brain_session.py'
 
 echo "== bundle health =="
 step "validate $BUNDLE"  python3 scripts/pkc_validate.py --bundle "$BUNDLE"
