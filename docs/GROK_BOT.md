@@ -45,11 +45,14 @@ The model proposes structure. Scripts materialize Markdown + YAML.
 ```bash
 python3 scripts/pkc_capture.py meeting \
   --bundle "${SECOND_BRAIN_ROOT}" \
+  --author "${SECOND_BRAIN_IDENTITY}" \
   --title "Example design review"
 python3 scripts/pkc_pack.py features/user-authentication.md \
   --bundle "${SECOND_BRAIN_ROOT}" --hops 2
 python3 scripts/pkc_validate.py --bundle "${SECOND_BRAIN_ROOT}"
 ```
+
+Every knowledge write requires `--author` or `SECOND_BRAIN_IDENTITY`. The write fails closed without one. Successful created/updated writes stamp `author` on the concept and emit a `WriteEvent`.
 
 **Forbidden:** silent raw dumps into the knowledge tree without type, provenance, or validation.
 

@@ -24,11 +24,12 @@ from pkc_common import (  # noqa: E402
     parse_frontmatter,
     path_for_type,
     refresh_catalog_index,
+    resolve_author,
     resolve_knowledge_root,
     scrub_text,
     slugify,
     utc_now,
-    write_concept,
+    write_knowledge,
 )
 
 STATUS_MAP = {
@@ -88,6 +89,7 @@ def import_dir(
     bundle: Path,
     source: Path,
     *,
+    author: str,
     dry_run: bool = False,
 ) -> list[tuple[str, str]]:
     files = sorted(source.rglob("*.md")) if source.is_dir() else [source]
@@ -136,7 +138,7 @@ Imported from `{parsed['source']}`.
         if dry_run:
             results.append((rel, "proposed"))
         else:
-            _, action = write_concept(bundle, rel, fm, body)
+            _, action = write_knowledge(bundle, rel, fm, body, author=author)
             results.append((rel, action))
     if not dry_run and results:
         refresh_catalog_index(bundle, "decisions")
@@ -149,6 +151,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--repo", default=".")
     parser.add_argument("--bundle", default=None)
     parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument("--author", default="")
     args = parser.parse_args(argv)
 
     source = Path(args.source)
@@ -159,8 +162,11 @@ def main(argv: list[str] | None = None) -> int:
     bundle = resolve_knowledge_root(Path(args.repo).resolve(), args.bundle)
     if not args.dry_run:
         ensure_bundle(bundle)
+        author = resolve_author(args.author)
+    else:
+        author = args.author or "dry-run"
 
-    results = import_dir(bundle, source, dry_run=args.dry_run)
+    results = import_dir(bundle, source, author=author, dry_run=args.dry_run)
     if not results:
         print("No ADR files found.")
         return 0

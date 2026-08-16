@@ -18,11 +18,12 @@ from pkc_common import (  # noqa: E402
     ensure_bundle,
     path_for_type,
     refresh_catalog_index,
+    resolve_author,
     resolve_knowledge_root,
     scrub_text,
     slugify,
     utc_now,
-    write_concept,
+    write_knowledge,
 )
 
 
@@ -34,6 +35,7 @@ def _scrub(notes: str) -> str:
 def capture_meeting(
     bundle: Path,
     *,
+    author: str,
     title: str,
     date: str,
     attendees: list[str],
@@ -70,7 +72,7 @@ def capture_meeting(
             f"# {d}\n\n## Context\n\nCaptured from meeting [{title}](/{rel}).\n\n"
             f"## Decision\n\n{d}\n\n## Consequences\n\n_TBD — refine after capture._\n"
         )
-        _, action = write_concept(bundle, drel, dfm, dbody)
+        _, action = write_knowledge(bundle, drel, dfm, dbody, author=author)
         results.append((drel, action))
 
     fm: dict[str, Any] = {
@@ -96,7 +98,7 @@ def capture_meeting(
         body += "\n## Decisions extracted\n\n"
         for dp in decision_paths:
             body += f"- [{Path(dp).stem}](/{dp})\n"
-    _, action = write_concept(bundle, rel, fm, body)
+    _, action = write_knowledge(bundle, rel, fm, body, author=author)
     results.insert(0, (rel, action))
     refresh_catalog_index(bundle, "meetings")
     if decision_paths:
@@ -108,6 +110,7 @@ def capture_meeting(
 def capture_experiment(
     bundle: Path,
     *,
+    author: str,
     title: str,
     hypothesis: str,
     result: str,
@@ -156,7 +159,7 @@ def capture_experiment(
         body += "\n## Informs\n\n"
         for link in links:
             body += f"- [{link['target']}]({link['target']})\n"
-    _, action = write_concept(bundle, rel, fm, body)
+    _, action = write_knowledge(bundle, rel, fm, body, author=author)
     refresh_catalog_index(bundle, "experiments")
     append_log(bundle, f"Captured experiment: {title}")
     return [(rel, action)]
@@ -165,6 +168,7 @@ def capture_experiment(
 def capture_discovery(
     bundle: Path,
     *,
+    author: str,
     title: str,
     source: str,
     notes: str,
@@ -216,7 +220,7 @@ def capture_discovery(
         body += "\n## Related\n\n"
         for link in links:
             body += f"- [{link['target']}]({link['target']}) (`informs`)\n"
-    _, action = write_concept(bundle, rel, fm, body)
+    _, action = write_knowledge(bundle, rel, fm, body, author=author)
     refresh_catalog_index(bundle, "discoveries")
     append_log(bundle, f"Captured discovery: {title}")
     return [(rel, action)]
@@ -225,6 +229,7 @@ def capture_discovery(
 def capture_decision(
     bundle: Path,
     *,
+    author: str,
     title: str,
     context: str,
     decision: str,
@@ -276,7 +281,7 @@ def capture_decision(
         for link in links:
             label = Path(link["target"]).stem
             body += f"- [{label}]({link['target']}) (`{link['rel']}`)\n"
-    _, action = write_concept(bundle, rel, fm, body)
+    _, action = write_knowledge(bundle, rel, fm, body, author=author)
     refresh_catalog_index(bundle, "decisions")
     append_log(bundle, f"Captured decision: {title}")
     return [(rel, action)]
@@ -285,6 +290,7 @@ def capture_decision(
 def capture_assumption(
     bundle: Path,
     *,
+    author: str,
     title: str,
     statement: str,
     rationale: str = "",
@@ -330,7 +336,7 @@ _What experiment or evidence would validate or invalidate this?_
         body += "\n## Applies to\n\n"
         for link in links:
             body += f"- [{link['target']}]({link['target']}) (`assumes`)\n"
-    _, action = write_concept(bundle, rel, fm, body)
+    _, action = write_knowledge(bundle, rel, fm, body, author=author)
     refresh_catalog_index(bundle, "assumptions")
     append_log(bundle, f"Captured assumption: {title}")
     return [(rel, action)]
@@ -339,6 +345,7 @@ _What experiment or evidence would validate or invalidate this?_
 def capture_risk(
     bundle: Path,
     *,
+    author: str,
     title: str,
     statement: str,
     severity: str = "medium",
@@ -394,7 +401,7 @@ _What reduces the likelihood or blast radius?_
         body += "\n## Related\n\n"
         for link in links:
             body += f"- [{link['target']}]({link['target']}) (`{link['rel']}`)\n"
-    _, action = write_concept(bundle, rel, fm, body)
+    _, action = write_knowledge(bundle, rel, fm, body, author=author)
     # The mitigation edge belongs on the decision that mitigates, pointing here.
     for t in mitigated_by or []:
         target = concept_ref(t, "decisions")
@@ -410,6 +417,7 @@ _What reduces the likelihood or blast radius?_
 def capture_acceptance(
     bundle: Path,
     *,
+    author: str,
     title: str,
     criterion: str,
     satisfies: str | None = None,
@@ -462,7 +470,7 @@ _Test, review, or observation that settles this._
         body += "\n## Related\n\n"
         for link in links:
             body += f"- [{link['target']}]({link['target']}) (`{link['rel']}`)\n"
-    _, action = write_concept(bundle, rel, fm, body)
+    _, action = write_knowledge(bundle, rel, fm, body, author=author)
     if satisfies:
         target = concept_ref(satisfies, "features")
         if add_typed_link(bundle / target.lstrip("/"), f"/{rel}", "verified_by") == "error":
@@ -475,6 +483,7 @@ _Test, review, or observation that settles this._
 def capture_question(
     bundle: Path,
     *,
+    author: str,
     title: str,
     question: str,
     context: str = "",
@@ -520,7 +529,7 @@ _Unanswered — capture a Decision or Discovery when resolved._
         body += "\n## Blocks\n\n"
         for link in links:
             body += f"- [{link['target']}]({link['target']}) (`blocks`)\n"
-    _, action = write_concept(bundle, rel, fm, body)
+    _, action = write_knowledge(bundle, rel, fm, body, author=author)
     refresh_catalog_index(bundle, "questions")
     append_log(bundle, f"Captured question: {title}")
     return [(rel, action)]
@@ -530,6 +539,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="PKC capture helpers")
     parser.add_argument("--repo", default=".")
     parser.add_argument("--bundle", default=None)
+    parser.add_argument("--author", default="")
     sub = parser.add_subparsers(dest="kind", required=True)
 
     m = sub.add_parser("meeting")
@@ -596,6 +606,7 @@ def main(argv: list[str] | None = None) -> int:
     repo = Path(args.repo).resolve()
     bundle = resolve_knowledge_root(repo, args.bundle)
     ensure_bundle(bundle)
+    author = resolve_author(args.author)
 
     if args.kind == "meeting":
         notes = args.notes
@@ -603,6 +614,7 @@ def main(argv: list[str] | None = None) -> int:
             notes = Path(args.notes_file).read_text(encoding="utf-8")
         results = capture_meeting(
             bundle,
+            author=author,
             title=args.title,
             date=args.date,
             attendees=[x.strip() for x in args.attendees.split(",") if x.strip()],
@@ -612,6 +624,7 @@ def main(argv: list[str] | None = None) -> int:
     elif args.kind == "experiment":
         results = capture_experiment(
             bundle,
+            author=author,
             title=args.title,
             hypothesis=args.hypothesis,
             result=args.result,
@@ -624,6 +637,7 @@ def main(argv: list[str] | None = None) -> int:
             notes = Path(args.notes_file).read_text(encoding="utf-8")
         results = capture_discovery(
             bundle,
+            author=author,
             title=args.title,
             source=args.source,
             notes=notes,
@@ -634,6 +648,7 @@ def main(argv: list[str] | None = None) -> int:
     elif args.kind == "decision":
         results = capture_decision(
             bundle,
+            author=author,
             title=args.title,
             context=args.context,
             decision=args.decision,
@@ -645,6 +660,7 @@ def main(argv: list[str] | None = None) -> int:
     elif args.kind == "risk":
         results = capture_risk(
             bundle,
+            author=author,
             title=args.title,
             statement=args.statement,
             severity=args.severity,
@@ -654,6 +670,7 @@ def main(argv: list[str] | None = None) -> int:
     elif args.kind == "acceptance":
         results = capture_acceptance(
             bundle,
+            author=author,
             title=args.title,
             criterion=args.criterion,
             satisfies=args.satisfies,
@@ -662,6 +679,7 @@ def main(argv: list[str] | None = None) -> int:
     elif args.kind == "assumption":
         results = capture_assumption(
             bundle,
+            author=author,
             title=args.title,
             statement=args.statement,
             rationale=args.rationale,
@@ -671,6 +689,7 @@ def main(argv: list[str] | None = None) -> int:
     else:
         results = capture_question(
             bundle,
+            author=author,
             title=args.title,
             question=args.question,
             context=args.context,

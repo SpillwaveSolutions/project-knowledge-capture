@@ -725,6 +725,39 @@ def emit_write_event(
     return bundle / ev_rel
 
 
+def write_knowledge(
+    bundle: Path,
+    rel_path: str,
+    frontmatter: dict[str, Any],
+    body: str,
+    *,
+    author: str,
+    host: str | None = None,
+    merge: bool = True,
+    create_only: bool = False,
+    emit_event: bool = True,
+) -> tuple[Path, str]:
+    """Stamp author, write via write_concept, emit WriteEvent on created/updated.
+
+    write_concept stays pure. Callers that own a knowledge write go through here.
+    """
+    if not (author or "").strip():
+        resolve_author(author)
+    fm = {**frontmatter, "author": author}
+    path, action = write_concept(
+        bundle, rel_path, fm, body, merge=merge, create_only=create_only
+    )
+    if emit_event and action in ("created", "updated"):
+        emit_write_event(
+            bundle,
+            author=author,
+            typ=str(fm.get("type") or "Concept"),
+            dest=path,
+            host=host if host is not None else os.environ.get("SECOND_BRAIN_HOST", ""),
+        )
+    return path, action
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="PKC common utilities CLI")
     sub = parser.add_subparsers(dest="cmd", required=True)
