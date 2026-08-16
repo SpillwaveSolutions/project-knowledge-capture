@@ -8,8 +8,7 @@
 # Usage: tools/ci-local.sh          (from the repo root)
 set -uo pipefail
 cd "$(git rev-parse --show-toplevel)"
-# CI is an actor. Write paths fail closed without identity.
-export SECOND_BRAIN_IDENTITY="${SECOND_BRAIN_IDENTITY:-claude-code/lumenfield-detector}"
+CI_AUTHOR=claude-code/lumenfield-detector
 
 pass=0; fail=0
 step() {
@@ -54,7 +53,7 @@ step "transcript scrub" bash -c "
   python3 scripts/pkc_transcript.py --file tests/fixtures/transcript_speakers.txt --json \
     | python3 -c \"import json,sys;d=json.load(sys.stdin);assert d['redactions'] or 'REDACTED' in d['notes']\""
 step "PR fixture" python3 scripts/pkc_pr_capture.py --json-file tests/fixtures/pr.json \
-    --repo "$TMP/pr" --implements user-authentication
+    --repo "$TMP/pr" --implements user-authentication --author "$CI_AUTHOR"
 
 echo "== query surfaces =="
 step "search" bash -c "
@@ -85,15 +84,15 @@ step "silent on an unrelated prompt" bash -c "
 
 echo "== materialize idempotency =="
 step "second run reports 0 created" bash -c "
-  python3 scripts/pkc_materialize.py --repo $TMP/mat --bundle knowledge --fold tests/fixtures/fold.json >/dev/null
-  python3 scripts/pkc_materialize.py --repo $TMP/mat --bundle knowledge --fold tests/fixtures/fold.json \
+  python3 scripts/pkc_materialize.py --repo $TMP/mat --bundle knowledge --fold tests/fixtures/fold.json --author $CI_AUTHOR >/dev/null
+  python3 scripts/pkc_materialize.py --repo $TMP/mat --bundle knowledge --fold tests/fixtures/fold.json --author $CI_AUTHOR \
     | grep -q '0 created'"
 # `0 created` was true before incremental materialize existed. `unchanged`
 # (short-circuited on fingerprint) vs `skipped` (rendered, then discarded) is
 # the distinction that actually proves nothing was rendered.
 step "re-materialize renders nothing" bash -c "
   python3 scripts/pkc_materialize.py --repo $TMP/mat --bundle knowledge \
-    --fold tests/fixtures/fold.json --json > $TMP/mat3.json
+    --fold tests/fixtures/fold.json --json --author $CI_AUTHOR > $TMP/mat3.json
   python3 -c \"import json; r=json.load(open('$TMP/mat3.json'))['results']; \
     a={x['action'] for x in r}; assert a == {'unchanged'}, a\""
 
