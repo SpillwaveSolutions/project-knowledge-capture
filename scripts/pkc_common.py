@@ -4,12 +4,12 @@
 from __future__ import annotations
 
 import argparse
-import contextlib
-import hashlib
 import json
 import os
-import re
 import secrets
+import contextlib
+import hashlib
+import re
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -197,11 +197,6 @@ def resolve_knowledge_root(repo_root: Path, override: str | None = None) -> Path
     intended = repo_root / name
     for candidate in (intended, repo_root / "sample-knowledge", repo_root / ".okf"):
         if candidate.is_dir() and (candidate / "index.md").is_file():
-            # Say so when we did NOT land on the intended root. The docs do
-            # describe this order, but falling through to `sample-knowledge/` is
-            # easy to hit -- the plugin repo ships one, so a capture run inside a
-            # clone before initializing a bundle writes there -- and only one of
-            # the entry points announced the bundle it used.
             if candidate != intended:
                 print(
                     f"pkc: '{intended}' is not an initialized bundle; "
@@ -210,74 +205,6 @@ def resolve_knowledge_root(repo_root: Path, override: str | None = None) -> Path
                 )
             return candidate
     return intended
-
-
-def resolve_author(explicit: str | None = None) -> str:
-    """Require a claimed identity for every knowledge write.
-
-    Fail closed: either --author or SECOND_BRAIN_IDENTITY must be set.
-    Matches the ContentPack / second-brain-core contract.
-    """
-    author = (explicit or os.environ.get("SECOND_BRAIN_IDENTITY") or "").strip()
-    if not author:
-        print(
-            json.dumps(
-                {
-                    "error": "claim an identity first",
-                    "hint": "pass --author or set SECOND_BRAIN_IDENTITY",
-                }
-            )
-        )
-        raise SystemExit(1)
-    return author
-
-
-def emit_write_event(
-    bundle: Path,
-    *,
-    author: str,
-    typ: str,
-    dest: Path,
-    host: str = "",
-) -> Path | None:
-    """Record a WriteEvent for a successful knowledge write.
-
-    Skips when the written type is itself a WriteEvent (no recursion).
-    Host defaults to SECOND_BRAIN_HOST or empty.
-    """
-    if typ == "WriteEvent":
-        return None
-    host = host or os.environ.get("SECOND_BRAIN_HOST", "")
-    try:
-        rel = "/" + str(dest.relative_to(bundle)).replace("\\", "/")
-    except ValueError:
-        rel = "/" + dest.name
-    event_id = f"{int(datetime.now(timezone.utc).timestamp())}-{secrets.token_hex(3)}"
-    ev_rel = f"write-events/{event_id}.md"
-    ev_path = bundle / ev_rel
-    fm = {
-        "type": "WriteEvent",
-        "title": f"write {typ} {dest.name}",
-        "status": "recorded",
-        "timestamp": utc_now(),
-        "author": author,
-        "tags": ["write-event", typ.lower()],
-        "links": [{"target": rel, "rel": "documents"}],
-    }
-    body = (
-        f"# Write {typ}\n\n"
-        f"- actor: `{author}`\n"
-        f"- host: `{host or 'unknown'}`\n"
-        f"- path: `{rel}`\n"
-        f"- type: `{typ}`\n"
-    )
-    # Use the pure write path; do not recurse through emit.
-    path = bundle / ev_rel
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(dump_frontmatter(fm) + "\n" + body.rstrip() + "\n", encoding="utf-8")
-    ensure_catalog_index(bundle, "write-events", "Write Events")
-    refresh_catalog_index(bundle, "write-events")
-    return path
 
 
 def _parse_simple_yaml(text: str) -> dict[str, Any]:
@@ -355,20 +282,7 @@ def _is_quoted(value: str) -> bool:
 
 
 def _unescape(s: str) -> str:
-    """Reverse the escaping `_fmt_scalar` applies to a quoted scalar.
-
-    Without this, `parse(dump(x)) != x` for any value containing a quote or a
-    backslash: the dumper escapes, the reader only strips the quotes, and every
-    read-modify-write cycle re-escapes what was already escaped. Backslash count
-    doubles per pass, so a script that edits one field corrupts every quoted
-    string in the file.
-
-    It is also self-concealing -- reading the file back with this same parser
-    returns a value that looks right, because the escaping is never undone, so
-    the damage lives only in the bytes on disk.
-
-    Single-pass, so a literal backslash-quote in the source survives intact.
-    """
+    """Reverse the escaping `_fmt_scalar` applies to a quoted scalar."""
     out: list[str] = []
     i = 0
     while i < len(s):
@@ -505,22 +419,6 @@ def write_concept(
     """Write a concept. Returns (path, action).
 
     action is one of "created", "updated", "skipped", "exists", "refused".
-
-    - "skipped"  — content was byte-identical; nothing to do.
-    - "exists"   — create_only and the file was already there.
-    - "refused"  — a truth_state barrier blocked the write.
-
-    "refused" used to be reported as "skipped", so a rejected write was
-    indistinguishable from a no-op: a caller got back "skipped" and reported
-    success having written nothing.
-
-    create_only exists because `merge` protects frontmatter, never the body — a
-    non-empty body always wins, which is right for re-capture and wrong for a
-    scaffolding pass.
-
-    Identity and WriteEvent are the caller's responsibility: resolve_author +
-    stamp author into frontmatter, then emit_write_event after a successful
-    created/updated. This keeps write_concept pure.
     """
     path = bundle / rel_path.lstrip("/")
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -560,16 +458,6 @@ def write_concept(
 
 
 def _escape_link_label(label: str) -> str:
-    """Make a concept title safe to use as a Markdown link label.
-
-    An unescaped `[AREA]` title renders as `[[AREA]](/cat/x.md)`, which the OKF
-    graph reader's link regex cannot match. That yields a MISSING edge rather
-    than a broken one, and validate reports only broken edges -- so the concept
-    silently loses its catalog backlink. Bracketed titles are ordinary in
-    exported wiki content.
-
-    One helper, used by both catalog renderers, so they cannot drift apart.
-    """
     return label.replace("[", "\\[").replace("]", "\\]")
 
 
@@ -601,15 +489,6 @@ def ensure_catalog_index(bundle: Path, catalog: str, title: str | None = None) -
 
 
 def refresh_catalog_index(bundle: Path, catalog: str) -> None:
-    # Refuse catalogs this plugin does not declare. Bundles are routinely shared
-    # with the sibling capture plugins, which own catalogs we know nothing about
-    # and render them differently, so driving this renderer over one of theirs
-    # rewrites their file into our format. Every built-in caller passes a
-    # declared catalog; the exposure is an outside caller iterating directories.
-    #
-    # This does NOT make a shared bundle stable on its own: for a catalog two
-    # plugins both declare, the guard passes in both. That needs the renderers
-    # to agree on a format, which is a cross-repo conversation.
     if catalog not in CATALOGS:
         return
     cat_dir = bundle / catalog
@@ -634,29 +513,12 @@ def refresh_catalog_index(bundle: Path, catalog: str) -> None:
 
 @contextlib.contextmanager
 def _file_lock(target: Path):
-    """Advisory lock around a whole-file read-modify-write.
-
-    `append_log` and `refresh_catalog_index` both read a file, edit it in memory
-    and write it back. Two processes whose read/write windows overlap lose one
-    side's change silently. Not hypothetical here: pkc-curate.sh fires a catalog
-    refresh from a PostToolUse hook on every edit.
-
-    O_APPEND is not usable for the log: entries are inserted under today's
-    heading mid-file, not appended at the end.
-
-    Locks the target file itself rather than a sidecar `.lock`, so nothing extra
-    is left in the bundle for `git status` or a directory walk to trip over.
-
-    Best-effort: fcntl is POSIX-only and some filesystems refuse it, so failing
-    to lock degrades to the previous behaviour rather than blocking a capture.
-    """
     fh = None
     try:
         target.parent.mkdir(parents=True, exist_ok=True)
         fh = open(target, "a+")
         try:
             import fcntl
-
             fcntl.flock(fh.fileno(), fcntl.LOCK_EX)
         except Exception:
             pass
@@ -771,18 +633,6 @@ def content_fingerprint(*parts: str) -> str:
 
 
 def concept_ref(value: str, default_dir: str) -> str:
-    """Normalize a concept reference to an absolute in-bundle path.
-
-    Accepts an absolute path (`/features/x.md`), a relative path
-    (`features/x.md`), or a bare title (`User Authentication`) which is
-    slugified into `default_dir`.
-
-    Exists because callers used to do `t if t.startswith("/") else
-    f"/{dir}/{slugify(t)}.md"`, which mangles a relative path:
-    slugify strips `/` and `.`, so `features/user-auth.md` became
-    `featuresuser-authmd`. Paths are the natural thing to pass, since every
-    other command takes them.
-    """
     v = value.strip()
     if v.startswith("/"):
         return v
@@ -819,6 +669,60 @@ def parse_iso_date(value: Any) -> datetime | None:
             return datetime.strptime(value[:10], "%Y-%m-%d").replace(tzinfo=timezone.utc)
         except ValueError:
             return None
+
+
+def resolve_author(explicit: str | None = None) -> str:
+    """Fail-closed identity claim. Prefer --author, else SECOND_BRAIN_IDENTITY."""
+    author = (explicit or os.environ.get("SECOND_BRAIN_IDENTITY") or "").strip()
+    if not author:
+        print(
+            json.dumps(
+                {
+                    "error": "claim an identity first",
+                    "hint": "pass --author or set SECOND_BRAIN_IDENTITY",
+                }
+            )
+        )
+        raise SystemExit(1)
+    return author
+
+
+def emit_write_event(
+    bundle: Path,
+    *,
+    author: str,
+    typ: str,
+    dest: Path,
+    host: str = "",
+) -> Path | None:
+    """Record a WriteEvent node for a successful knowledge write. Skip self."""
+    if typ == "WriteEvent":
+        return None
+    try:
+        rel = "/" + str(dest.relative_to(bundle)).replace("\\", "/")
+    except ValueError:
+        rel = "/" + dest.name
+    event_id = f"{int(datetime.now(timezone.utc).timestamp())}-{secrets.token_hex(3)}"
+    ev_rel = f"write-events/{event_id}.md"
+    fm = {
+        "type": "WriteEvent",
+        "title": f"write {typ} {dest.name}",
+        "status": "recorded",
+        "timestamp": utc_now(),
+        "author": author,
+        "tags": ["write-event", typ.lower()],
+        "links": [{"target": rel, "rel": "documents"}],
+    }
+    body = (
+        f"# Write {typ}\n\n"
+        f"- actor: `{author}`\n"
+        f"- host: `{host or 'unknown'}`\n"
+        f"- path: `{rel}`\n"
+        f"- type: `{typ}`\n"
+    )
+    write_concept(bundle, ev_rel, fm, body, merge=False)
+    ensure_catalog_index(bundle, "write-events", "Write Events")
+    return bundle / ev_rel
 
 
 def main(argv: list[str] | None = None) -> int:
