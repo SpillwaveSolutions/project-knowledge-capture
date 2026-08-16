@@ -18,12 +18,13 @@ jobs:
 
       - name: Unit tests
         run: python3 tests/test_pkc.py
+      - run: python3 tests/test_isolation.py
 
       # Glob, not a list. The hand-maintained list drifted: it was missing
       # digest, release_notes, thread, federate, and adr_import, all of which
       # shipped in 0.4.0 and were never compiled here.
       - name: Compile scripts
-        run: python3 -m py_compile scripts/pkc_*.py
+        run: python3 -m py_compile scripts/pkc_*.py scripts/brain_session.py
 
       - name: Validate sample-knowledge
         run: python3 scripts/pkc_validate.py --bundle sample-knowledge
