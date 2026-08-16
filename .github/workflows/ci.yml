@@ -104,6 +104,11 @@ jobs:
       # so tools/ci-local.sh could not share the check.
       - name: Re-materialize leaves the bundle byte-identical
         run: |
+          exec 2>&1
+          set -x
+          echo "MARKER-START"
+          ls -la /tmp/pkc-ci || echo "NO SUCH DIR"
+          git --version
           git -C /tmp/pkc-ci init -q
           git -C /tmp/pkc-ci add -A
           git -C /tmp/pkc-ci -c user.email=ci@example.com -c user.name=ci commit -qm baseline
@@ -113,6 +118,7 @@ jobs:
           if [ -s /tmp/dirty.txt ]; then
             echo "no-op materialize dirtied the bundle:"; cat /tmp/dirty.txt; exit 1
           fi
+          echo "MARKER-END"
 
   okf-interop:
     runs-on: ubuntu-latest
