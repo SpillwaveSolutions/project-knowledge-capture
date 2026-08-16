@@ -51,7 +51,8 @@ jobs:
           python3 scripts/pkc_transcript.py --file tests/fixtures/transcript_speakers.txt --json \
             | python3 -c "import json,sys; d=json.load(sys.stdin); assert d['redactions'] or 'REDACTED' in d['notes']"
           python3 scripts/pkc_pr_capture.py --json-file tests/fixtures/pr.json \
-            --repo /tmp/pkc-pr --implements user-authentication
+            --repo /tmp/pkc-pr --implements user-authentication \
+            --author claude-code/lumenfield-detector
 
       - name: Search + digest + release notes + thread + ADR
         run: |
@@ -78,9 +79,11 @@ jobs:
       - name: Materialize fixture idempotency
         run: |
           python3 scripts/pkc_materialize.py --repo /tmp/pkc-ci --bundle knowledge \
-            --fold tests/fixtures/fold.json
+            --fold tests/fixtures/fold.json \
+            --author claude-code/lumenfield-detector
           python3 scripts/pkc_materialize.py --repo /tmp/pkc-ci --bundle knowledge \
-            --fold tests/fixtures/fold.json | tee /tmp/mat2.txt
+            --fold tests/fixtures/fold.json \
+            --author claude-code/lumenfield-detector | tee /tmp/mat2.txt
           grep -q "0 created" /tmp/mat2.txt
 
       # `0 created` was already true before incremental materialize existed --
@@ -91,7 +94,8 @@ jobs:
       - name: Re-materialize renders nothing
         run: |
           python3 scripts/pkc_materialize.py --repo /tmp/pkc-ci --bundle knowledge \
-            --fold tests/fixtures/fold.json --json > /tmp/mat3.json
+            --fold tests/fixtures/fold.json --json \
+            --author claude-code/lumenfield-detector > /tmp/mat3.json
           python3 -c "import json; r=json.load(open('/tmp/mat3.json'))['results']; \
             a={x['action'] for x in r}; assert a == {'unchanged'}, a; \
             print(len(r), 'concepts, none rendered')"

@@ -15,10 +15,11 @@ from pkc_common import (  # noqa: E402
     parse_frontmatter,
     path_for_type,
     refresh_catalog_index,
+    resolve_author,
     resolve_knowledge_root,
     slugify,
     utc_now,
-    write_concept,
+    write_knowledge,
 )
 
 PROMOTE_MAP = {
@@ -43,8 +44,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--repo", default=".")
     parser.add_argument("--bundle", default=None)
     parser.add_argument("--slug", default=None)
+    parser.add_argument("--author", default="")
     args = parser.parse_args(argv)
 
+    author = resolve_author(args.author)
     bundle = resolve_knowledge_root(Path(args.repo).resolve(), args.bundle)
     src_path = Path(args.source)
     if not src_path.is_file():
@@ -83,7 +86,7 @@ def main(argv: list[str] | None = None) -> int:
     new_body = f"# {title}\n\n> Promoted from [{fm.get('title', src_path.stem)}]({src_rel}) (`{fm.get('type', 'unknown')}`)\n\n"
     new_body += body.strip() + "\n"
 
-    path, action = write_concept(bundle, rel, new_fm, new_body)
+    path, action = write_knowledge(bundle, rel, new_fm, new_body, author=author)
     # Back-link from source
     back_rel = "informs" if args.to in ("Feature", "Requirement", "Specification", "Design") else "decides"
     # From source, the formal concept is what was shaped — use related_to / informs inverse as originates conceptually
