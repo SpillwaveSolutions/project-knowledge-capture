@@ -100,32 +100,25 @@ jobs:
             a={x['action'] for x in r}; assert a == {'unchanged'}, a; \
             print(len(r), 'concepts, none rendered')"
 
-      # Rendering nothing is not the same as writing nothing: every catalog
-      # index and log.md were rewritten on every run regardless, so a no-op
-      # materialize still produced a diff.
-      # git, not a checksum loop: it is the symptom the ticket described, it
-      # names the offending files when it fails, and `sha256sum` is GNU-only
-      # so tools/ci-local.sh could not share the check.
+      # Rendering nothing is not the same as writing nothing: log.md gained a
+      # line on every run regardless, so a no-op materialize still diffed.
+      #
+      # git, not a checksum: it is the symptom the ticket describes, it names
+      # the offending file, and `sha256sum` is GNU-only so ci-local.sh could
+      # not share the check. Do NOT send materialize's stdout to /dev/null --
+      # it reports a refused write there, and hiding it cost two CI cycles.
       - name: Re-materialize leaves the bundle byte-identical
         run: |
-          exec 2>&1
-          set -x
-          echo "MARKER-START"
-          ls -la /tmp/pkc-ci || echo "NO SUCH DIR"
-          git --version
           git -C /tmp/pkc-ci init -q
           git -C /tmp/pkc-ci add -A
           git -C /tmp/pkc-ci -c user.email=ci@example.com -c user.name=ci commit -qm baseline
-          set +e
           python3 scripts/pkc_materialize.py --repo /tmp/pkc-ci --bundle knowledge \
-            --fold tests/fixtures/fold.json
-          echo "MATERIALIZE-EXIT=$?"
-          set -e
+            --fold tests/fixtures/fold.json \
+            --author claude-code/lumenfield-detector
           git -C /tmp/pkc-ci status --porcelain > /tmp/dirty.txt
           if [ -s /tmp/dirty.txt ]; then
             echo "no-op materialize dirtied the bundle:"; cat /tmp/dirty.txt; exit 1
           fi
-          echo "MARKER-END"
 
   okf-interop:
     runs-on: ubuntu-latest

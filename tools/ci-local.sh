@@ -103,7 +103,7 @@ step "re-materialize leaves the bundle byte-identical" bash -c "
   git -C $TMP/mat add -A
   git -C $TMP/mat -c user.email=ci@example.com -c user.name=ci commit -qm baseline
   python3 scripts/pkc_materialize.py --repo $TMP/mat --bundle knowledge \
-    --fold tests/fixtures/fold.json > /dev/null
+    --fold tests/fixtures/fold.json --author $CI_AUTHOR
   dirty=\$(git -C $TMP/mat status --porcelain)
   if [ -n \"\$dirty\" ]; then echo \"dirtied:\"; echo \"\$dirty\"; exit 1; fi"
 
