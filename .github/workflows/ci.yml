@@ -99,14 +99,20 @@ jobs:
       # Rendering nothing is not the same as writing nothing: every catalog
       # index and log.md were rewritten on every run regardless, so a no-op
       # materialize still produced a diff.
+      # git, not a checksum loop: it is the symptom the ticket described, it
+      # names the offending files when it fails, and `sha256sum` is GNU-only
+      # so tools/ci-local.sh could not share the check.
       - name: Re-materialize leaves the bundle byte-identical
         run: |
-          DIGEST="import hashlib,json,sys,pathlib; b=pathlib.Path(sys.argv[1]); print(json.dumps({str(p.relative_to(b)): hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(b.rglob('*')) if p.is_file()}, sort_keys=True))"
-          python3 -c "$DIGEST" /tmp/pkc-ci/knowledge > /tmp/before.json
+          git -C /tmp/pkc-ci init -q
+          git -C /tmp/pkc-ci add -A
+          git -C /tmp/pkc-ci -c user.email=ci@example.com -c user.name=ci commit -qm baseline
           python3 scripts/pkc_materialize.py --repo /tmp/pkc-ci --bundle knowledge \
             --fold tests/fixtures/fold.json > /dev/null
-          python3 -c "$DIGEST" /tmp/pkc-ci/knowledge > /tmp/after.json
-          diff /tmp/before.json /tmp/after.json || { echo "no-op materialize dirtied the bundle"; exit 1; }
+          git -C /tmp/pkc-ci status --porcelain > /tmp/dirty.txt
+          if [ -s /tmp/dirty.txt ]; then
+            echo "no-op materialize dirtied the bundle:"; cat /tmp/dirty.txt; exit 1
+          fi
 
   okf-interop:
     runs-on: ubuntu-latest
