@@ -1,0 +1,20 @@
+{
+  "name": "project-knowledge-capture",
+  "version": "0.7.0",
+  "description": "Project Knowledge Capture for Codex. Same skills and hooks as Claude Code / Grok Build, plus isolation session helpers.",
+  "author": {
+    "name": "Rick Hightower",
+    "url": "https://github.com/RichardHightower"
+  },
+  "homepage": "https://github.com/SpillwaveSolutions/project-knowledge-capture",
+  "repository": "https://github.com/SpillwaveSolutions/project-knowledge-capture",
+  "license": "MIT",
+  "keywords": [
+    "pkc",
+    "okf",
+    "codex",
+    "agent-skills",
+    "isolation"
+  ],
+  "hooks": "hooks/hooks.json"
+}

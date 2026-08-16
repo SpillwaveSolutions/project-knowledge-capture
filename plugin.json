@@ -1,7 +1,8 @@
 {
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "project-knowledge-capture",
   "version": "0.7.0",
-  "description": "Project Knowledge Capture (PKC) \u2014 continuous capture and materialization of meetings, experiments, discoveries, and WikiTicket work into a durable OKF knowledge graph. Works in Claude Code and Grok Build.",
+  "description": "Project Knowledge Capture: meetings, experiments, decisions, and WikiTicket work into a durable OKF knowledge graph. Multi-host bindings and write isolation for shared second brains.",
   "author": {
     "name": "Rick Hightower",
     "url": "https://github.com/RichardHightower"
@@ -14,11 +15,12 @@
     "okf",
     "knowledge-capture",
     "knowledge-graph",
-    "meeting-notes",
-    "adr",
-    "wikiticket",
-    "institutional-memory",
+    "isolation",
+    "agent-plugins",
     "claude-code",
-    "grok-build"
+    "grok-build",
+    "codex",
+    "deep-agents",
+    "grok-bot"
   ]
 }

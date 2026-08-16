@@ -13,6 +13,8 @@
 - **TicketLink `kind=bug` refinement.** Warns (does not error) when a bug ticket has no structural link to a Module/Package/Release/CodeChange and no `branch`.
 - **Project type** maps to `projects/` (not a catalog — no index rewrite).
 - **Auto-context injection.** A `UserPromptSubmit` hook (`scripts/pkc_auto_context.py`) injects a Feature's tiny pack when the prompt names one. Detection is a `features/` path that exists and is `type: Feature`, or a 26-char ULID matching a Feature's `worklog_id`; a path wins over a ULID, since it is what the human actually typed. Gated by `pkc.pack.auto_inject_on_feature` (default true) and `pkc.enabled`.
+- **Multi-host bindings + write isolation.** Root Agent Plugins 1.0 `plugin.json`, `.codex-plugin`, `docs/GROK_BOT.md`, `docs/LANG_CHAIN_DEEP_AGENTS.md`, `docs/ISOLATION.md`, `docs/ONBOARDING.md`, host wrappers, and `scripts/brain_session.py` / `pkc-session`. Concurrent writers read `main` and write `brain/<actor>/<session-id>`. Public tests use fictional lumenfield-detector / northstar-console only.
+
 
   `UserPromptSubmit` is the only hook whose output reaches the model *before* the turn runs, which is why detection lives there — a `PostToolUse` hook fires after Claude has already decided what to read.
 

@@ -1,17 +1,17 @@
 {
   "name": "project-knowledge-capture",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "private": true,
   "description": "Project Knowledge Capture \u2014 Claude Code / Grok Build plugin (docs preview)",
   "scripts": {
     "dev": "node scripts/serve-preview.mjs",
     "start": "node scripts/serve-preview.mjs",
-    "test": "python3 tests/test_pkc.py",
+    "test": "python3 tests/test_pkc.py && python3 tests/test_isolation.py",
     "validate": "python3 scripts/pkc_validate.py --bundle sample-knowledge",
     "doctor": "python3 scripts/pkc_doctor.py --bundle sample-knowledge",
     "search": "python3 scripts/pkc_search.py",
     "digest": "python3 scripts/pkc_digest.py --bundle sample-knowledge",
-    "typecheck": "python3 -m py_compile scripts/pkc_*.py",
+    "typecheck": "python3 -m py_compile scripts/pkc_*.py scripts/brain_session.py",
     "ci": "bash tools/ci-local.sh"
   },
   "engines": {
