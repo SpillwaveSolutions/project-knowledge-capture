@@ -36,7 +36,7 @@ Plugin root: `${CLAUDE_PLUGIN_ROOT}`.
 4. Never invent edges. Direction matters: `Decision --mitigates--> Risk` and
    `Acceptance --satisfies--> Feature`, never the reverse.
 5. WikiTicket owns work **status** — use `bin/worklog`, never hand-edit jsonl.
-6. Default context pack: **2 hops**, ~**20 nodes** (`pkc_pack` or okf pack).
+6. Default context pack: **2 hops**, ~**20 nodes** (`pkc_pack` or okf pack). Token budget is **1/4 window**, fail-closed. Bodies off unless that node is the pack root.
 7. After capture: catalogs + log.
 8. Run `python3 tests/test_pkc.py` and `pkc_validate` after script changes.
 
