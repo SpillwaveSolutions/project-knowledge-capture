@@ -1309,6 +1309,35 @@ class TestRequiredIdentity(unittest.TestCase):
         self.assertEqual(fm.get("author"), "grok-bot/northstar-console")
 
 
+class TestManifestVersions(unittest.TestCase):
+    def test_host_labels_match_root_plugin_json(self):
+        root_ver = json.loads((ROOT / "plugin.json").read_text())["version"]
+        found = {"plugin.json": root_ver}
+        for rel, path in (
+            (".claude-plugin/plugin.json", ("version",)),
+            (".codex-plugin/plugin.json", ("version",)),
+            ("marketplace.json", ("plugins", 0, "version")),
+            (".claude-plugin/marketplace.json", ("plugins", 0, "version")),
+            (".grok-plugin/marketplace.json", ("plugins", 0, "version")),
+        ):
+            f = ROOT / rel
+            if not f.exists():
+                continue
+            node = json.loads(f.read_text())
+            for key in path:
+                if isinstance(key, int):
+                    node = node[key]
+                else:
+                    if key not in node:
+                        node = None
+                        break
+                    node = node[key]
+            if node is None:
+                continue
+            found[rel] = node
+        self.assertEqual(len(set(found.values())), 1, f"version drift: {found}")
+
+
 def main() -> int:
     suite = unittest.defaultTestLoader.loadTestsFromModule(sys.modules[__name__])
     result = unittest.TextTestRunner(verbosity=2).run(suite)
