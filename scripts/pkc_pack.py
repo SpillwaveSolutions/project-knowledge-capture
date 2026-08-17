@@ -22,7 +22,12 @@ from pathlib import Path
 from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from pkc_common import parse_frontmatter, resolve_knowledge_root, utc_now  # noqa: E402
+from pkc_common import (  # noqa: E402
+    iter_concepts,
+    parse_frontmatter,
+    resolve_knowledge_root,
+    utc_now,
+)
 
 MD_LINK = re.compile(r"\[([^\]]+)\]\((/[^)]+)\)")
 
@@ -57,7 +62,12 @@ def resolve_concept(bundle: Path, ref: str) -> Path:
 
 
 def extract_edges(bundle: Path, path: Path) -> list[tuple[str, str, str]]:
-    text = path.read_text(encoding="utf-8")
+    try:
+        text = path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        # build_reverse_index() reads every file in the bundle, not just the
+        # ones on the walk. One unreadable file must not break pack().
+        return []
     fm, body = parse_frontmatter(text)
     edges: list[tuple[str, str, str]] = []
     seen: set[tuple[str, str]] = set()
@@ -92,6 +102,31 @@ def extract_edges(bundle: Path, path: Path) -> list[tuple[str, str, str]]:
     return edges
 
 
+def build_reverse_index(bundle: Path) -> dict[str, list[tuple[str, str, str]]]:
+    """Map each target path to the edges that point at it.
+
+    pack() used to walk outbound links only, so a concept that pointed *at*
+    the seed was invisible from it unless the seed happened to point back.
+    Capture helpers wrote that inverse edge by hand, which covers only the
+    concepts those helpers create -- not one authored by hand, or by a sibling
+    plugin sharing the bundle.
+    """
+    # iter_concepts() skips index.md, log.md and packs/. Those are generated
+    # listings of the bundle, so every concept has an inbound edge from its
+    # catalog -- following those would drag the whole directory into the pack
+    # and crowd out the knowledge the seed actually relates to.
+    #
+    # ponytail: O(bundle) scan per pack() call. Cache it under .pkc/ if
+    # bundles grow past a few thousand files -- the auto-context hook pays
+    # this cost on every turn.
+    index: dict[str, list[tuple[str, str, str]]] = {}
+    for path in iter_concepts(bundle):
+        src = "/" + path.relative_to(bundle).as_posix()
+        for rel_type, tgt, label in extract_edges(bundle, path):
+            index.setdefault(tgt, []).append((rel_type, src, label))
+    return index
+
+
 def pack(
     bundle: Path,
     seed: Path,
@@ -100,9 +135,11 @@ def pack(
     max_nodes: int = 20,
 ) -> dict[str, Any]:
     seed_rel = "/" + seed.resolve().relative_to(bundle.resolve()).as_posix()
+    inbound = build_reverse_index(bundle)
     queue: deque[tuple[str, int]] = deque([(seed_rel, 0)])
     visited: dict[str, int] = {}
     edge_list: list[dict[str, str]] = []
+    seen_edges: set[tuple[str, str, str]] = set()
     nodes: dict[str, dict[str, Any]] = {}
 
     while queue and len(visited) < max_nodes:
@@ -125,10 +162,27 @@ def pack(
         }
         if depth >= hops:
             continue
-        for rel_type, tgt, label in extract_edges(bundle, path):
-            edge_list.append({"from": rel, "to": tgt, "rel": rel_type, "label": label})
-            if tgt not in visited and len(visited) + len(queue) < max_nodes:
-                queue.append((tgt, depth + 1))
+        # Outbound: this node -> its targets. Inbound: the nodes that name
+        # this one. Each edge is recorded in the direction it was authored,
+        # so both renderers draw the true arrow with no change to either.
+        neighbours: list[tuple[str, str, str, str]] = [
+            (rel, tgt, rel_type, label)
+            for rel_type, tgt, label in extract_edges(bundle, path)
+        ]
+        neighbours += [
+            (src, rel, rel_type, label)
+            for rel_type, src, label in inbound.get(rel, [])
+        ]
+        for src, tgt, rel_type, label in neighbours:
+            key = (src, tgt, rel_type)
+            if key not in seen_edges:
+                seen_edges.add(key)
+                edge_list.append(
+                    {"from": src, "to": tgt, "rel": rel_type, "label": label}
+                )
+            other = tgt if src == rel else src
+            if other not in visited and len(visited) + len(queue) < max_nodes:
+                queue.append((other, depth + 1))
 
     priority = {
         "DecisionRecord": 0,

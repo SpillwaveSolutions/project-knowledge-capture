@@ -191,7 +191,7 @@ Skipping 5 means the post-edit hook silently stops refreshing that catalog. Skip
 
 If the type is materialized from worklog, also add its fields to `FINGERPRINT_FIELDS` in `pkc_materialize.py` — otherwise changes to it will never trigger a re-render.
 
-If concepts of the new type point *at* an existing concept, decide whether the existing one needs an inverse edge. `pack()` walks outbound edges only, so an inbound-only concept never appears in its target's context pack. `Risk` and `Acceptance` (v0.5) are the worked examples.
+If concepts of the new type point *at* an existing concept, decide whether the existing one needs an inverse edge. `pack()` reads both directions, so an inbound-only concept is reachable either way — add the inverse only when the target genuinely asserts it, not to make the traversal work. `Risk` and `Acceptance` (v0.5) are the worked examples.
 
 ## Frontmatter constraints
 

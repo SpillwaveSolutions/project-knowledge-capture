@@ -428,9 +428,9 @@ def capture_acceptance(
     Deliberately small: one criterion per concept, so each can be checked off
     on its own and `verified_by` points at the specific thing that proves it.
 
-    `satisfies` also writes the inverse edge (Feature --verified_by--> this)
-    because pack() walks outbound edges only -- without it, a Feature's own
-    acceptance criteria would not appear in that Feature's context pack.
+    `satisfies` also writes the inverse edge (Feature --verified_by--> this).
+    pack() reads inbound edges, so this is no longer needed for reachability;
+    it stays because `verified_by` is a claim the Feature genuinely makes.
     """
     slug = slugify(title)
     rel = path_for_type("Acceptance", slug)

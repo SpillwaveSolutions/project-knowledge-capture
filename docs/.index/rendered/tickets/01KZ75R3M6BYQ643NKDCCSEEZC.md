@@ -10,7 +10,7 @@ Expose pkc_validate as an MCP tool returning its existing JSON output, so a host
 
 ## Release
 
-- [[Release-v0.6.0]]
+- [[Release-v0.8.0]]
 
 ## Related tickets
 

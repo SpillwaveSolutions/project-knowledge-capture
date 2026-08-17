@@ -96,6 +96,17 @@ step "re-materialize renders nothing" bash -c "
   python3 -c \"import json; r=json.load(open('$TMP/mat3.json'))['results']; \
     a={x['action'] for x in r}; assert a == {'unchanged'}, a\""
 
+# Rendering nothing is not the same as writing nothing: every catalog index
+# and log.md were rewritten on every run regardless.
+step "re-materialize leaves the bundle byte-identical" bash -c "
+  git -C $TMP/mat init -q
+  git -C $TMP/mat add -A
+  git -C $TMP/mat -c user.email=ci@example.com -c user.name=ci commit -qm baseline
+  python3 scripts/pkc_materialize.py --repo $TMP/mat --bundle knowledge \
+    --fold tests/fixtures/fold.json --author $CI_AUTHOR
+  dirty=\$(git -C $TMP/mat status --porcelain)
+  if [ -n \"\$dirty\" ]; then echo \"dirtied:\"; echo \"\$dirty\"; exit 1; fi"
+
 echo "== worklog invariants =="
 step "hooks/pre-commit" env WORKLOG_SKIP_BRANCH_GUARD=1 hooks/pre-commit
 step "commit-msg on commits vs origin/main" bash -c '

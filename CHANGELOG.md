@@ -42,6 +42,16 @@
 
 
 ### Fixed
+- **`pkc_pack` could not see a concept that pointed at the seed.** `extract_edges` read only the current node's outbound links, so a Risk, an Acceptance criterion, or anything authored by hand or by a sibling plugin against the same bundle stayed invisible from the Feature it named. The capture helpers papered over this by writing an inverse edge back onto the target, which covers only the concepts those helpers create. `pack()` now builds a reverse index once per call and walks both directions. Each edge keeps the direction it was authored in, so both renderers draw the true arrow unchanged.
+
+  The index is built from `iter_concepts()`, which already skips `index.md`, `log.md` and `packs/`. That exclusion is load-bearing, not tidiness: every concept is listed by its catalog index, so following those inbound edges would pull whole directories into every pack and crowd out the knowledge the seed actually relates to. On `sample-knowledge` the 2-hop pack goes from 5 nodes to 14 — with the catalogs left in it was 18 nodes, 4 of them generated listings.
+
+- **A materialize run that rendered nothing still appended to `log.md`.** `append_log` ran unconditionally, so the incremental path short-circuited every concept on its fingerprint and then wrote a log line saying so. A git diff for a run that did no work, which is the exact churn the fingerprint exists to prevent. The log line is now skipped when every row is `unchanged`. A `refused` write still logs — a blocked write is worth a record.
+
+  `catalogs_touched()` had the same flaw and now filters to `created` and `updated`, but it was never a *diff*: `refresh_catalog_index` preserves an existing `timestamp`, so it rewrote every catalog index with identical bytes. That cost is wasted I/O proportional to the number of catalogs on a run that touched nothing, not a dirty tree.
+
+  CI asserted `0 created` and then that nothing was *rendered*. Neither could see this, because both read the JSON report rather than the bundle. The new step commits the bundle, re-runs, and fails on a non-empty `git status --porcelain` — which names the offending file.
+
 - **The CI compile list had drifted five scripts behind.** `.github/workflows/ci.yml` hand-listed the scripts to `py_compile` and never gained `digest`, `release_notes`, `thread`, `federate`, or `adr_import` — all shipped in 0.4.0, none compiled by CI since. Both CI and `npm run typecheck` now glob `scripts/pkc_*.py`, as `tools/ci-local.sh` always did.
 
 ### Notes
