@@ -106,13 +106,16 @@ MADR or adr-tools directory → DecisionRecords. **Always `--dry-run` first** on
 
 ```
 pkc_pack.py concept [--repo REPO] [--bundle BUNDLE] [--hops HOPS]
-            [--max-nodes MAX_NODES] [--tiny] [--mermaid] [--write WRITE] [--json]
+            [--max-nodes MAX_NODES] [--max-tokens N] [--window-tokens N]
+            [--tiny] [--mermaid] [--write WRITE] [--json]
 ```
 
 | Flag | Default |
 |---|---|
 | `--hops` | 2 |
 | `--max-nodes` | 20 |
+| `--max-tokens` | 1/4 of window (32000) |
+| `--window-tokens` | 128000 (`SECOND_BRAIN_WINDOW_TOKENS`) |
 | `--tiny` | 1 hop, max 8 nodes |
 | `--mermaid` | print the diagram only |
 

@@ -8,7 +8,7 @@ Works on **Claude Code**, **Grok Build**, **Codex**, **Agent Plugins 1.0**, **Gr
 |---|---|
 | **Plugin name** | `project-knowledge-capture` |
 | **Repo** | [SpillwaveSolutions/project-knowledge-capture](https://github.com/SpillwaveSolutions/project-knowledge-capture) |
-| **Version** | 0.7.1 |
+| **Version** | 0.7.2 |
 | **License** | MIT |
 
 ## Multi-host

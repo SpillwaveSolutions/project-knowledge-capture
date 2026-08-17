@@ -1,6 +1,18 @@
 # Changelog
 
+## 0.7.2 — 2026-08-16
+
+- ContextPack token budget matches second-brain-core 0.3.3: default 1/4 of
+  `SECOND_BRAIN_WINDOW_TOKENS` (128000 → 32000). Override with `--max-tokens`
+  or `SECOND_BRAIN_PACK_MAX_TOKENS`.
+- Pack is **fail-closed** when the rendered subgraph exceeds the budget. `--write`
+  is skipped. Node clip (`--max-nodes` / `--tiny`) is not a token budget.
+- **Bodies off** unless that node is the pack root. Neighbors keep title, type,
+  path, and frontmatter `description` only.
+- Auto-inject (`pkc_auto_context`) uses the same gate; over-budget stays silent.
+
 ## 0.7.1 — unreleased
+
 
 ### Added
 - **Required identity on every knowledge write.** `--author` or
