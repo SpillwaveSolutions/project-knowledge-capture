@@ -19,3 +19,9 @@ python3 "${CLAUDE_PLUGIN_ROOT}/scripts/pkc_pack.py" features/<slug>.md --mermaid
 ```
 
 Prefer okf-plugin pack when installed. Never invent edges.
+
+**Token budget.** Default is 1/4 of `SECOND_BRAIN_WINDOW_TOKENS` (128000 → 32000).
+Override with `--max-tokens` or `SECOND_BRAIN_PACK_MAX_TOKENS`. Over budget exits
+1 and writes nothing. `--max-nodes` / `--tiny` clip the walk; they are not a
+token budget. Bodies stay off unless that node is the pack root.
+

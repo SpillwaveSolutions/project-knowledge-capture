@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "project-knowledge-capture",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "description": "Project Knowledge Capture: meetings, experiments, decisions, and WikiTicket work into a durable OKF knowledge graph. Multi-host bindings and write isolation for shared second brains.",
   "author": {
     "name": "Rick Hightower",

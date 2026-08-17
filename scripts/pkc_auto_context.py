@@ -33,7 +33,7 @@ from pkc_common import (  # noqa: E402
     parse_frontmatter,
     resolve_knowledge_root,
 )
-from pkc_pack import pack, render_markdown  # noqa: E402
+from pkc_pack import finalize_markdown, pack  # noqa: E402
 
 # `\b` before `features` matches whether the prompt wrote `features/x`,
 # `/features/x`, or `` `features/x` ``. The slug class is greedy so it swallows
@@ -106,7 +106,8 @@ def build_injection(
     the edge list it already gets.
     """
     result = pack(bundle, bundle / rel.lstrip("/"), hops=hops, max_nodes=max_nodes)
-    return render_markdown(result, include_mermaid=False)
+    md, _meta = finalize_markdown(result, include_mermaid=False)
+    return md
 
 
 def injection_for(repo: Path, prompt: str, bundle_override: str | None = None) -> str | None:

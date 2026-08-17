@@ -649,7 +649,7 @@ class TestSampleKnowledge(unittest.TestCase):
         self.assertIn(("originates_from", "/meetings/2026-08-03-auth-design.md"), rels)
 
 
-from pkc_pack import pack, resolve_concept  # noqa: E402
+from pkc_pack import PackBudgetError, finalize_markdown, main as main_pack, pack, resolve_concept  # noqa: E402
 from pkc_validate import validate_bundle  # noqa: E402
 from pkc_action_items import extract_action_items  # noqa: E402
 
@@ -849,6 +849,86 @@ class TestTinyPack(unittest.TestCase):
         result = pack(bundle, seed, hops=1, max_nodes=8)
         self.assertLessEqual(result["node_count"], 8)
         self.assertEqual(result["hops"], 1)
+
+
+class TestPackTokenBudget(unittest.TestCase):
+    def test_sample_finalize_reports_quarter_window(self):
+        bundle = ROOT / "sample-knowledge"
+        seed = resolve_concept(bundle, "features/user-authentication.md")
+        result = pack(bundle, seed, hops=2, max_nodes=20)
+        md, meta = finalize_markdown(result, include_mermaid=False)
+        self.assertEqual(meta["window"], 128000)
+        self.assertEqual(meta["budget"], 32000)
+        self.assertLessEqual(meta["tokens"], meta["budget"])
+        self.assertIn("Shaped by", md)  # root body
+        self.assertNotIn("NEIGHBOR_BODY_MARKER", md)
+
+    def test_bodies_off_unless_root(self):
+        tmp = Path(tempfile.mkdtemp())
+        try:
+            feat = tmp / "features"
+            feat.mkdir()
+            (tmp / "index.md").write_text("---\nokf_version: \"0.2\"\ntitle: t\n---\n", encoding="utf-8")
+            (feat / "root.md").write_text(
+                "---\ntype: Feature\ntitle: Lumenfield Root\n"
+                "links:\n  - target: /features/neighbor.md\n    rel: related_to\n"
+                "---\n# Lumenfield Root\n\nROOT_BODY_MARKER secret-of-root\n",
+                encoding="utf-8",
+            )
+            (feat / "neighbor.md").write_text(
+                "---\ntype: Feature\ntitle: Neighbor\n"
+                "description: neighbor-frontmatter-only\n---\n"
+                "# Neighbor\n\nNEIGHBOR_BODY_MARKER must-not-pack\n",
+                encoding="utf-8",
+            )
+            result = pack(tmp, feat / "root.md", hops=1, max_nodes=8)
+            md, _meta = finalize_markdown(result, include_mermaid=False)
+            self.assertIn("ROOT_BODY_MARKER", md)
+            self.assertNotIn("NEIGHBOR_BODY_MARKER", md)
+            self.assertIn("neighbor-frontmatter-only", md)
+        finally:
+            shutil.rmtree(tmp)
+
+    def test_over_budget_fails_closed(self):
+        tmp = Path(tempfile.mkdtemp())
+        try:
+            feat = tmp / "features"
+            feat.mkdir()
+            (tmp / "index.md").write_text("---\nokf_version: \"0.2\"\ntitle: t\n---\n", encoding="utf-8")
+            fat = "# Fat Root\n\n" + ("word " * 400)
+            (feat / "fat.md").write_text(
+                "---\ntype: Feature\ntitle: Fat Root\n---\n" + fat,
+                encoding="utf-8",
+            )
+            result = pack(tmp, feat / "fat.md", hops=0, max_nodes=1)
+            with self.assertRaises(PackBudgetError) as ctx:
+                finalize_markdown(result, include_mermaid=False, max_tokens=20)
+            self.assertGreater(ctx.exception.tokens, ctx.exception.budget)
+            self.assertEqual(ctx.exception.budget, 20)
+            out = tmp / "should-not-exist.md"
+            rc = main_pack(
+                [
+                    "features/fat.md",
+                    "--repo",
+                    str(tmp),
+                    "--bundle",
+                    str(tmp),
+                    "--max-nodes",
+                    "1",
+                    "--hops",
+                    "0",
+                    "--max-tokens",
+                    "20",
+                    "--write",
+                    str(out),
+                    "--json",
+                ]
+            )
+            self.assertNotEqual(rc, 0)
+            self.assertFalse(out.exists())
+        finally:
+            shutil.rmtree(tmp)
+
 
 
 from pkc_search import search  # noqa: E402
