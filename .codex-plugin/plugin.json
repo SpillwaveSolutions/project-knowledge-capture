@@ -1,6 +1,6 @@
 {
   "name": "project-knowledge-capture",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "description": "Project Knowledge Capture for Codex. Same skills and hooks as Claude Code / Grok Build, plus isolation session helpers.",
   "author": {
     "name": "Rick Hightower",

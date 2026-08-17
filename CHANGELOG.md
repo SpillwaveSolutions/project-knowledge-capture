@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Host manifests (`.claude-plugin`, `.codex-plugin`, Grok marketplace)
+  now match root `plugin.json` **0.7.2**. Claude Code was still labeled 0.7.1.
+
 ## 0.7.2 — 2026-08-16
 
 - ContextPack token budget matches second-brain-core 0.3.3: default 1/4 of
