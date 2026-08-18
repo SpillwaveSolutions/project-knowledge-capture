@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.7.3 — 2026-08-17
+
+- **Cursor host.** `.cursor-plugin/plugin.json` (Cursor Plugins) plus `.cursor/rules/second-brain.mdc`. Docs: `docs/CURSOR.md`. `docs/GROK_BOT.md` now covers Grok Bot spawning Cursor cloud agents.
+
 ## Unreleased
 
 - Host manifests (`.claude-plugin`, `.codex-plugin`, Grok marketplace)
