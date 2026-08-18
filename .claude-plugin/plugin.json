@@ -1,6 +1,6 @@
 {
   "name": "project-knowledge-capture",
-  "version": "0.7.2",
+  "version": "0.7.3",
   "description": "Project Knowledge Capture (PKC) \u2014 continuous capture and materialization of meetings, experiments, discoveries, and WikiTicket work into a durable OKF knowledge graph. Works in Claude Code and Grok Build.",
   "author": {
     "name": "Rick Hightower",

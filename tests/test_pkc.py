@@ -1314,7 +1314,8 @@ class TestManifestVersions(unittest.TestCase):
         root_ver = json.loads((ROOT / "plugin.json").read_text())["version"]
         found = {"plugin.json": root_ver}
         for rel, path in (
-            (".claude-plugin/plugin.json", ("version",)),
+            (".cursor-plugin/plugin.json", ("version",)),
+        (".claude-plugin/plugin.json", ("version",)),
             (".codex-plugin/plugin.json", ("version",)),
             ("marketplace.json", ("plugins", 0, "version")),
             (".claude-plugin/marketplace.json", ("plugins", 0, "version")),
