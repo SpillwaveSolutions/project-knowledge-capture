@@ -1,0 +1,28 @@
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/pkc_auto_context.py\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/pkc-curate.sh\"",
+            "timeout": 45
+          }
+        ]
+      }
+    ]
+  },
+  "description": "Codex port of Claude Code hooks. Same scripts; ExitPlanMode omitted (no such tool)."
+}
