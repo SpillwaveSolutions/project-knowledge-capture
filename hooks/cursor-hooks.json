@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "description": "Cursor-native hook port of Claude Code hooks.json. Shared scripts; event names mapped.",
+  "hooks": {
+    "beforeSubmitPrompt": [
+      {
+        "command": "python3 \"./scripts/pkc_auto_context.py\"",
+        "timeout": 10
+      }
+    ],
+    "postToolUse": [
+      {
+        "command": "./\"./scripts/pkc-curate.sh\"",
+        "matcher": "Write|Edit|MultiEdit",
+        "timeout": 45
+      }
+    ],
+    "afterFileEdit": [
+      {
+        "command": "./\"./scripts/pkc-curate.sh\"",
+        "timeout": 45
+      }
+    ]
+  }
+}

@@ -16,5 +16,5 @@
     "agent-skills",
     "isolation"
   ],
-  "hooks": "hooks/hooks.json"
+  "hooks": "./hooks/codex-hooks.json"
 }
