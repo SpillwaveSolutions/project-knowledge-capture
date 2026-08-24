@@ -44,7 +44,7 @@
    "frozen": false,
    "page_name": "Index-Traceability",
    "render": "as-is",
-   "render_hash": "36c2c59f7936",
+   "render_hash": "f51a07722294",
    "source": "docs/.index/rendered/traceability.md",
    "title": "Traceability Index",
    "truth_state": "current",
@@ -99,6 +99,16 @@
    "title": "Release v0.8.0",
    "truth_state": "shipped",
    "wiki_key": "release/v0.8.0"
+  },
+  {
+   "frozen": false,
+   "page_name": "Release-v0.8.1",
+   "render": "as-is",
+   "render_hash": "ca85033d3eca",
+   "source": "docs/.index/rendered/releases/v0.8.1.md",
+   "title": "Release v0.8.1",
+   "truth_state": "shipped",
+   "wiki_key": "release/v0.8.1"
   },
   {
    "frozen": false,
@@ -361,6 +371,26 @@
    "wiki_key": "item/01KZWJ2MP422DZAZ9A08R8QTJ0"
   },
   {
+   "frozen": false,
+   "page_name": "Ticket-01M0SZFFPWEVN9YX9D9RYZ1ZC1",
+   "render": "as-is",
+   "render_hash": "9bea86fceece",
+   "source": "docs/.index/rendered/tickets/01M0SZFFPWEVN9YX9D9RYZ1ZC1.md",
+   "title": "Own project-memory nouns including TicketLink and work types",
+   "truth_state": "open",
+   "wiki_key": "item/01M0SZFFPWEVN9YX9D9RYZ1ZC1"
+  },
+  {
+   "frozen": false,
+   "page_name": "Ticket-01M0T3YW3CWWM9QPMKXEQQ2PR3",
+   "render": "as-is",
+   "render_hash": "a2b8e43904e3",
+   "source": "docs/.index/rendered/tickets/01M0T3YW3CWWM9QPMKXEQQ2PR3.md",
+   "title": "Noun-ownership migration guide for PKC second brains",
+   "truth_state": "done",
+   "wiki_key": "item/01M0T3YW3CWWM9QPMKXEQQ2PR3"
+  },
+  {
    "banner": "> **Current** \u2014 this is the living version; regenerated at 2026-08-06T18:42:39Z. Historical snapshots are linked from [[Index-Releases]].",
    "frozen": false,
    "page_name": "Code-Walkthrough",
@@ -387,11 +417,22 @@
    "frozen": false,
    "page_name": "CLI-Reference",
    "render": "doc+banner",
-   "render_hash": "79fc20b2ad49",
+   "render_hash": "ea614aefb382",
    "source": "docs/user_guide/cli-reference.md",
    "title": "CLI Reference",
    "truth_state": "current",
    "wiki_key": "guide/cli-reference"
+  },
+  {
+   "banner": "> **Current** \u2014 this is the living version. Historical snapshots are linked from [[Index-Releases]].",
+   "frozen": false,
+   "page_name": "Noun-ownership-migration-(PKC)",
+   "render": "doc+banner",
+   "render_hash": "f1c58c2c1d84",
+   "source": "docs/user_guide/noun-ownership-migration.md",
+   "title": "Noun-ownership migration (PKC)",
+   "truth_state": "current",
+   "wiki_key": "guide/noun-ownership-migration"
   },
   {
    "banner": "> **Current** \u2014 this is the living version. Historical snapshots are linked from [[Index-Releases]].",
@@ -427,11 +468,11 @@
    "wiki_key": "guide/worklog-spec"
   },
   {
-   "banner": "> **Current** \u2014 this is the living version; regenerated at 2026-08-15T20:16:13Z. Historical snapshots are linked from [[Index-Releases]].",
+   "banner": "> **Current** \u2014 this is the living version; regenerated at 2026-08-24T15:55:50Z. Historical snapshots are linked from [[Index-Releases]].",
    "frozen": false,
    "page_name": "Roadmap",
    "render": "doc+banner",
-   "render_hash": "6ce3ca01595c",
+   "render_hash": "495143c12298",
    "source": "docs/roadmap.md",
    "title": "Roadmap",
    "truth_state": "current",

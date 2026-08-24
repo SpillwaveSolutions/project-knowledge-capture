@@ -1,6 +1,6 @@
 {
   "name": "project-knowledge-capture",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "Project Knowledge Capture: meetings, experiments, decisions, TicketLink/WikiTicket work, and project-memory nouns into a durable OKF knowledge graph. Multi-host bindings and write isolation for shared second brains.",
   "author": {
     "name": "Rick Hightower"

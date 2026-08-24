@@ -3,6 +3,7 @@ doc_type: guide
 slug: noun-ownership-migration
 title: Noun-ownership migration (PKC)
 truth_state: current
+wiki_key: guide/noun-ownership-migration
 ---
 
 # Noun-ownership migration (PKC 0.8.0)

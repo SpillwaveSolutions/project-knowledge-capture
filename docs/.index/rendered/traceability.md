@@ -2,6 +2,14 @@
 
 _The evidence chain: plan → item → ticket → code → release, forward and backward. Generated from `docs/.index/_graph.json`; do not edit._
 
+### Noun-ownership migration guide for PKC second brains
+`01M0T3YW3CWWM9QPMKXEQQ2PR3` · status: done
+- targets: release/v0.8.1
+
+### Own project-memory nouns including TicketLink and work types
+`01M0SZFFPWEVN9YX9D9RYZ1ZC1` · status: todo
+- targets: release/v0.8.0
+
 ### CI py_compile list drifted five scripts behind
 `01KZWJ2MP422DZAZ9A08R8QTJ0` · status: done
 

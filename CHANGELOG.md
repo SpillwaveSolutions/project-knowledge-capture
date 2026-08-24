@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.8.1 — 2026-08-24
+
 - Noun-ownership migration guide:
   [`docs/user_guide/noun-ownership-migration.md`](docs/user_guide/noun-ownership-migration.md)
   (TicketLink CLI move, received work types, catalogs this pack owns).
