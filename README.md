@@ -170,6 +170,7 @@ Golden pack: [`sample-knowledge/packs/user-authentication-pack.md`](./sample-kno
 
 ## Docs
 
+- **[Noun-ownership migration](./docs/user_guide/noun-ownership-migration.md)** — upgrade an existing PKC tree to 0.8.0
 - [Onboarding](./docs/ONBOARDING.md) · [Grok Bot](./docs/GROK_BOT.md) · [Deep Agents](./docs/LANG_CHAIN_DEEP_AGENTS.md) · [Isolation](./docs/ISOLATION.md)
 - [PRD](./docs/prd.md) · [Design](./docs/design.md) · [Integration](./docs/integration-okf-wikiticket.md)
 - [Typed edges](./docs/typed-edges.md) · [Vision & brainstorm](./docs/vision.md)
