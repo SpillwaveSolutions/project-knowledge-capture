@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.8.0 — 2026-08-24
+
+### Added
+
+- **Noun ownership.** PKC now owns project-memory nouns including work types
+  previously parked in okf-plugin: `TicketLink`, `DecisionRecord`, `Feature`,
+  `Epic`, `Story`, `Task`, `Subtask`, `Bug`, `Branch`, `Project`, plus
+  `Playbook`, `Runbook`, `Reference`.
+- `scripts/pkc_ticket_link.py` — WikiTicket / GitHub Issues → TicketLink
+  (moved from okf-plugin).
+- JSON schemas for the new nouns under `schemas/okf-concepts/`.
+- README noun table lists every type this plugin supports.
+
+### Changed
+
+- Catalog and ContextPack stay in okf-plugin. PKC wraps packs with a token
+  budget; it does not own those types.
+
 ## 0.7.4
 
 - Three-host hooks: Codex + Cursor-native when Claude hooks exist.

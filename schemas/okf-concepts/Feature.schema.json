@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://spillwave.solutions/schemas/okf-concepts/Feature.schema.json",
+  "title": "Feature",
+  "description": "Product capability. Work-plane epic/story items are Epic/Story; this node is the product plane.",
+  "type": "object",
+  "required": ["type", "title"],
+  "x-recommended": ["status"],
+  "properties": {
+    "type": { "const": "Feature" },
+    "title": { "type": "string", "minLength": 1 },
+    "description": { "type": "string" },
+    "timestamp": { "type": "string" },
+    "status": { "type": "string" },
+    "priority": { "type": "string" },
+    "level": { "type": "string", "enum": ["epic", "story"] },
+    "kind": { "type": "string" },
+    "worklog_id": { "type": "string" },
+    "external_id": { "type": ["string", "number"] },
+    "external_system": { "type": "string" },
+    "wiki_key": { "type": "string" },
+    "truth_state": { "type": "string" },
+    "verified": { "type": "boolean" },
+    "generated": { "type": "boolean" },
+    "schema_version": { "type": "integer" },
+    "tags": { "type": "array", "items": { "type": "string" } },
+    "links": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["target"],
+        "properties": {
+          "target": { "type": "string" },
+          "rel": { "type": "string" }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

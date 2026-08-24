@@ -12,9 +12,9 @@ For the full history of the LLM-wiki / second-brain effort, also read [second-br
 
 ## What PKC owns
 
-The *why* layer: Meeting, Experiment, Discovery, DecisionRecord, Assumption, Question, Feature, Requirement, Specification, Design, Release, CodeChange, Risk, Acceptance, TicketLink, Epic, Story, Task, Subtask, Bug, Branch, ContextPack, Project, Catalog.
+The *why* layer: Meeting, Experiment, Discovery, Assumption, Question, Feature, Requirement, Specification, Design, Release, CodeChange, Package, Risk, Acceptance, DecisionRecord, TicketLink, Epic, Story, Task, Subtask, Bug, Branch, Project, Playbook, Runbook, Reference.
 
-Refuse nouns owned by another ContentPack.
+Catalog and ContextPack live in okf-plugin. Refuse nouns owned by SAC, DEKC, or AGER.
 
 ## Destination state
 

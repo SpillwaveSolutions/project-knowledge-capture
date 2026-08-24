@@ -1,7 +1,7 @@
 {
   "name": "project-knowledge-capture",
-  "version": "0.7.4",
-  "description": "Project Knowledge Capture for Codex. Same skills and hooks as Claude Code / Grok Build, plus isolation session helpers.",
+  "version": "0.8.0",
+  "description": "Project Knowledge Capture: meetings, experiments, decisions, TicketLink/WikiTicket work, and project-memory nouns into a durable OKF knowledge graph. Multi-host bindings and write isolation for shared second brains.",
   "author": {
     "name": "Rick Hightower",
     "url": "https://github.com/RichardHightower"

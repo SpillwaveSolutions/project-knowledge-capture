@@ -8,8 +8,9 @@ Works on **Claude Code**, **Grok Build**, **Codex**, **Agent Plugins 1.0**, **Gr
 |---|---|
 | **Plugin name** | `project-knowledge-capture` |
 | **Repo** | [SpillwaveSolutions/project-knowledge-capture](https://github.com/SpillwaveSolutions/project-knowledge-capture) |
-| **Version** | 0.7.2 |
+| **Version** | 0.8.0 |
 | **License** | MIT |
+| **Nouns this plugin owns** | Meeting, Experiment, Discovery, Assumption, Question, Feature, Requirement, Specification, Design, Release, CodeChange, Package, Risk, Acceptance, DecisionRecord, TicketLink, Epic, Story, Task, Subtask, Bug, Branch, Project, Playbook, Runbook, Reference |
 
 ## Multi-host
 
@@ -33,6 +34,28 @@ Software projects generate reasoning that disappears: meeting notes, spike resul
 | **OKF Plugin** | Graph format + impact / query / validate | [okf-plugin](https://github.com/SpillwaveSolutions/okf-plugin) |
 | **WikiTicket SDD** | Event-sourced work + wiki publishing | [wiki_ticket_sdd](https://github.com/SpillwaveSolutions/wiki_ticket_sdd) |
 | **PKC (this plugin)** | Capture + materialization layer | this repo |
+
+## Nouns (this plugin)
+
+PKC owns **project memory** and **WikiTicket work types**. Catalog and ContextPack live in [okf-plugin](https://github.com/SpillwaveSolutions/okf-plugin).
+
+Meeting, Experiment, Discovery, Assumption, Question, Feature, Requirement, Specification, Design, Release, CodeChange, Package, Risk, Acceptance, DecisionRecord, TicketLink, Epic, Story, Task, Subtask, Bug, Branch, Project, Playbook, Runbook, Reference.
+
+| Group | Nouns |
+|-------|-------|
+| Capture | Meeting, Experiment, Discovery, Assumption, Question |
+| Product | Feature, Requirement, Specification, Design, Release, Acceptance |
+| Delivery | CodeChange, Package, Risk |
+| Decisions / ops | DecisionRecord, Playbook, Runbook, Reference |
+| Work (WikiTicket) | TicketLink, Epic, Story, Task, Subtask, Bug, Branch, Project |
+
+`Package` is also a SAC runtime/build unit. PKC `Package` is project-memory (what shipped); SAC `Package` is the build artifact in the topology.
+
+TicketLink emission:
+
+```bash
+bin/worklog fold | python3 scripts/pkc_ticket_link.py emit --bundle knowledge --open-only
+```
 
 ## Install
 
@@ -126,6 +149,7 @@ Post-edit curation refreshes catalog indexes and runs a light validate when you 
 | `pkc_pack.py` | Context packs (2-hop default) |
 | `pkc_validate.py` | Structure + links |
 | `pkc_action_items.py` | Meeting actions → TicketLink / worklog |
+| `pkc_ticket_link.py` | WikiTicket fold / GitHub Issues → TicketLink |
 | `pkc-curate.sh` | Post-edit hook helper |
 | `pkc_auto_context.py` | Prompt hook — injects a tiny pack when a Feature is named |
 | `pkc_doctor.py` | One-screen health check |

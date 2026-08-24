@@ -1,0 +1,118 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://spillwave.solutions/schemas/okf-concepts/Subtask.schema.json",
+  "title": "Subtask",
+  "description": "First-class work item (WikiTicket level=subtask). Link child_of to a Task or Story.",
+  "type": "object",
+  "required": [
+    "type",
+    "title"
+  ],
+  "properties": {
+    "type": {
+      "const": "Subtask"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "description": {
+      "type": "string"
+    },
+    "timestamp": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "verified": {
+      "type": "boolean"
+    },
+    "generated": {
+      "type": "boolean"
+    },
+    "wiki_key": {
+      "type": "string"
+    },
+    "truth_state": {
+      "type": "string"
+    },
+    "schema_version": {
+      "type": "integer"
+    },
+    "worklog_id": {
+      "type": "string"
+    },
+    "external_id": {
+      "type": [
+        "string",
+        "number"
+      ]
+    },
+    "external_system": {
+      "type": "string"
+    },
+    "level": {
+      "type": "string",
+      "enum": [
+        "epic",
+        "story",
+        "task",
+        "subtask"
+      ]
+    },
+    "kind": {
+      "type": "string",
+      "enum": [
+        "feature",
+        "bug",
+        "ops",
+        "triage"
+      ]
+    },
+    "parent": {
+      "type": "string"
+    },
+    "priority": {
+      "type": "string"
+    },
+    "branch": {
+      "type": "string",
+      "description": "Branch name string. Prefer a typed link to a Branch concept (rel on_branch)."
+    },
+    "links": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "target"
+        ],
+        "properties": {
+          "target": {
+            "type": "string"
+          },
+          "rel": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true,
+  "x-recommended": [
+    "status"
+  ],
+  "x-recommended-any": [
+    [
+      "worklog_id",
+      "external_id"
+    ]
+  ]
+}
