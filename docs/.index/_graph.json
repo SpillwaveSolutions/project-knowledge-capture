@@ -221,6 +221,16 @@
    "type": "references"
   },
   {
+   "from": "item/01M0SZFFPWEVN9YX9D9RYZ1ZC1",
+   "to": "release/v0.8.0",
+   "type": "targets"
+  },
+  {
+   "from": "item/01M0T3YW3CWWM9QPMKXEQQ2PR3",
+   "to": "release/v0.8.1",
+   "type": "targets"
+  },
+  {
    "from": "roadmap-snapshot/2026-08-06_v0.4.1-release",
    "to": "roadmap",
    "type": "snapshot-of"
@@ -278,6 +288,12 @@
    "doc_type": "guide",
    "source": "docs/user_guide/cli-reference.md",
    "title": "CLI Reference",
+   "truth_state": "current"
+  },
+  "guide/noun-ownership-migration": {
+   "doc_type": "guide",
+   "source": "docs/user_guide/noun-ownership-migration.md",
+   "title": "Noun-ownership migration (PKC)",
    "truth_state": "current"
   },
   "guide/plugin-guide": {
@@ -428,6 +444,16 @@
    "status": "done",
    "title": "CI py_compile list drifted five scripts behind"
   },
+  "item/01M0SZFFPWEVN9YX9D9RYZ1ZC1": {
+   "doc_type": "item",
+   "status": "todo",
+   "title": "Own project-memory nouns including TicketLink and work types"
+  },
+  "item/01M0T3YW3CWWM9QPMKXEQQ2PR3": {
+   "doc_type": "item",
+   "status": "done",
+   "title": "Noun-ownership migration guide for PKC second brains"
+  },
   "release/v0.4.1": {
    "doc_type": "release"
   },
@@ -441,6 +467,9 @@
    "doc_type": "release"
   },
   "release/v0.8.0": {
+   "doc_type": "release"
+  },
+  "release/v0.8.1": {
    "doc_type": "release"
   },
   "roadmap": {
