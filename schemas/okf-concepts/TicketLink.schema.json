@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://spillwave.solutions/schemas/okf-concepts/TicketLink.schema.json",
+  "title": "TicketLink",
+  "description": "Generic work-item bridge. Prefer Epic/Story/Task/Subtask/Bug for new writes; TicketLink remains valid for existing files.",
+  "type": "object",
+  "required": ["type", "title"],
+  "x-recommended-any": [["worklog_id", "external_id"]],
+  "properties": {
+    "type": { "const": "TicketLink" },
+    "title": { "type": "string", "minLength": 1 },
+    "description": { "type": "string" },
+    "timestamp": { "type": "string" },
+    "status": { "type": "string" },
+    "tags": { "type": "array", "items": { "type": "string" } },
+    "verified": { "type": "boolean" },
+    "generated": { "type": "boolean" },
+    "wiki_key": { "type": "string" },
+    "truth_state": { "type": "string" },
+    "schema_version": { "type": "integer" },
+    "worklog_id": { "type": "string" },
+    "external_id": { "type": ["string", "number"] },
+    "external_system": { "type": "string" },
+    "level": {
+      "type": "string",
+      "enum": ["epic", "story", "task", "subtask"],
+      "description": "WikiTicket level. Specialized types Epic/Story/Task/Subtask are preferred for new writes."
+    },
+    "kind": {
+      "type": "string",
+      "enum": ["feature", "bug", "ops", "triage"],
+      "description": "WikiTicket kind. Specialized type Bug is preferred when kind=bug."
+    },
+    "branch": {
+      "type": "string",
+      "description": "Source branch name. Prefer a typed link (on_branch) to a Branch concept."
+    },
+    "links": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["target"],
+        "properties": {
+          "target": { "type": "string" },
+          "rel": { "type": "string" }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true,
+  "allOf": [
+    {
+      "if": {
+        "properties": { "kind": { "const": "bug" } },
+        "required": ["kind"]
+      },
+      "then": {
+        "description": "Bugs should point at the thing they affect.",
+        "x-recommended-link-rels": ["affects", "reproduces_in", "fixed_in", "lands_in", "implements", "on_branch"]
+      }
+    }
+  ]
+}

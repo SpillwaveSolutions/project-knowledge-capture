@@ -1,0 +1,118 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://spillwave.solutions/schemas/okf-concepts/Branch.schema.json",
+  "title": "Branch",
+  "description": "Source-control branch. CodeChange and Bug link here instead of only storing a branch string.",
+  "type": "object",
+  "required": [
+    "type",
+    "title"
+  ],
+  "properties": {
+    "type": {
+      "const": "Branch"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "description": {
+      "type": "string"
+    },
+    "timestamp": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "verified": {
+      "type": "boolean"
+    },
+    "generated": {
+      "type": "boolean"
+    },
+    "wiki_key": {
+      "type": "string"
+    },
+    "truth_state": {
+      "type": "string"
+    },
+    "schema_version": {
+      "type": "integer"
+    },
+    "worklog_id": {
+      "type": "string"
+    },
+    "external_id": {
+      "type": [
+        "string",
+        "number"
+      ]
+    },
+    "external_system": {
+      "type": "string"
+    },
+    "level": {
+      "type": "string"
+    },
+    "kind": {
+      "type": "string"
+    },
+    "parent": {
+      "type": "string"
+    },
+    "priority": {
+      "type": "string"
+    },
+    "branch": {
+      "type": "string"
+    },
+    "links": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "target"
+        ],
+        "properties": {
+          "target": {
+            "type": "string"
+          },
+          "rel": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "name": {
+      "type": "string",
+      "description": "Branch name (often the same as title)."
+    },
+    "repo": {
+      "type": "string"
+    },
+    "base": {
+      "type": "string"
+    },
+    "head": {
+      "type": "string"
+    },
+    "protected": {
+      "type": "boolean"
+    },
+    "default": {
+      "type": "boolean"
+    }
+  },
+  "additionalProperties": true,
+  "x-recommended": [
+    "name"
+  ]
+}

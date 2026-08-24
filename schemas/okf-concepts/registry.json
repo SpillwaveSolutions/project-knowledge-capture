@@ -1,14 +1,14 @@
 {
   "name": "pkc-okf-concept-schemas",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "okf_version": "0.2",
   "plugin": "project-knowledge-capture",
   "base": "okf-plugin/schemas/okf-concepts/BaseConcept.schema.json",
+  "description": "PKC owns project-memory nouns. Catalog and ContextPack live in okf-plugin.",
   "concepts": [
     "Meeting",
     "Experiment",
     "Discovery",
-    "DecisionRecord",
     "Assumption",
     "Question",
     "Feature",
@@ -18,9 +18,9 @@
     "Release",
     "CodeChange",
     "Package",
-    "Module",
     "Risk",
     "Acceptance",
+    "DecisionRecord",
     "TicketLink",
     "Epic",
     "Story",
@@ -28,9 +28,10 @@
     "Subtask",
     "Bug",
     "Branch",
-    "ContextPack",
     "Project",
-    "Catalog"
+    "Playbook",
+    "Runbook",
+    "Reference"
   ],
   "catalog_ownership": {
     "project-knowledge-capture": [
@@ -56,7 +57,9 @@
       "branches",
       "projects",
       "risks",
-      "acceptance"
+      "acceptance",
+      "playbooks",
+      "runbooks"
     ]
   }
 }
