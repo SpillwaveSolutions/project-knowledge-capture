@@ -1,6 +1,8 @@
 ---
 wiki_key: design/retrieval-ladder
-doc_type: design
+doc_type: guide
+title: Retrieval ladder
+slug: retrieval-ladder
 truth_state: current
 ---
 

@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """Publish the worklog publish-manifest to the GitHub wiki. wiki-publish skill sections 0,3,4,5."""
-import hashlib, json, pathlib, subprocess, sys
+import hashlib, json, os, pathlib, subprocess, sys
 
-REPO = pathlib.Path("/Users/richardhightower/clients/spillwave/src/project-knowledge-capture")
+REPO = pathlib.Path(__file__).resolve().parents[1]
 CHECKOUT = REPO / ".work/wiki-checkout"
 LEDGER = REPO / ".work/published.json"
 BROWSE = "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/"
+COMMIT_MSG = os.environ.get("WIKI_COMMIT_MSG", "publish: wiki pages")
 
 
 def sha12(text):
@@ -24,10 +25,21 @@ def strip_frontmatter(text):
 
 
 manifest = json.load(open(REPO / "docs/.index/publish-manifest.json"))
-pages = manifest["pages"] if isinstance(manifest, dict) and "pages" in manifest else manifest
+pages = list(manifest["pages"] if isinstance(manifest, dict) and "pages" in manifest else manifest)
+if isinstance(manifest, dict) and manifest.get("sidebar"):
+    sb = manifest["sidebar"]
+    pages.append({
+        "source": sb["source"],
+        "wiki_key": "sidebar",
+        "page_name": "_Sidebar",
+        "render": "as-is",
+        "render_hash": sb.get("render_hash"),
+        "frozen": False,
+    })
 ledger = json.load(open(LEDGER)) if LEDGER.exists() else {}
 
 published, skipped, missing, frozen_violation = [], [], [], []
+CHECKOUT.mkdir(parents=True, exist_ok=True)
 
 for p in pages:
     src = REPO / p["source"]
@@ -55,13 +67,15 @@ for p in pages:
 
     name = "_Sidebar" if key == "sidebar" else p["page_name"]
     (CHECKOUT / f"{name}.md").write_text(out, encoding="utf-8")
-    ledger[key] = {
+    updated = dict(entry)
+    updated.update({
         "source": p["source"],
         "url": BROWSE + name,
         "page_id": name,
         "source_hash": src_hash,
         "render_hash": p.get("render_hash"),
-    }
+    })
+    ledger[key] = updated
     published.append(name)
 
 if frozen_violation:
@@ -74,8 +88,8 @@ if published:
     # That is a successful no-op publish, not an error — still record the render_hash.
     dirty = subprocess.run(["git", "diff", "--cached", "--quiet"], cwd=CHECKOUT).returncode != 0
     if dirty:
-        subprocess.run(["git", "commit", "-q", "-m", "publish: v0.4.1 release docs"], cwd=CHECKOUT, check=True)
-        subprocess.run(["git", "push", "-q", "origin", "master"], cwd=CHECKOUT, check=True)
+        subprocess.run(["git", "commit", "-q", "-m", COMMIT_MSG], cwd=CHECKOUT, check=True)
+        subprocess.run(["git", "push", "-q", "origin", "HEAD"], cwd=CHECKOUT, check=True)
     else:
         print("(page bytes unchanged — ledger updated, nothing pushed)")
     rev = subprocess.run(["git", "rev-parse", "HEAD"], cwd=CHECKOUT,
