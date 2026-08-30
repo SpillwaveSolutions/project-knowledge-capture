@@ -2,6 +2,25 @@
 
 ## Unreleased
 
+### Added
+
+- **ripgrep accelerator** for search and pack ([#58](https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/58)). `pkc_search.py` uses `rg -l` as a
+  candidate prefilter when `rg` is on PATH (or `PKC_RG_PATH` / `OKF_RG_PATH`).
+  Ranking stays in Python, so scores match a full scan. `--no-rg` forces the
+  linear walk. The `--rg` flag the docstring already promised now exists.
+- **rg-backed reverse index** in `pkc_pack.py`. Inbound/backlink discovery is
+  O(subgraph) when rg is present; otherwise the previous full scan. Parsed
+  edges are cached for the duration of one `pack()` call.
+- `/pkc-setup` skill + `scripts/pkc_setup.py` ([#59](https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/59)). Detects python / rg / SQLite FTS5.
+  May install ripgrep only with `--yes`. Never from a hook.
+- `pkc_doctor.py` reports a **toolchain** section (rg found/missing, FTS5).
+
+### Notes
+
+- Ruby rewrite: closed-won't-do ([#60](https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/60)). Dual implementations drift; the bottleneck is
+  the full-bundle rescan, not the language. Escalation is rg → SQLite FTS5
+  index → okfcli, not a second runtime.
+
 ## 0.8.1 — 2026-08-24
 
 - Noun-ownership migration guide:

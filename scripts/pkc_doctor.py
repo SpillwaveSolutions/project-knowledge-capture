@@ -18,6 +18,7 @@ from pkc_common import (  # noqa: E402
     parse_frontmatter,
     parse_iso_date,
     resolve_knowledge_root,
+    toolchain_report,
 )
 
 MD_LINK = re.compile(r"\[([^\]]+)\]\((/[^)]+)\)")
@@ -238,10 +239,20 @@ def doctor(
         "by_kind": dict(by_kind),
         "by_severity": dict(by_sev),
         "ok": by_sev.get("error", 0) == 0,
+        "toolchain": toolchain_report(),
     }
 
 
 def render_report(result: dict[str, Any]) -> str:
+    tc = result.get("toolchain") or {}
+    rg = tc.get("rg") or {}
+    sqlite = tc.get("sqlite") or {}
+    rg_line = (
+        f"found at `{rg['path']}`"
+        if rg.get("found")
+        else "missing — search/pack will full-scan. Run /pkc-setup to install."
+    )
+    fts = "yes" if sqlite.get("fts5") else "no"
     lines = [
         f"# PKC doctor — {result['bundle']}",
         "",
@@ -250,6 +261,12 @@ def render_report(result: dict[str, Any]) -> str:
         f"- Errors: {result['by_severity'].get('error', 0)}",
         f"- Warnings: {result['by_severity'].get('warn', 0)}",
         f"- Info: {result['by_severity'].get('info', 0)}",
+        "",
+        "## Toolchain",
+        "",
+        f"- Python: {tc.get('python') or '?'}",
+        f"- ripgrep: {rg_line}",
+        f"- SQLite FTS5: {fts} (stdlib; future incremental index)",
         "",
     ]
     if not result["issues"]:

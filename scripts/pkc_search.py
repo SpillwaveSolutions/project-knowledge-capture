@@ -2,11 +2,15 @@
 """Full-text search over a PKC knowledge bundle (Git stays source of truth).
 
 No database required — walks concept Markdown and ranks simple term hits.
-Optional: use ripgrep when available for large trees (`--rg`).
+Uses ripgrep as a prefilter when `rg` is on PATH (or PKC_RG_PATH). Ranking
+is always computed in Python over the candidate files, so scores stay
+identical to a full scan. `--no-rg` forces the linear walk.
 
 Usage:
   python3 scripts/pkc_search.py "JWT refresh" --bundle sample-knowledge
   python3 scripts/pkc_search.py JWT --type DecisionRecord,Feature --json
+  python3 scripts/pkc_search.py JWT --rg
+  python3 scripts/pkc_search.py JWT --no-rg
 """
 
 from __future__ import annotations
@@ -18,11 +22,55 @@ from pathlib import Path
 from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from pkc_common import iter_concepts, parse_frontmatter, resolve_knowledge_root  # noqa: E402
+from pkc_common import (  # noqa: E402
+    find_rg,
+    is_concept_path,
+    iter_concepts,
+    parse_frontmatter,
+    resolve_knowledge_root,
+    rg_list_files,
+)
 
 
 def tokenize(q: str) -> list[str]:
     return [t for t in re.split(r"\s+", q.strip().lower()) if t]
+
+
+def candidate_files(
+    bundle: Path,
+    terms: list[str],
+    *,
+    path_prefix: str | None = None,
+    use_rg: bool | None = None,
+) -> tuple[list[Path], str]:
+    """Return (files, engine) where engine is 'rg' or 'scan'.
+
+    use_rg True: prefer rg, fall back to scan if missing.
+    use_rg False: always scan.
+    use_rg None: auto (rg if found).
+    """
+    universe = iter_concepts(bundle)
+    if path_prefix:
+        prefix = path_prefix.lstrip("/")
+        universe = [
+            p
+            for p in universe
+            if ("/" + p.relative_to(bundle).as_posix()).lstrip("/").startswith(prefix)
+        ]
+    if use_rg is False:
+        return universe, "scan"
+    if use_rg is None and not find_rg():
+        return universe, "scan"
+    hits = rg_list_files(bundle, terms, ignore_case=True, fixed_string=False)
+    if hits is None:
+        return universe, "scan"
+    allowed = {p.resolve() for p in hits}
+    filtered = [
+        p
+        for p in universe
+        if p.resolve() in allowed and is_concept_path(bundle, p)
+    ]
+    return filtered, "rg"
 
 
 def search(
@@ -32,6 +80,7 @@ def search(
     types: list[str] | None = None,
     limit: int = 20,
     path_prefix: str | None = None,
+    use_rg: bool | None = None,
 ) -> list[dict[str, Any]]:
     terms = tokenize(query)
     if not terms:
@@ -39,11 +88,12 @@ def search(
 
     type_filter = {t.lower() for t in (types or []) if t}
     results: list[dict[str, Any]] = []
+    files, _engine = candidate_files(
+        bundle, terms, path_prefix=path_prefix, use_rg=use_rg
+    )
 
-    for path in iter_concepts(bundle):
+    for path in files:
         rel = "/" + path.relative_to(bundle).as_posix()
-        if path_prefix and not rel.lstrip("/").startswith(path_prefix.lstrip("/")):
-            continue
         text = path.read_text(encoding="utf-8")
         fm, body = parse_frontmatter(text)
         ctype = str(fm.get("type") or "Unknown")
@@ -147,6 +197,16 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--limit", type=int, default=20)
     parser.add_argument("--prefix", default=None, help="Path prefix filter e.g. decisions/")
     parser.add_argument("--json", action="store_true")
+    parser.add_argument(
+        "--rg",
+        action="store_true",
+        help="Use ripgrep to prefilter candidate files (default when rg is on PATH)",
+    )
+    parser.add_argument(
+        "--no-rg",
+        action="store_true",
+        help="Disable ripgrep; always full-scan",
+    )
     args = parser.parse_args(argv)
 
     bundle = resolve_knowledge_root(Path(args.repo).resolve(), args.bundle)
@@ -154,15 +214,47 @@ def main(argv: list[str] | None = None) -> int:
         print(f"error: bundle not found: {bundle}", file=sys.stderr)
         return 1
 
+    if args.rg and args.no_rg:
+        print("error: --rg and --no-rg are mutually exclusive", file=sys.stderr)
+        return 2
+    if args.no_rg:
+        use_rg: bool | None = False
+    elif args.rg:
+        use_rg = True
+        if not find_rg():
+            print(
+                "pkc_search: rg not found; falling back to full scan. "
+                "Install ripgrep or pass --no-rg. See /pkc-setup.",
+                file=sys.stderr,
+            )
+    else:
+        use_rg = None
+
     types = [t.strip() for t in (args.types or "").split(",") if t.strip()] or None
     results = search(
-        bundle, args.query, types=types, limit=args.limit, path_prefix=args.prefix
+        bundle,
+        args.query,
+        types=types,
+        limit=args.limit,
+        path_prefix=args.prefix,
+        use_rg=use_rg,
     )
+    engine = "scan" if use_rg is False or not find_rg() else "rg"
 
     if args.json:
         import json
 
-        print(json.dumps({"query": args.query, "count": len(results), "results": results}, indent=2))
+        print(
+            json.dumps(
+                {
+                    "query": args.query,
+                    "count": len(results),
+                    "engine": engine,
+                    "results": results,
+                },
+                indent=2,
+            )
+        )
     else:
         print(render(results, args.query))
     return 0

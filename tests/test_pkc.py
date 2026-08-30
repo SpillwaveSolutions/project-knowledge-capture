@@ -6,6 +6,7 @@ from __future__ import annotations
 import contextlib
 import hashlib
 import json
+import os
 import shutil
 import subprocess
 import re
@@ -1337,6 +1338,81 @@ class TestManifestVersions(unittest.TestCase):
                 continue
             found[rel] = node
         self.assertEqual(len(set(found.values())), 1, f"version drift: {found}")
+
+
+from pkc_common import find_rg, rg_list_files, toolchain_report  # noqa: E402
+from pkc_search import candidate_files, search as search_bundle  # noqa: E402
+from pkc_pack import pack as pack_bundle  # noqa: E402
+from pkc_setup import main as setup_main  # noqa: E402
+from pkc_doctor import doctor as doctor_bundle  # noqa: E402
+
+
+FAKE_RG = ROOT / "tests/fixtures/fake_rg.py"
+
+
+class TestRipgrepAccelerator(unittest.TestCase):
+    """rg is optional. Ranking with a fake rg must match a full scan."""
+
+    def setUp(self):
+        self._saved = os.environ.get("PKC_RG_PATH")
+        FAKE_RG.chmod(0o755)
+        os.environ["PKC_RG_PATH"] = str(FAKE_RG)
+
+    def tearDown(self):
+        if self._saved is None:
+            os.environ.pop("PKC_RG_PATH", None)
+        else:
+            os.environ["PKC_RG_PATH"] = self._saved
+
+    def test_find_rg_honors_env(self):
+        self.assertEqual(Path(find_rg()).resolve(), FAKE_RG.resolve())
+
+    def test_search_rg_matches_scan_ranking(self):
+        bundle = ROOT / "sample-knowledge"
+        scan = search_bundle(bundle, "JWT", limit=10, use_rg=False)
+        accel = search_bundle(bundle, "JWT", limit=10, use_rg=True)
+        self.assertGreaterEqual(len(scan), 1)
+        self.assertEqual([h["path"] for h in scan], [h["path"] for h in accel])
+        self.assertEqual([h["score"] for h in scan], [h["score"] for h in accel])
+
+    def test_search_and_terms_intersect(self):
+        bundle = ROOT / "sample-knowledge"
+        files, engine = candidate_files(bundle, ["jwt", "zzzz-no-such-term"], use_rg=True)
+        self.assertEqual(engine, "rg")
+        self.assertEqual(files, [])
+
+    def test_pack_rg_matches_scan_graph(self):
+        bundle = ROOT / "sample-knowledge"
+        seed = bundle / "features/user-authentication.md"
+        scan = pack_bundle(bundle, seed, hops=2, max_nodes=20, use_rg=False)
+        accel = pack_bundle(bundle, seed, hops=2, max_nodes=20, use_rg=True)
+        self.assertEqual(scan["node_count"], accel["node_count"])
+        self.assertEqual(
+            sorted(n["path"] for n in scan["nodes"]),
+            sorted(n["path"] for n in accel["nodes"]),
+        )
+        scan_edges = sorted((e["from"], e["to"], e["rel"]) for e in scan["edges"])
+        accel_edges = sorted((e["from"], e["to"], e["rel"]) for e in accel["edges"])
+        self.assertEqual(scan_edges, accel_edges)
+        self.assertEqual(accel["reverse_index"], "rg")
+        self.assertEqual(scan["reverse_index"], "scan")
+
+    def test_doctor_reports_toolchain(self):
+        report = doctor_bundle(ROOT / "sample-knowledge")
+        self.assertIn("toolchain", report)
+        self.assertTrue(report["toolchain"]["rg"]["found"])
+        self.assertIn("fts5", report["toolchain"]["sqlite"])
+
+    def test_setup_check_does_not_install(self):
+        rc = setup_main(["--check", "--json"])
+        self.assertEqual(rc, 0)
+
+    def test_setup_install_without_yes_exits_2(self):
+        # Point at a missing binary so install path runs, but --yes is off.
+        os.environ["PKC_RG_PATH"] = "/definitely/not/a/real/rg-binary"
+        # find_rg also checks shutil.which("rg") — this sandbox has none.
+        rc = setup_main(["--install-rg"])
+        self.assertEqual(rc, 2)
 
 
 def main() -> int:
