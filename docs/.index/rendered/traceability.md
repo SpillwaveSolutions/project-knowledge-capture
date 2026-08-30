@@ -3,7 +3,7 @@
 _The evidence chain: plan → item → ticket → code → release, forward and backward. Generated from `docs/.index/_graph.json`; do not edit._
 
 ### Release v0.9.0 retrieval ladder
-`01M18S2ZTSD4XAD6YQF7XV4MC3` · status: todo
+`01M18S2ZTSD4XAD6YQF7XV4MC3` · status: done
 - targets: release/v0.9.0
 
 ### stdlib SQLite FTS5 incremental index (rung 2)

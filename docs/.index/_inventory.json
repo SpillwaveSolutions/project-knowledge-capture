@@ -96,10 +96,10 @@
   {
    "canonical_key": "roadmap",
    "doc_type": "roadmap",
-   "generated_at": "2026-08-30T07:28:05Z",
+   "generated_at": "2026-08-30T07:36:34Z",
    "slug": "roadmap",
    "source": "docs/roadmap.md",
-   "source_hash": "8346504f",
+   "source_hash": "e7a983b1",
    "title": "Roadmap",
    "truth_state": "current",
    "wiki": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Roadmap",
