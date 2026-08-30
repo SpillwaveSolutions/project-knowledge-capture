@@ -320,7 +320,7 @@
    "truth_state": "current"
   },
   "design/retrieval-ladder": {
-   "doc_type": "design",
+   "doc_type": "guide",
    "source": "docs/designs/retrieval-ladder.md",
    "title": "Retrieval ladder",
    "truth_state": "current"
@@ -519,6 +519,11 @@
    "doc_type": "item",
    "status": "done",
    "title": "Release v0.9.0 retrieval ladder"
+  },
+  "item/01M19SADGDHJPCXX5MK4A76ZE5": {
+   "doc_type": "item",
+   "status": "done",
+   "title": "Publish v0.9.0 wiki pages"
   },
   "release/v0.10.0": {
    "doc_type": "release"

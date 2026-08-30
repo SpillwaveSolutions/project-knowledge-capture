@@ -2,6 +2,9 @@
 
 _The evidence chain: plan → item → ticket → code → release, forward and backward. Generated from `docs/.index/_graph.json`; do not edit._
 
+### Publish v0.9.0 wiki pages
+`01M19SADGDHJPCXX5MK4A76ZE5` · status: done
+
 ### Release v0.9.0 retrieval ladder
 `01M18S2ZTSD4XAD6YQF7XV4MC3` · status: done
 - targets: release/v0.9.0

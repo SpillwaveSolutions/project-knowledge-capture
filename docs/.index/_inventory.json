@@ -34,11 +34,12 @@
   },
   {
    "canonical_key": "design/retrieval-ladder",
-   "doc_type": "design",
+   "doc_type": "guide",
    "slug": "retrieval-ladder",
    "source": "docs/designs/retrieval-ladder.md",
    "title": "Retrieval ladder",
    "truth_state": "current",
+   "wiki": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Retrieval-ladder",
    "wiki_key": "design/retrieval-ladder"
   },
   {
@@ -58,6 +59,7 @@
    "source": "docs/user_guide/noun-ownership-migration.md",
    "title": "Noun-ownership migration (PKC)",
    "truth_state": "current",
+   "wiki": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Noun-ownership-migration-(PKC)",
    "wiki_key": "guide/noun-ownership-migration"
   },
   {
@@ -96,10 +98,10 @@
   {
    "canonical_key": "roadmap",
    "doc_type": "roadmap",
-   "generated_at": "2026-08-30T07:36:34Z",
+   "generated_at": "2026-08-30T16:52:55Z",
    "slug": "roadmap",
    "source": "docs/roadmap.md",
-   "source_hash": "e7a983b1",
+   "source_hash": "8de8b50a",
    "title": "Roadmap",
    "truth_state": "current",
    "wiki": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Roadmap",
@@ -168,6 +170,7 @@
    "supersedes": "roadmap-snapshot/2026-08-07_v0.5.0-release",
    "title": "Roadmap",
    "truth_state": "snapshot",
+   "wiki": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Roadmap-2026-08-30_v0.9.0-release",
    "wiki_key": "roadmap-snapshot/2026-08-30_v0.9.0-release"
   }
  ],

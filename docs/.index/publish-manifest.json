@@ -44,7 +44,7 @@
    "frozen": false,
    "page_name": "Index-Traceability",
    "render": "as-is",
-   "render_hash": "5c0deb0c1e78",
+   "render_hash": "42012751d5c7",
    "source": "docs/.index/rendered/traceability.md",
    "title": "Traceability Index",
    "truth_state": "current",
@@ -461,6 +461,16 @@
    "wiki_key": "item/01M18S2ZTSD4XAD6YQF7XV4MC3"
   },
   {
+   "frozen": false,
+   "page_name": "Ticket-01M19SADGDHJPCXX5MK4A76ZE5",
+   "render": "as-is",
+   "render_hash": "94041f576d2b",
+   "source": "docs/.index/rendered/tickets/01M19SADGDHJPCXX5MK4A76ZE5.md",
+   "title": "Publish v0.9.0 wiki pages",
+   "truth_state": "done",
+   "wiki_key": "item/01M19SADGDHJPCXX5MK4A76ZE5"
+  },
+  {
    "banner": "> **Current** \u2014 this is the living version; regenerated at 2026-08-06T18:42:39Z. Historical snapshots are linked from [[Index-Releases]].",
    "frozen": false,
    "page_name": "Code-Walkthrough",
@@ -483,11 +493,11 @@
    "wiki_key": "design/current-design-doc"
   },
   {
-   "banner": "> **Current** \u2014 the latest status report. Reports freeze once published; corrections appear in later reports.",
-   "frozen": true,
-   "page_name": "Code-Walkthrough",
+   "banner": "> **Current** \u2014 this is the living version. Historical snapshots are linked from [[Index-Releases]].",
+   "frozen": false,
+   "page_name": "Retrieval-ladder",
    "render": "doc+banner",
-   "render_hash": "07871d095d13",
+   "render_hash": "97e633b915b6",
    "source": "docs/designs/retrieval-ladder.md",
    "title": "Retrieval ladder",
    "truth_state": "current",
@@ -549,11 +559,11 @@
    "wiki_key": "guide/worklog-spec"
   },
   {
-   "banner": "> **Current** \u2014 this is the living version; regenerated at 2026-08-30T07:36:34Z. Historical snapshots are linked from [[Index-Releases]].",
+   "banner": "> **Current** \u2014 this is the living version; regenerated at 2026-08-30T16:52:55Z. Historical snapshots are linked from [[Index-Releases]].",
    "frozen": false,
    "page_name": "Roadmap",
    "render": "doc+banner",
-   "render_hash": "7209befb9fb1",
+   "render_hash": "c4db7a807b6b",
    "source": "docs/roadmap.md",
    "title": "Roadmap",
    "truth_state": "current",
