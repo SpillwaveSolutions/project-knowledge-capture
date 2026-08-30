@@ -356,6 +356,48 @@ def parse_frontmatter(text: str) -> tuple[dict[str, Any], str]:
     return _parse_simple_yaml(parts[1]), parts[2].lstrip("\n")
 
 
+MD_LINK = re.compile(r"\[([^\]]+)\]\((/[^)]+)\)")
+
+
+def extract_concept_edges(fm: dict[str, Any], body: str) -> list[tuple[str, str, str]]:
+    """Typed frontmatter links plus absolute Markdown body links.
+
+    Returns (rel, target, label). Targets are in-bundle absolute paths.
+    Catalogs and packs are not filtered here — callers skip those files.
+    """
+    edges: list[tuple[str, str, str]] = []
+    seen: set[tuple[str, str]] = set()
+
+    links = fm.get("links") or []
+    if isinstance(links, list):
+        for link in links:
+            if not isinstance(link, dict):
+                continue
+            tgt = link.get("target") or ""
+            rel = link.get("rel") or "related_to"
+            if not tgt.startswith("/"):
+                continue
+            key = (rel, tgt)
+            if key in seen:
+                continue
+            seen.add(key)
+            edges.append((str(rel), str(tgt), Path(tgt).stem))
+
+    for m in MD_LINK.finditer(body or ""):
+        label, tgt = m.group(1), m.group(2).split("#", 1)[0]
+        if not tgt.startswith("/"):
+            continue
+        key = ("links_to", tgt)
+        if key in seen:
+            continue
+        if any(t == tgt for _, t, _ in edges):
+            continue
+        seen.add(key)
+        edges.append(("links_to", tgt, label))
+
+    return edges
+
+
 def dump_frontmatter(data: dict[str, Any]) -> str:
     lines = ["---"]
     for key, value in data.items():

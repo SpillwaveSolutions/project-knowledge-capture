@@ -33,6 +33,8 @@ CI (`.github/workflows/ci.yml`) is the real spec: it runs the suite, compiles sc
 
 Ripgrep is an optional accelerator (`find_rg()` / `PKC_RG_PATH`). Search and pack must keep working when `rg` is absent. Never install packages from a hook; `/pkc-setup` is consent-gated (`--yes`).
 
+The SQLite/FTS5 index (`scripts/pkc_index.py`, `knowledge/.pkc/index.sqlite`) is the next rung. Git + Markdown stays source of truth; the file is gitignored and self-heals via mtime+size on every reader. `PKC_NO_INDEX=1` or `--no-index` falls through to rg then scan. Do not copy DEKC's JSON `.index/`.
+
 ### Every script shares the same shape
 
 `--repo <path>` (default `.`) plus optional `--bundle <name-or-path>`, resolved by `resolve_knowledge_root()`:

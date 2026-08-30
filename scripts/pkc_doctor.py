@@ -20,6 +20,7 @@ from pkc_common import (  # noqa: E402
     resolve_knowledge_root,
     toolchain_report,
 )
+from pkc_index import refresh as index_refresh, status as index_status  # noqa: E402
 
 MD_LINK = re.compile(r"\[([^\]]+)\]\((/[^)]+)\)")
 
@@ -69,6 +70,7 @@ def doctor(
 ) -> dict[str, Any]:
     now = _aware(now) or datetime.now(timezone.utc)
     nodes, edges = load_graph(bundle)
+    index_refresh(bundle)
     issues: list[dict[str, str]] = []
 
     for c in CATALOGS:
@@ -240,6 +242,7 @@ def doctor(
         "by_severity": dict(by_sev),
         "ok": by_sev.get("error", 0) == 0,
         "toolchain": toolchain_report(),
+        "index": index_status(bundle),
     }
 
 
@@ -253,6 +256,14 @@ def render_report(result: dict[str, Any]) -> str:
         else "missing — search/pack will full-scan. Run /pkc-setup to install."
     )
     fts = "yes" if sqlite.get("fts5") else "no"
+    idx = result.get("index") or {}
+    if idx.get("present"):
+        idx_line = (
+            f"present ({idx.get('nodes', 0)} nodes, {idx.get('edges', 0)} edges) "
+            f"at `{idx.get('path')}`"
+        )
+    else:
+        idx_line = "absent — search/pack/validate will use rg or a full scan"
     lines = [
         f"# PKC doctor — {result['bundle']}",
         "",
@@ -266,7 +277,8 @@ def render_report(result: dict[str, Any]) -> str:
         "",
         f"- Python: {tc.get('python') or '?'}",
         f"- ripgrep: {rg_line}",
-        f"- SQLite FTS5: {fts} (stdlib; future incremental index)",
+        f"- SQLite FTS5: {fts} (stdlib)",
+        f"- Incremental index: {idx_line}",
         "",
     ]
     if not result["issues"]:

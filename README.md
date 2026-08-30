@@ -147,6 +147,8 @@ Post-edit curation refreshes catalog indexes and runs a light validate when you 
 | `pkc_materialize.py` | Worklog fold + docs |
 | `pkc_link.py` / `pkc_promote.py` | Edges + promotion |
 | `pkc_pack.py` | Context packs (2-hop default) |
+| `pkc_search.py` | Full-text search (index → rg → scan) |
+| `pkc_index.py` | Disposable SQLite/FTS5 incremental index |
 | `pkc_validate.py` | Structure + links |
 | `pkc_action_items.py` | Meeting actions → TicketLink / worklog |
 | `pkc_ticket_link.py` | WikiTicket fold / GitHub Issues → TicketLink |

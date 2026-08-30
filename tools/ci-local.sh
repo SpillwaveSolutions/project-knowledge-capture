@@ -58,7 +58,10 @@ step "PR fixture" python3 scripts/pkc_pr_capture.py --json-file tests/fixtures/p
 echo "== query surfaces =="
 step "search" bash -c "
   python3 scripts/pkc_search.py JWT --bundle $BUNDLE --json \
-    | python3 -c \"import json,sys;assert json.load(sys.stdin)['count']>=1\""
+    | python3 -c \"import json,sys; d=json.load(sys.stdin); assert d['count']>=1; assert d['engine'] in ('index','rg','scan')\""
+step "index" bash -c "
+  python3 scripts/pkc_index.py status --bundle $BUNDLE --json \
+    | python3 -c \"import json,sys; d=json.load(sys.stdin); assert d['fts5'] is True\""
 step "digest" bash -c "
   python3 scripts/pkc_digest.py --bundle $BUNDLE --days 3650 --json \
     | python3 -c \"import json,sys;assert 'open_questions' in json.load(sys.stdin)\""

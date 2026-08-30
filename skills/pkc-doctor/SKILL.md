@@ -23,7 +23,11 @@ python3 "${CLAUDE_PLUGIN_ROOT}/scripts/pkc_doctor.py" --bundle sample-knowledge 
 | unvalidated_assumption | Assumption not yet proven |
 | missing_catalog | Expected catalog directory absent |
 
-Also reports **toolchain**: Python, ripgrep found/missing, SQLite FTS5. If rg is missing, offer `/pkc-setup` (consent-gated install). Do not install from this skill.
+Also reports **toolchain**: Python, ripgrep found/missing, SQLite FTS5, and
+whether `knowledge/.pkc/index.sqlite` is present. If rg is missing, offer
+`/pkc-setup` (consent-gated install). Do not install from this skill. If the
+index is absent, mention `/pkc-index refresh` — or just search/validate, which
+builds it.
 
 ## Done when
 

@@ -23,6 +23,7 @@ from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from pkc_common import (  # noqa: E402
+    extract_concept_edges,
     find_rg,
     is_concept_path,
     iter_concepts,
@@ -31,6 +32,7 @@ from pkc_common import (  # noqa: E402
     rg_list_files,
     utc_now,
 )
+from pkc_index import open_graph  # noqa: E402
 
 MD_LINK = re.compile(r"\[([^\]]+)\]\((/[^)]+)\)")
 
@@ -83,43 +85,9 @@ def extract_edges(
             cache[key] = edges
         return edges
     fm, body = parse_frontmatter(text)
-    edges = _edges_from_parts(fm, body)
+    edges = extract_concept_edges(fm, body)
     if cache is not None:
         cache[key] = edges
-    return edges
-
-
-def _edges_from_parts(fm: dict[str, Any], body: str) -> list[tuple[str, str, str]]:
-    edges: list[tuple[str, str, str]] = []
-    seen: set[tuple[str, str]] = set()
-
-    links = fm.get("links") or []
-    if isinstance(links, list):
-        for link in links:
-            if not isinstance(link, dict):
-                continue
-            tgt = link.get("target") or ""
-            rel = link.get("rel") or "related_to"
-            if not tgt.startswith("/"):
-                continue
-            key = (rel, tgt)
-            if key in seen:
-                continue
-            seen.add(key)
-            edges.append((rel, tgt, Path(tgt).stem))
-
-    for m in MD_LINK.finditer(body):
-        label, tgt = m.group(1), m.group(2).split("#", 1)[0]
-        if not tgt.startswith("/"):
-            continue
-        key = ("links_to", tgt)
-        if key in seen:
-            continue
-        if any(t == tgt for _, t, _ in edges):
-            continue
-        seen.add(key)
-        edges.append(("links_to", tgt, label))
-
     return edges
 
 
@@ -197,7 +165,7 @@ def build_reverse_index(
 
 
 class ReverseIndex:
-    """Inbound edges, rg-accelerated when possible, full scan otherwise."""
+    """Inbound edges: SQLite index → rg → full scan."""
 
     def __init__(
         self,
@@ -205,25 +173,43 @@ class ReverseIndex:
         *,
         cache: dict[str, list[tuple[str, str, str]]] | None = None,
         use_rg: bool | None = None,
+        use_index: bool | None = None,
     ):
         self.bundle = bundle
         self.cache = cache if cache is not None else {}
         self._full: dict[str, list[tuple[str, str, str]]] | None = None
         self._memo: dict[str, list[tuple[str, str, str]]] = {}
+        self._graph = None
+        if use_index is False:
+            self._index = False
+        else:
+            self._graph = open_graph(bundle)
+            self._index = self._graph is not None
+            if use_index is True and not self._index:
+                self._index = False
         if use_rg is False:
             self._rg = False
-        elif use_rg is True:
-            self._rg = bool(find_rg())
         else:
             self._rg = bool(find_rg())
 
     @property
     def engine(self) -> str:
+        if self._index:
+            return "index"
         return "rg" if self._rg else "scan"
+
+    def close(self) -> None:
+        if self._graph is not None:
+            self._graph.close()
+            self._graph = None
 
     def get(self, target: str, default: list | None = None) -> list[tuple[str, str, str]]:
         if target in self._memo:
             return self._memo[target]
+        if self._index and self._graph is not None:
+            found = self._graph.inbound(target)
+            self._memo[target] = found
+            return found
         if self._rg:
             found = _inbound_via_rg(self.bundle, target, cache=self.cache)
             if found is not None:
@@ -246,10 +232,28 @@ def pack(
     hops: int = 2,
     max_nodes: int = 20,
     use_rg: bool | None = None,
+    use_index: bool | None = None,
 ) -> dict[str, Any]:
     seed_rel = "/" + seed.resolve().relative_to(bundle.resolve()).as_posix()
     parse_cache: dict[str, list[tuple[str, str, str]]] = {}
-    inbound = ReverseIndex(bundle, cache=parse_cache, use_rg=use_rg)
+    inbound = ReverseIndex(bundle, cache=parse_cache, use_rg=use_rg, use_index=use_index)
+    try:
+        return _pack_walk(
+            bundle, seed, seed_rel, hops, max_nodes, parse_cache, inbound
+        )
+    finally:
+        inbound.close()
+
+
+def _pack_walk(
+    bundle: Path,
+    seed: Path,
+    seed_rel: str,
+    hops: int,
+    max_nodes: int,
+    parse_cache: dict[str, list[tuple[str, str, str]]],
+    inbound: ReverseIndex,
+) -> dict[str, Any]:
     queue: deque[tuple[str, int]] = deque([(seed_rel, 0)])
     visited: dict[str, int] = {}
     edge_list: list[dict[str, str]] = []
@@ -494,7 +498,12 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--no-rg",
         action="store_true",
-        help="Disable ripgrep; full-scan the reverse index",
+        help="Disable ripgrep; full-scan the reverse index (unless SQLite index is used)",
+    )
+    parser.add_argument(
+        "--no-index",
+        action="store_true",
+        help="Disable the SQLite index; fall through to rg then scan",
     )
     args = parser.parse_args(argv)
 
@@ -510,6 +519,7 @@ def main(argv: list[str] | None = None) -> int:
         use_rg = True
     else:
         use_rg = None
+    use_index: bool | None = False if args.no_index else None
 
     bundle = resolve_knowledge_root(Path(args.repo).resolve(), args.bundle)
     seed = resolve_concept(bundle, args.concept)
@@ -517,7 +527,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"error: concept not found: {args.concept}", file=sys.stderr)
         return 1
 
-    result = pack(bundle, seed, hops=hops, max_nodes=max_nodes, use_rg=use_rg)
+    result = pack(bundle, seed, hops=hops, max_nodes=max_nodes, use_rg=use_rg, use_index=use_index)
 
     try:
         if args.mermaid:

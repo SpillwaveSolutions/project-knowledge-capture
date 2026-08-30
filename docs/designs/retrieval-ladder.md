@@ -61,7 +61,7 @@ okf-plugin [#68](https://github.com/SpillwaveSolutions/okf-plugin/issues/68),
 SAC [#31](https://github.com/SpillwaveSolutions/system-architecture-capture/issues/31),
 research-graph [#1](https://github.com/SpillwaveSolutions/research-graph/issues/1).
 
-## Rung 2 — stdlib SQLite + FTS5 incremental index (~1k concepts)
+## Rung 2 — stdlib SQLite + FTS5 incremental index (now)
 
 **Cost it attacks:** re-parsing files that have not changed since the last
 invocation. Today every command rebuilds the graph and throws it away.
@@ -80,40 +80,31 @@ incremental, gitignored, and self-healing.
 | Table | Role |
 |---|---|
 | `meta(schema_version)` | drop-rebuild on mismatch |
-| `nodes(path, type, title, description, status, tags, mtime, size)` | concept cards |
+| `nodes(path, type, title, description, status, tags, mtime, size, fm_json, body, hay)` | concept cards |
 | `edges(src, dst, rel)` | indexed both directions — backlinks become a lookup |
-| `fts` (FTS5 over title / description / tags / body) | lexical retrieval |
+| `fts` (FTS5 over title / description / tags / body) | lexical retrieval (`--engine fts`) |
 
-Path: `knowledge/.pkc/index.sqlite`. Gitignore `**/.pkc/`. Never a hook
-install, never a pip dep.
+Path: `knowledge/.pkc/index.sqlite`. Gitignore `**/.pkc/index.sqlite*`. Never a
+hook install, never a pip dep. `scripts/pkc_index.py` + `/pkc-index`.
 
 **Incremental refresh is the whole trick.** On each invocation the reader
-stats the tree (10k stats ≈ tens of milliseconds), compares `mtime+size`
-against stored rows, re-parses only what changed, deletes vanished files.
-Every reader does this sweep itself rather than trusting `pkc-curate.sh`
-to have kept the index fresh — that makes it self-healing against hand
-edits, `git checkout`, branch switches, and a disabled hook. Cold rebuild
-costs one full scan (what every command pays today). Steady-state queries
-are 1–10 ms.
+stats the tree, compares `mtime+size` against stored rows, re-parses only
+what changed, deletes vanished files. Every reader does this sweep itself
+rather than trusting `pkc-curate.sh` to have kept the index fresh — that
+makes it self-healing against hand edits, `git checkout`, branch switches,
+and a disabled hook. Cold rebuild costs one full scan (what every command
+pays today). Steady-state queries are 1–10 ms.
 
 **Scoring identity.** FTS5 `bm25()` with column weights is *not* the same
-function as `title.count×10`. Do not pretend it is. Same pattern as rg:
+function as `title.count×10`. Same pattern as rg:
 
-- FTS5 (or `MATCH`) decides candidate files.
-- The existing Python scorer ranks them, so `--no-index` and index paths
-  stay score-identical.
-- A later `--engine fts` can expose raw `bm25()` as an opt-in.
+- Default (`engine=index`): SQL LIKE on the stored haystack decides
+  candidates. Existing Python scorer ranks, so `--no-index` stays
+  score-identical.
+- `--engine fts` exposes FTS5 MATCH with prefix tokens as an opt-in.
 
-**Why wait for ~1k concepts.** Below that, a full scan is 40–150 ms — under
-the Python-startup noise floor — so the index's real cost (invalidation
-logic, a second artifact to reason about, a gitignore entry) buys nothing.
-working-knowledge is currently ~540 concepts. The rung earns its keep
-exactly when the hooks start costing a visible fraction of a second per
-edit and per prompt.
-
-**Trigger:** doctor already prints FTS5 availability. Build the index when
-`iter_concepts()` ≥ 1000 *or* validate/pack exceeds ~200 ms on a cold
-bundle. Until then, leave the module unwritten.
+**Trigger.** Implemented. Small bundles still pay a cheap stat+noop refresh
+(under Python startup). `PKC_NO_INDEX=1` disables it.
 
 ## Rung 3 — okfcli (if ever)
 

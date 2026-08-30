@@ -56,7 +56,8 @@ jobs:
 
       - name: Search + digest + release notes + thread + ADR
         run: |
-          python3 scripts/pkc_search.py JWT --bundle sample-knowledge --json | python3 -c "import json,sys; d=json.load(sys.stdin); assert d['count']>=1"
+          python3 scripts/pkc_search.py JWT --bundle sample-knowledge --json | python3 -c "import json,sys; d=json.load(sys.stdin); assert d['count']>=1; assert d['engine'] in ('index','rg','scan')"
+          python3 scripts/pkc_index.py status --bundle sample-knowledge --json | python3 -c "import json,sys; d=json.load(sys.stdin); assert d['fts5'] is True"
           python3 scripts/pkc_digest.py --bundle sample-knowledge --days 3650 --json | python3 -c "import json,sys; d=json.load(sys.stdin); assert 'open_questions' in d"
           python3 scripts/pkc_release_notes.py --bundle sample-knowledge | grep -qi release
           python3 scripts/pkc_thread.py --file tests/fixtures/thread_slack.txt --json | python3 -c "import json,sys; d=json.load(sys.stdin); assert d['attendees']"

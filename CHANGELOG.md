@@ -14,6 +14,12 @@
 - `/pkc-setup` skill + `scripts/pkc_setup.py` ([#59](https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/59)). Detects python / rg / SQLite FTS5.
   May install ripgrep only with `--yes`. Never from a hook.
 - `pkc_doctor.py` reports a **toolchain** section (rg found/missing, FTS5).
+- **SQLite/FTS5 incremental index** ([#62](https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/62)). `scripts/pkc_index.py`
+  writes `knowledge/.pkc/index.sqlite` (gitignored). Search, pack inbound, and
+  validate self-heal via mtime+size on every call. LIKE on a stored haystack is
+  the default candidate prefilter so Python scores stay identical to a scan.
+  `--engine fts` is the FTS5 MATCH opt-in. `--no-index` / `PKC_NO_INDEX=1`
+  fall through to rg then scan. `/pkc-index` skill for status/refresh/drop.
 
 ### Notes
 
@@ -21,8 +27,8 @@
   the full-bundle rescan, not the language. Escalation is rg → SQLite FTS5
   index → okfcli, not a second runtime.
 - Retrieval ladder locked in [`docs/designs/retrieval-ladder.md`](docs/designs/retrieval-ladder.md).
-  Rung 2 (FTS5, ~1k concepts) is [#62](https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/62), not built. Git + Markdown stays
-  source of truth; `**/.pkc/` is gitignored.
+  Rung 2 (FTS5, ~1k concepts) is [#62](https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/62), now implemented.
+  Git + Markdown stays source of truth; `**/.pkc/index.sqlite*` is gitignored.
 
 ## 0.8.1 — 2026-08-24
 

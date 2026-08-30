@@ -1,16 +1,15 @@
 #!/usr/bin/env python3
 """Full-text search over a PKC knowledge bundle (Git stays source of truth).
 
-No database required — walks concept Markdown and ranks simple term hits.
-Uses ripgrep as a prefilter when `rg` is on PATH (or PKC_RG_PATH). Ranking
-is always computed in Python over the candidate files, so scores stay
-identical to a full scan. `--no-rg` forces the linear walk.
+Ladder: SQLite index → ripgrep prefilter → linear scan. Ranking is always
+computed in Python over the candidate files, so scores stay identical to a
+full scan. `--no-index` / `--no-rg` force a lower rung.
 
 Usage:
   python3 scripts/pkc_search.py "JWT refresh" --bundle sample-knowledge
   python3 scripts/pkc_search.py JWT --type DecisionRecord,Feature --json
   python3 scripts/pkc_search.py JWT --rg
-  python3 scripts/pkc_search.py JWT --no-rg
+  python3 scripts/pkc_search.py JWT --no-rg --no-index
 """
 
 from __future__ import annotations
@@ -30,6 +29,7 @@ from pkc_common import (  # noqa: E402
     resolve_knowledge_root,
     rg_list_files,
 )
+from pkc_index import open_graph  # noqa: E402
 
 
 def tokenize(q: str) -> list[str]:
@@ -42,13 +42,10 @@ def candidate_files(
     *,
     path_prefix: str | None = None,
     use_rg: bool | None = None,
+    use_index: bool | None = None,
+    index_engine: str = "index",
 ) -> tuple[list[Path], str]:
-    """Return (files, engine) where engine is 'rg' or 'scan'.
-
-    use_rg True: prefer rg, fall back to scan if missing.
-    use_rg False: always scan.
-    use_rg None: auto (rg if found).
-    """
+    """Return (files, engine) where engine is 'index', 'rg', or 'scan'."""
     universe = iter_concepts(bundle)
     if path_prefix:
         prefix = path_prefix.lstrip("/")
@@ -57,6 +54,27 @@ def candidate_files(
             for p in universe
             if ("/" + p.relative_to(bundle).as_posix()).lstrip("/").startswith(prefix)
         ]
+
+    def _filter(paths: list[Path]) -> list[Path]:
+        allowed = {p.resolve() for p in paths}
+        return [
+            p
+            for p in universe
+            if p.resolve() in allowed and is_concept_path(bundle, p)
+        ]
+
+    if use_index is not False:
+        graph = open_graph(bundle)
+        if graph is not None:
+            try:
+                hits = graph.candidates(terms, engine=index_engine)
+                return _filter(hits), "index"
+            finally:
+                graph.close()
+        if use_index is True:
+            # Forced but unavailable — fall through rather than fail.
+            pass
+
     if use_rg is False:
         return universe, "scan"
     if use_rg is None and not find_rg():
@@ -64,13 +82,7 @@ def candidate_files(
     hits = rg_list_files(bundle, terms, ignore_case=True, fixed_string=False)
     if hits is None:
         return universe, "scan"
-    allowed = {p.resolve() for p in hits}
-    filtered = [
-        p
-        for p in universe
-        if p.resolve() in allowed and is_concept_path(bundle, p)
-    ]
-    return filtered, "rg"
+    return _filter(hits), "rg"
 
 
 def search(
@@ -81,15 +93,22 @@ def search(
     limit: int = 20,
     path_prefix: str | None = None,
     use_rg: bool | None = None,
-) -> list[dict[str, Any]]:
+    use_index: bool | None = None,
+    index_engine: str = "index",
+) -> tuple[list[dict[str, Any]], str]:
     terms = tokenize(query)
     if not terms:
-        return []
+        return [], "scan"
 
     type_filter = {t.lower() for t in (types or []) if t}
     results: list[dict[str, Any]] = []
-    files, _engine = candidate_files(
-        bundle, terms, path_prefix=path_prefix, use_rg=use_rg
+    files, engine = candidate_files(
+        bundle,
+        terms,
+        path_prefix=path_prefix,
+        use_rg=use_rg,
+        use_index=use_index,
+        index_engine=index_engine,
     )
 
     for path in files:
@@ -145,7 +164,7 @@ def search(
         )
 
     results.sort(key=lambda r: (-r["score"], r["title"]))
-    return results[:limit]
+    return results[:limit], engine
 
 
 def _snippet(body: str, terms: list[str], width: int = 160) -> str:
@@ -205,7 +224,18 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--no-rg",
         action="store_true",
-        help="Disable ripgrep; always full-scan",
+        help="Disable ripgrep; fall through to a full scan (unless the index is used)",
+    )
+    parser.add_argument(
+        "--no-index",
+        action="store_true",
+        help="Disable the SQLite index; fall through to rg then scan",
+    )
+    parser.add_argument(
+        "--engine",
+        choices=("auto", "index", "fts", "rg", "scan"),
+        default="auto",
+        help="Force a retrieval rung. 'fts' uses FTS5 MATCH (not score-identical).",
     )
     args = parser.parse_args(argv)
 
@@ -217,29 +247,48 @@ def main(argv: list[str] | None = None) -> int:
     if args.rg and args.no_rg:
         print("error: --rg and --no-rg are mutually exclusive", file=sys.stderr)
         return 2
-    if args.no_rg:
-        use_rg: bool | None = False
-    elif args.rg:
+
+    use_index: bool | None = None
+    use_rg: bool | None = None
+    index_engine = "index"
+    if args.engine == "scan":
+        use_index = False
+        use_rg = False
+    elif args.engine == "rg":
+        use_index = False
         use_rg = True
-        if not find_rg():
-            print(
-                "pkc_search: rg not found; falling back to full scan. "
-                "Install ripgrep or pass --no-rg. See /pkc-setup.",
-                file=sys.stderr,
-            )
+    elif args.engine == "index":
+        use_index = True
+        use_rg = False
+    elif args.engine == "fts":
+        use_index = True
+        use_rg = False
+        index_engine = "fts"
     else:
-        use_rg = None
+        if args.no_index:
+            use_index = False
+        if args.no_rg:
+            use_rg = False
+        elif args.rg:
+            use_rg = True
+            if not find_rg():
+                print(
+                    "pkc_search: rg not found; falling back. "
+                    "Install ripgrep or pass --no-rg. See /pkc-setup.",
+                    file=sys.stderr,
+                )
 
     types = [t.strip() for t in (args.types or "").split(",") if t.strip()] or None
-    results = search(
+    results, engine = search(
         bundle,
         args.query,
         types=types,
         limit=args.limit,
         path_prefix=args.prefix,
         use_rg=use_rg,
+        use_index=use_index,
+        index_engine=index_engine,
     )
-    engine = "scan" if use_rg is False or not find_rg() else "rg"
 
     if args.json:
         import json
