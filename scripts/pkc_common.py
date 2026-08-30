@@ -758,17 +758,27 @@ def toolchain_report() -> dict[str, Any]:
     }
 
 
+def is_concept_rel(rel: str) -> bool:
+    """Same skip rules as iter_concepts, on a bundle-relative path. No filesystem."""
+    rel = rel.replace("\\", "/").lstrip("/")
+    if not rel:
+        return False
+    name = rel.rsplit("/", 1)[-1]
+    lower = name.lower()
+    if not (lower.endswith(".md") or lower.endswith(".markdown")):
+        return False
+    if name in {"index.md", "log.md"}:
+        return False
+    return "packs" not in rel.split("/")
+
+
 def is_concept_path(bundle: Path, path: Path) -> bool:
     """Same skip rules as iter_concepts: not index.md, log.md, or packs/."""
-    if path.suffix.lower() not in {".md", ".markdown"}:
-        return False
-    if path.name in {"index.md", "log.md"}:
-        return False
     try:
-        parts = path.resolve().relative_to(bundle.resolve()).parts
+        rel = path.resolve().relative_to(bundle.resolve()).as_posix()
     except ValueError:
         return False
-    return "packs" not in parts
+    return is_concept_rel(rel)
 
 
 def rg_list_files(

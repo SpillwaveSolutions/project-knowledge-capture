@@ -2,6 +2,25 @@
 
 ## Unreleased
 
+### Fixed
+
+- Cold index build no longer `DELETE FROM fts` per new file. FTS5 cannot look
+  up by a plain column, so that delete scanned the growing table once per file
+  (O(N²); ~43 s at 10k concepts). New rows skip both the FTS and edges deletes;
+  incremental updates still delete so REPLACE cannot leave a duplicate FTS row.
+  ([#66](https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/66))
+- Index-backed search no longer materializes `iter_concepts` or
+  `Path.resolve()`s the universe against every hit. Prefix filter is a string
+  `startswith`. rg hits convert to bundle-relative strings and apply the
+  concept skip rules on path parts. Broad terms match scan cost; selective
+  terms drop toward refresh cost.
+- `test_setup_install_without_yes_exits_2` no longer assumes the machine has
+  no `rg` on PATH. Empties `PATH` and restores `PKC_RG_PATH` via `addCleanup`.
+- `_upsert_node` stores the pre-scan mtime+size instead of re-statting after
+  the read (TOCTOU: a write between read and stat stored a fresh signature over
+  stale content).
+- `_inbound_via_rg` no longer builds a second needle and then slices it away.
+
 ## 0.9.0 — 2026-08-30
 
 Retrieval ladder: Git + Markdown stays source of truth. Accelerators are disposable.

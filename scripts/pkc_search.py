@@ -23,7 +23,7 @@ from typing import Any
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from pkc_common import (  # noqa: E402
     find_rg,
-    is_concept_path,
+    is_concept_rel,
     iter_concepts,
     parse_frontmatter,
     resolve_knowledge_root,
@@ -36,6 +36,36 @@ def tokenize(q: str) -> list[str]:
     return [t for t in re.split(r"\s+", q.strip().lower()) if t]
 
 
+def _prefix_ok(rel: str, prefix: str) -> bool:
+    if not prefix:
+        return True
+    return rel.lstrip("/").startswith(prefix.lstrip("/"))
+
+
+def _scan_candidates(bundle: Path, prefix: str) -> list[Path]:
+    universe = iter_concepts(bundle)
+    if not prefix:
+        return universe
+    return [p for p in universe if _prefix_ok(p.relative_to(bundle).as_posix(), prefix)]
+
+
+def _filter_rg_hits(bundle: Path, hits: list[Path], prefix: str) -> list[Path]:
+    """String-only filter. Resolves the bundle root once, never the universe."""
+    bundle_root = bundle.resolve()
+    out: list[Path] = []
+    for p in hits:
+        try:
+            rel = p.relative_to(bundle_root).as_posix()
+        except ValueError:
+            continue
+        if not _prefix_ok(rel, prefix):
+            continue
+        if not is_concept_rel(rel):
+            continue
+        out.append(p)
+    return out
+
+
 def candidate_files(
     bundle: Path,
     terms: list[str],
@@ -46,29 +76,25 @@ def candidate_files(
     index_engine: str = "index",
 ) -> tuple[list[Path], str]:
     """Return (files, engine) where engine is 'index', 'rg', or 'scan'."""
-    universe = iter_concepts(bundle)
-    if path_prefix:
-        prefix = path_prefix.lstrip("/")
-        universe = [
-            p
-            for p in universe
-            if ("/" + p.relative_to(bundle).as_posix()).lstrip("/").startswith(prefix)
-        ]
-
-    def _filter(paths: list[Path]) -> list[Path]:
-        allowed = {p.resolve() for p in paths}
-        return [
-            p
-            for p in universe
-            if p.resolve() in allowed and is_concept_path(bundle, p)
-        ]
+    prefix = (path_prefix or "").lstrip("/")
 
     if use_index is not False:
         graph = open_graph(bundle)
         if graph is not None:
             try:
+                # Index hits are already valid concept rel-paths (the indexer
+                # only ingests iter_concepts output). Prefix-check as strings;
+                # do not materialize the universe or Path.resolve() per file.
                 hits = graph.candidates(terms, engine=index_engine)
-                return _filter(hits), "index"
+                files = []
+                for p in hits:
+                    try:
+                        rel = p.relative_to(bundle).as_posix()
+                    except ValueError:
+                        continue
+                    if _prefix_ok(rel, prefix):
+                        files.append(p)
+                return files, "index"
             finally:
                 graph.close()
         if use_index is True:
@@ -76,13 +102,13 @@ def candidate_files(
             pass
 
     if use_rg is False:
-        return universe, "scan"
+        return _scan_candidates(bundle, prefix), "scan"
     if use_rg is None and not find_rg():
-        return universe, "scan"
+        return _scan_candidates(bundle, prefix), "scan"
     hits = rg_list_files(bundle, terms, ignore_case=True, fixed_string=False)
     if hits is None:
-        return universe, "scan"
-    return _filter(hits), "rg"
+        return _scan_candidates(bundle, prefix), "scan"
+    return _filter_rg_hits(bundle, hits, prefix), "rg"
 
 
 def search(

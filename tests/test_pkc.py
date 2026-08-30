@@ -13,6 +13,7 @@ import re
 import sys
 import tempfile
 import unittest
+from unittest import mock
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -1415,9 +1416,22 @@ class TestRipgrepAccelerator(unittest.TestCase):
         self.assertEqual(rc, 0)
 
     def test_setup_install_without_yes_exits_2(self):
-        # Point at a missing binary so install path runs, but --yes is off.
+        # find_rg falls through to shutil.which("rg") after a missing override,
+        # so this test is red on any machine that has rg — including after a
+        # successful `/pkc-setup`. Empty PATH and restore via addCleanup.
+        saved_path = os.environ.get("PATH", "")
+        saved_rg = os.environ.get("PKC_RG_PATH")
         os.environ["PKC_RG_PATH"] = "/definitely/not/a/real/rg-binary"
-        # find_rg also checks shutil.which("rg") — this sandbox has none.
+        os.environ["PATH"] = ""
+
+        def restore() -> None:
+            os.environ["PATH"] = saved_path
+            if saved_rg is None:
+                os.environ.pop("PKC_RG_PATH", None)
+            else:
+                os.environ["PKC_RG_PATH"] = saved_rg
+
+        self.addCleanup(restore)
         rc = setup_main(["--install-rg"])
         self.assertEqual(rc, 2)
 
@@ -1554,6 +1568,100 @@ class TestSqliteIndex(unittest.TestCase):
         stats = refresh(self.tmp)
         self.assertTrue(stats.rebuilt)
         self.assertEqual(stats.parsed, 2)
+
+    def test_cold_build_skips_per_file_fts_deletes(self):
+        """Cold/rebuild upserts pass is_new=True so DELETE FROM fts is skipped."""
+        import sqlite3
+        import pkc_index
+        from pkc_index import index_path, refresh
+
+        calls: list[tuple[str, bool]] = []
+        orig = pkc_index._upsert_node
+
+        def wrapped(con, bundle, rel, path, *, is_new=False, sig=None):
+            calls.append((rel, is_new))
+            return orig(con, bundle, rel, path, is_new=is_new, sig=sig)
+
+        with mock.patch("pkc_index._upsert_node", wrapped):
+            stats = refresh(self.tmp, force=True)
+        self.assertTrue(stats.ok)
+        self.assertEqual(stats.parsed, 2)
+        self.assertTrue(calls)
+        self.assertTrue(all(is_new for _, is_new in calls))
+        con = sqlite3.connect(str(index_path(self.tmp)))
+        nodes = int(con.execute("SELECT COUNT(*) FROM nodes").fetchone()[0])
+        fts = int(con.execute("SELECT COUNT(*) FROM fts").fetchone()[0])
+        con.close()
+        self.assertEqual(nodes, 2)
+        self.assertEqual(fts, 2)
+
+    def test_incremental_update_still_deletes_old_fts_row(self):
+        import sqlite3
+        import pkc_index
+        from pkc_index import index_path, refresh
+
+        refresh(self.tmp, force=True)
+        target = self.tmp / "features/auth.md"
+        target.write_text(
+            target.read_text(encoding="utf-8") + "\nmore jwt\n", encoding="utf-8"
+        )
+        calls: list[tuple[str, bool]] = []
+        orig = pkc_index._upsert_node
+
+        def wrapped(con, bundle, rel, path, *, is_new=False, sig=None):
+            calls.append((rel, is_new))
+            return orig(con, bundle, rel, path, is_new=is_new, sig=sig)
+
+        with mock.patch("pkc_index._upsert_node", wrapped):
+            stats = refresh(self.tmp)
+        self.assertEqual(stats.parsed, 1)
+        self.assertEqual(calls, [("/features/auth.md", False)])
+        con = sqlite3.connect(str(index_path(self.tmp)))
+        fts = int(con.execute("SELECT COUNT(*) FROM fts").fetchone()[0])
+        con.close()
+        self.assertEqual(fts, 2)
+
+    def test_fts_update_does_not_duplicate_rows(self):
+        from pkc_index import open_graph
+
+        with open_graph(self.tmp, force=True) as graph:
+            first = [p.as_posix() for p in graph.candidates(["jwt"], engine="fts")]
+        self.assertGreaterEqual(len(first), 1)
+        target = self.tmp / "features/auth.md"
+        target.write_text(
+            target.read_text(encoding="utf-8") + "\nmore jwt\n", encoding="utf-8"
+        )
+        with open_graph(self.tmp) as graph:
+            paths = [p.as_posix() for p in graph.candidates(["jwt"], engine="fts")]
+        self.assertEqual(len(paths), len(set(paths)))
+
+    def test_index_candidates_do_not_walk_universe(self):
+        from pkc_index import refresh
+
+        refresh(self.tmp, force=True)
+
+        def boom(*_a, **_k):
+            raise AssertionError("iter_concepts must not run on the index path")
+
+        with mock.patch("pkc_search.iter_concepts", boom):
+            files, engine = candidate_files(
+                self.tmp, ["jwt"], use_index=True, use_rg=False
+            )
+        self.assertEqual(engine, "index")
+        self.assertGreaterEqual(len(files), 1)
+
+    def test_index_candidates_honor_prefix_without_scan(self):
+        from pkc_index import refresh
+
+        refresh(self.tmp, force=True)
+        files, engine = candidate_files(
+            self.tmp, ["jwt"], path_prefix="features/", use_index=True, use_rg=False
+        )
+        self.assertEqual(engine, "index")
+        rels = ["/" + p.relative_to(self.tmp).as_posix() for p in files]
+        self.assertTrue(rels)
+        self.assertTrue(all(r.startswith("/features/") for r in rels))
+        self.assertTrue(any(r.endswith("/auth.md") for r in rels))
 
 
 def main() -> int:
