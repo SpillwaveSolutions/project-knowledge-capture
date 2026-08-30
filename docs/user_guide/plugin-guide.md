@@ -17,11 +17,11 @@ How PKC is packaged, and how to extend it. For using the commands, see [[User-Gu
 .claude-plugin/marketplace.json
 .grok-plugin/marketplace.json   Grok Build
 marketplace.json                root marketplace entry
-skills/<name>/SKILL.md          agent procedures (20)
-commands/<name>.md              slash commands (20)
+skills/<name>/SKILL.md          agent procedures
+commands/<name>.md              slash commands
 agents/knowledge-capturer.md    agent definition
 hooks/hooks.json                PostToolUse hook manifest
-scripts/pkc_*.py                deterministic core (18)
+scripts/pkc_*.py                deterministic core
 templates/*.md                  concept skeletons
 sample-knowledge/               the golden worked example
 ```

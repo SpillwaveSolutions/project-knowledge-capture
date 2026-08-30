@@ -2,6 +2,25 @@
 
 _The evidence chain: plan → item → ticket → code → release, forward and backward. Generated from `docs/.index/_graph.json`; do not edit._
 
+### Release v0.9.0 retrieval ladder
+`01M18S2ZTSD4XAD6YQF7XV4MC3` · status: todo
+- targets: release/v0.9.0
+
+### stdlib SQLite FTS5 incremental index (rung 2)
+`01M18QGFCPPCH3ZHMBQ2QW4JBF` · status: done
+- targets: release/v0.10.0
+
+### Ruby rewrite of graph scripts with Python fallback
+`01M18Q795CTFZJVGWP2WNC4X63` · status: cancelled
+
+### pkc-setup skill: consent-gated ripgrep install
+`01M18Q793WKR0FH409FAY6KHAT` · status: done
+- targets: release/v0.9.0
+
+### rg prefilter for pkc_search and rg-backed pack reverse index
+`01M18Q792BSMYXM5F4WXBJ2CW4` · status: done
+- targets: release/v0.9.0
+
 ### Noun-ownership migration guide for PKC second brains
 `01M0T3YW3CWWM9QPMKXEQQ2PR3` · status: done
 - targets: release/v0.8.1

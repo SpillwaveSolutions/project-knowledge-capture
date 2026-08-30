@@ -231,6 +231,26 @@
    "type": "targets"
   },
   {
+   "from": "item/01M18Q792BSMYXM5F4WXBJ2CW4",
+   "to": "release/v0.9.0",
+   "type": "targets"
+  },
+  {
+   "from": "item/01M18Q793WKR0FH409FAY6KHAT",
+   "to": "release/v0.9.0",
+   "type": "targets"
+  },
+  {
+   "from": "item/01M18QGFCPPCH3ZHMBQ2QW4JBF",
+   "to": "release/v0.10.0",
+   "type": "targets"
+  },
+  {
+   "from": "item/01M18S2ZTSD4XAD6YQF7XV4MC3",
+   "to": "release/v0.9.0",
+   "type": "targets"
+  },
+  {
    "from": "roadmap-snapshot/2026-08-06_v0.4.1-release",
    "to": "roadmap",
    "type": "snapshot-of"
@@ -269,6 +289,21 @@
    "from": "roadmap-snapshot/2026-08-07_v0.5.0-release",
    "to": "release/v0.5.0",
    "type": "targets"
+  },
+  {
+   "from": "roadmap-snapshot/2026-08-30_v0.9.0-release",
+   "to": "roadmap",
+   "type": "snapshot-of"
+  },
+  {
+   "from": "roadmap-snapshot/2026-08-30_v0.9.0-release",
+   "to": "roadmap-snapshot/2026-08-07_v0.5.0-release",
+   "type": "supersedes"
+  },
+  {
+   "from": "roadmap-snapshot/2026-08-30_v0.9.0-release",
+   "to": "release/v0.9.0",
+   "type": "targets"
   }
  ],
  "nodes": {
@@ -282,6 +317,12 @@
    "doc_type": "design",
    "source": "docs/designs/current_design_doc.md",
    "title": "Design Document \u2014 Project Knowledge Capture",
+   "truth_state": "current"
+  },
+  "design/retrieval-ladder": {
+   "doc_type": "design",
+   "source": "docs/designs/retrieval-ladder.md",
+   "title": "Retrieval ladder",
    "truth_state": "current"
   },
   "guide/cli-reference": {
@@ -454,6 +495,34 @@
    "status": "done",
    "title": "Noun-ownership migration guide for PKC second brains"
   },
+  "item/01M18Q792BSMYXM5F4WXBJ2CW4": {
+   "doc_type": "item",
+   "status": "done",
+   "title": "rg prefilter for pkc_search and rg-backed pack reverse index"
+  },
+  "item/01M18Q793WKR0FH409FAY6KHAT": {
+   "doc_type": "item",
+   "status": "done",
+   "title": "pkc-setup skill: consent-gated ripgrep install"
+  },
+  "item/01M18Q795CTFZJVGWP2WNC4X63": {
+   "doc_type": "item",
+   "status": "cancelled",
+   "title": "Ruby rewrite of graph scripts with Python fallback"
+  },
+  "item/01M18QGFCPPCH3ZHMBQ2QW4JBF": {
+   "doc_type": "item",
+   "status": "done",
+   "title": "stdlib SQLite FTS5 incremental index (rung 2)"
+  },
+  "item/01M18S2ZTSD4XAD6YQF7XV4MC3": {
+   "doc_type": "item",
+   "status": "todo",
+   "title": "Release v0.9.0 retrieval ladder"
+  },
+  "release/v0.10.0": {
+   "doc_type": "release"
+  },
   "release/v0.4.1": {
    "doc_type": "release"
   },
@@ -470,6 +539,9 @@
    "doc_type": "release"
   },
   "release/v0.8.1": {
+   "doc_type": "release"
+  },
+  "release/v0.9.0": {
    "doc_type": "release"
   },
   "roadmap": {
@@ -493,6 +565,12 @@
   "roadmap-snapshot/2026-08-07_v0.5.0-release": {
    "doc_type": "roadmap-snapshot",
    "source": "docs/roadmap/2026-08-07_v0.5.0-release.md",
+   "title": "Roadmap",
+   "truth_state": "snapshot"
+  },
+  "roadmap-snapshot/2026-08-30_v0.9.0-release": {
+   "doc_type": "roadmap-snapshot",
+   "source": "docs/roadmap/2026-08-30_v0.9.0-release.md",
    "title": "Roadmap",
    "truth_state": "snapshot"
   },

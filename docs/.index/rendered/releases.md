@@ -2,6 +2,12 @@
 
 _What shipped, with the frozen evidence for each release. Generated; do not edit._
 
+## v0.9.0 — 2026-08-30
+
+- Roadmap snapshot: [[Roadmap-2026-08-30_v0.9.0-release]]
+- Shipped: rg prefilter for pkc_search and rg-backed pack reverse index
+- Shipped: pkc-setup skill: consent-gated ripgrep install
+
 ## v0.5.0 — 2026-08-07
 
 - Roadmap snapshot: [[Roadmap-2026-08-07_v0.5.0-release]]
