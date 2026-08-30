@@ -517,7 +517,7 @@
   },
   "item/01M18S2ZTSD4XAD6YQF7XV4MC3": {
    "doc_type": "item",
-   "status": "todo",
+   "status": "done",
    "title": "Release v0.9.0 retrieval ladder"
   },
   "release/v0.10.0": {
