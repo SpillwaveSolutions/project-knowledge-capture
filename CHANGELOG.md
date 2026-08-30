@@ -20,6 +20,9 @@
 - Ruby rewrite: closed-won't-do ([#60](https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/60)). Dual implementations drift; the bottleneck is
   the full-bundle rescan, not the language. Escalation is rg → SQLite FTS5
   index → okfcli, not a second runtime.
+- Retrieval ladder locked in [`docs/designs/retrieval-ladder.md`](docs/designs/retrieval-ladder.md).
+  Rung 2 (FTS5, ~1k concepts) is [#62](https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/62), not built. Git + Markdown stays
+  source of truth; `**/.pkc/` is gitignored.
 
 ## 0.8.1 — 2026-08-24
 

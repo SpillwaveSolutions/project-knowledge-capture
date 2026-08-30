@@ -55,3 +55,7 @@ screenshots/*.png
 # Isolation session bookkeeping
 .brain-sessions/
 .brain-worktrees/
+
+# Disposable retrieval index (docs/designs/retrieval-ladder.md). Git + Markdown
+# stay source of truth; rm -rf knowledge/.pkc is always valid recovery.
+**/.pkc/
