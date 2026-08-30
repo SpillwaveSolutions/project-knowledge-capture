@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 0.9.1 — 2026-08-30
+
+Patch for the v0.9.0 retrieval ladder. Git + Markdown stays source of truth.
+
 ### Fixed
 
 - Cold index build no longer `DELETE FROM fts` per new file. FTS5 cannot look
