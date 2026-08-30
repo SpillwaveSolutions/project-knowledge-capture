@@ -8,7 +8,7 @@ truth_state: current
 
 # CLI Reference
 
-Every script under `scripts/`. Flags below were extracted from each script's own `--help` at tag `v0.4.1`, not written from memory.
+Every script under `scripts/`. Flags below were extracted from each script's own `--help` at tag `v0.9.0`, not written from memory.
 
 ## Shared conventions
 
@@ -108,6 +108,7 @@ MADR or adr-tools directory → DecisionRecords. **Always `--dry-run` first** on
 pkc_pack.py concept [--repo REPO] [--bundle BUNDLE] [--hops HOPS]
             [--max-nodes MAX_NODES] [--max-tokens N] [--window-tokens N]
             [--tiny] [--mermaid] [--write WRITE] [--json]
+            [--rg] [--no-rg] [--no-index]
 ```
 
 | Flag | Default |
@@ -118,6 +119,8 @@ pkc_pack.py concept [--repo REPO] [--bundle BUNDLE] [--hops HOPS]
 | `--window-tokens` | 128000 (`SECOND_BRAIN_WINDOW_TOKENS`) |
 | `--tiny` | 1 hop, max 8 nodes |
 | `--mermaid` | print the diagram only |
+| `--rg` / `--no-rg` | inbound via ripgrep when on PATH |
+| `--no-index` | skip the SQLite reverse index |
 
 ```bash
 python3 scripts/pkc_pack.py features/user-authentication.md --bundle sample-knowledge --hops 2
@@ -129,9 +132,29 @@ python3 scripts/pkc_pack.py features/user-authentication.md --bundle sample-know
 ```
 pkc_search.py query [--repo REPO] [--bundle BUNDLE] [--type TYPES]
               [--limit LIMIT] [--prefix PREFIX] [--json]
+              [--rg] [--no-rg] [--no-index]
+              [--engine {auto,index,fts,rg,scan}]
 ```
 
 Full-text AND search with ranked hits. `--type` filters by concept type; `--prefix` by path prefix.
+
+Retrieval ladder: SQLite index → ripgrep → linear scan. Ranking stays in Python, so `--engine scan` and the index path return the same scores. `--engine fts` uses FTS5 MATCH (prefix tokens; not score-identical). Missing index or rg is not an error.
+
+### `pkc_index.py`
+
+```
+pkc_index.py {status,refresh,drop} [--repo REPO] [--bundle BUNDLE] [--force] [--json]
+```
+
+Disposable SQLite/FTS5 index at `knowledge/.pkc/index.sqlite`. Search, pack, and validate refresh it themselves (mtime+size). `--force` drop-rebuilds. `drop` deletes the file. Git + Markdown stays source of truth; deleting the sqlite file is always valid recovery.
+
+### `pkc_setup.py`
+
+```
+pkc_setup.py [--check] [--install-rg] [--yes] [--json]
+```
+
+Toolchain check (python, ripgrep, SQLite FTS5). `--install-rg` prints the platform command and exits 2 unless `--yes` (consent). Never invoke from a hook.
 
 ### `pkc_digest.py`
 
@@ -170,10 +193,10 @@ Remotes are read-only and configured under `federation:` in `.pkc/config.yml`.
 ### `pkc_validate.py`
 
 ```
-pkc_validate.py [--repo REPO] [--bundle BUNDLE] [--strict] [--json]
+pkc_validate.py [--repo REPO] [--bundle BUNDLE] [--strict] [--json] [--no-index]
 ```
 
-Structure and links. Exit 0 with warnings allowed; exit 1 on errors. `--strict` promotes broken links from warning to error.
+Structure and links. Exit 0 with warnings allowed; exit 1 on errors. `--strict` promotes broken links from warning to error. Uses the SQLite index when present (re-parses only mtime/size changes). `--no-index` always re-reads every concept.
 
 Errors: missing `index.md`, missing `okf_version`, absent frontmatter, missing `type` or `title`, malformed `links`.
 
@@ -183,7 +206,7 @@ Errors: missing `index.md`, missing `okf_version`, absent frontmatter, missing `
 pkc_doctor.py [--repo REPO] [--bundle BUNDLE] [--stale-days STALE_DAYS] [--strict] [--json]
 ```
 
-One-screen health: conflicting decisions, thin features, stale discoveries, unvalidated assumptions, open questions blocking features.
+One-screen health: conflicting decisions, thin features, stale discoveries, unvalidated assumptions, open questions blocking features. Also reports toolchain (Python, ripgrep, SQLite FTS5) and whether `knowledge/.pkc/index.sqlite` is present. Warms the index on each run.
 
 ### `pkc_scrub.py`
 

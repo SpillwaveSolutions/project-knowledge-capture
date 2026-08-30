@@ -15,11 +15,13 @@ roadmap: docs/roadmap.md
 
 Generated from the repository at `ddcf3c4` (tag `v0.4.1`). Every code claim below cites a path and symbol. Sections of the standard template that do not apply to this system are listed in §14 with reasons, rather than filled with invented content.
 
+**v0.9.0 retrieval:** search/pack/validate use a disposable ladder (SQLite FTS5 index → ripgrep → scan). Git + Markdown is still the source of truth. See [`docs/designs/retrieval-ladder.md`](retrieval-ladder.md) — this snapshot predates that work and should not be cited for search performance.
+
 ## 2. Executive summary
 
 PKC is a **plugin, not an application**. It ships agent procedures (skills), slash commands, an agent definition, hooks, and ~4,200 lines of dependency-free Python that turn project reasoning — meetings, experiments, discoveries, decisions — into an [OKF](https://github.com/SpillwaveSolutions/okf-plugin) knowledge graph stored as ordinary Markdown with YAML frontmatter.
 
-There is no server, no database, and no build step. Git is the database. The unit of output is a Markdown file that a human can read in a PR diff.
+There is no server and no build step. Git is the database. The unit of output is a Markdown file that a human can read in a PR diff. A disposable SQLite/FTS5 index under `knowledge/.pkc/` (gitignored) and an optional ripgrep prefilter accelerate search, pack, and validate; deleting them is always valid recovery. See [`retrieval-ladder.md`](retrieval-ladder.md).
 
 Two hosts run the same tree: Claude Code (via `.claude-plugin/`) and Grok Build (via `.grok-plugin/`, which reads Claude-compatible plugins natively).
 

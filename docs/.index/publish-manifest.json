@@ -24,7 +24,7 @@
    "frozen": false,
    "page_name": "Index-Releases",
    "render": "as-is",
-   "render_hash": "efec6c31008e",
+   "render_hash": "5ed4eac0d905",
    "source": "docs/.index/rendered/releases.md",
    "title": "Releases Index",
    "truth_state": "current",
@@ -44,11 +44,21 @@
    "frozen": false,
    "page_name": "Index-Traceability",
    "render": "as-is",
-   "render_hash": "f51a07722294",
+   "render_hash": "c1263fe70ae8",
    "source": "docs/.index/rendered/traceability.md",
    "title": "Traceability Index",
    "truth_state": "current",
    "wiki_key": "index/traceability"
+  },
+  {
+   "frozen": false,
+   "page_name": "Release-v0.10.0",
+   "render": "as-is",
+   "render_hash": "1b7e7e86fa2a",
+   "source": "docs/.index/rendered/releases/v0.10.0.md",
+   "title": "Release v0.10.0",
+   "truth_state": "shipped",
+   "wiki_key": "release/v0.10.0"
   },
   {
    "frozen": false,
@@ -109,6 +119,16 @@
    "title": "Release v0.8.1",
    "truth_state": "shipped",
    "wiki_key": "release/v0.8.1"
+  },
+  {
+   "frozen": false,
+   "page_name": "Release-v0.9.0",
+   "render": "as-is",
+   "render_hash": "6af0e9eb446d",
+   "source": "docs/.index/rendered/releases/v0.9.0.md",
+   "title": "Release v0.9.0",
+   "truth_state": "shipped",
+   "wiki_key": "release/v0.9.0"
   },
   {
    "frozen": false,
@@ -391,6 +411,56 @@
    "wiki_key": "item/01M0T3YW3CWWM9QPMKXEQQ2PR3"
   },
   {
+   "frozen": false,
+   "page_name": "Ticket-01M18Q792BSMYXM5F4WXBJ2CW4",
+   "render": "as-is",
+   "render_hash": "17000d9a5068",
+   "source": "docs/.index/rendered/tickets/01M18Q792BSMYXM5F4WXBJ2CW4.md",
+   "title": "rg prefilter for pkc_search and rg-backed pack reverse index",
+   "truth_state": "done",
+   "wiki_key": "item/01M18Q792BSMYXM5F4WXBJ2CW4"
+  },
+  {
+   "frozen": false,
+   "page_name": "Ticket-01M18Q793WKR0FH409FAY6KHAT",
+   "render": "as-is",
+   "render_hash": "e4b0c7e6190c",
+   "source": "docs/.index/rendered/tickets/01M18Q793WKR0FH409FAY6KHAT.md",
+   "title": "pkc-setup skill: consent-gated ripgrep install",
+   "truth_state": "done",
+   "wiki_key": "item/01M18Q793WKR0FH409FAY6KHAT"
+  },
+  {
+   "frozen": false,
+   "page_name": "Ticket-01M18Q795CTFZJVGWP2WNC4X63",
+   "render": "as-is",
+   "render_hash": "3d96e3f417f7",
+   "source": "docs/.index/rendered/tickets/01M18Q795CTFZJVGWP2WNC4X63.md",
+   "title": "Ruby rewrite of graph scripts with Python fallback",
+   "truth_state": "done",
+   "wiki_key": "item/01M18Q795CTFZJVGWP2WNC4X63"
+  },
+  {
+   "frozen": false,
+   "page_name": "Ticket-01M18QGFCPPCH3ZHMBQ2QW4JBF",
+   "render": "as-is",
+   "render_hash": "b7ff218551d6",
+   "source": "docs/.index/rendered/tickets/01M18QGFCPPCH3ZHMBQ2QW4JBF.md",
+   "title": "stdlib SQLite FTS5 incremental index (rung 2)",
+   "truth_state": "done",
+   "wiki_key": "item/01M18QGFCPPCH3ZHMBQ2QW4JBF"
+  },
+  {
+   "frozen": false,
+   "page_name": "Ticket-01M18S2ZTSD4XAD6YQF7XV4MC3",
+   "render": "as-is",
+   "render_hash": "7ad3b021b161",
+   "source": "docs/.index/rendered/tickets/01M18S2ZTSD4XAD6YQF7XV4MC3.md",
+   "title": "Release v0.9.0 retrieval ladder",
+   "truth_state": "open",
+   "wiki_key": "item/01M18S2ZTSD4XAD6YQF7XV4MC3"
+  },
+  {
    "banner": "> **Current** \u2014 this is the living version; regenerated at 2026-08-06T18:42:39Z. Historical snapshots are linked from [[Index-Releases]].",
    "frozen": false,
    "page_name": "Code-Walkthrough",
@@ -406,18 +476,29 @@
    "frozen": false,
    "page_name": "Design-Doc",
    "render": "doc+banner",
-   "render_hash": "1c955511f079",
+   "render_hash": "3b0fb35f0049",
    "source": "docs/designs/current_design_doc.md",
    "title": "Design Document \u2014 Project Knowledge Capture",
    "truth_state": "current",
    "wiki_key": "design/current-design-doc"
   },
   {
+   "banner": "> **Current** \u2014 the latest status report. Reports freeze once published; corrections appear in later reports.",
+   "frozen": true,
+   "page_name": "Code-Walkthrough",
+   "render": "doc+banner",
+   "render_hash": "07871d095d13",
+   "source": "docs/designs/retrieval-ladder.md",
+   "title": "Retrieval ladder",
+   "truth_state": "current",
+   "wiki_key": "design/retrieval-ladder"
+  },
+  {
    "banner": "> **Current** \u2014 this is the living version. Historical snapshots are linked from [[Index-Releases]].",
    "frozen": false,
    "page_name": "CLI-Reference",
    "render": "doc+banner",
-   "render_hash": "ea614aefb382",
+   "render_hash": "2475a99c2626",
    "source": "docs/user_guide/cli-reference.md",
    "title": "CLI Reference",
    "truth_state": "current",
@@ -439,7 +520,7 @@
    "frozen": false,
    "page_name": "Plugin-Guide",
    "render": "doc+banner",
-   "render_hash": "4555d521018f",
+   "render_hash": "da9815e45bb1",
    "source": "docs/user_guide/plugin-guide.md",
    "title": "Plugin Guide",
    "truth_state": "current",
@@ -450,7 +531,7 @@
    "frozen": false,
    "page_name": "User-Guide",
    "render": "doc+banner",
-   "render_hash": "2607e3d31a52",
+   "render_hash": "3fc027811590",
    "source": "docs/user_guide/user-guide.md",
    "title": "User Guide",
    "truth_state": "current",
@@ -468,11 +549,11 @@
    "wiki_key": "guide/worklog-spec"
   },
   {
-   "banner": "> **Current** \u2014 this is the living version; regenerated at 2026-08-24T15:55:50Z. Historical snapshots are linked from [[Index-Releases]].",
+   "banner": "> **Current** \u2014 this is the living version; regenerated at 2026-08-30T07:28:05Z. Historical snapshots are linked from [[Index-Releases]].",
    "frozen": false,
    "page_name": "Roadmap",
    "render": "doc+banner",
-   "render_hash": "495143c12298",
+   "render_hash": "ed10a094c9ee",
    "source": "docs/roadmap.md",
    "title": "Roadmap",
    "truth_state": "current",
@@ -510,10 +591,21 @@
    "title": "Roadmap",
    "truth_state": "snapshot",
    "wiki_key": "roadmap-snapshot/2026-08-07_v0.5.0-release"
+  },
+  {
+   "banner": "> **Snapshot** of release v0.9.0 (2026-08-30) \u2014 frozen record. The current version is [[Roadmap]].",
+   "frozen": true,
+   "page_name": "Roadmap-2026-08-30_v0.9.0-release",
+   "render": "doc+banner",
+   "render_hash": "837721636df3",
+   "source": "docs/roadmap/2026-08-30_v0.9.0-release.md",
+   "title": "Roadmap",
+   "truth_state": "snapshot",
+   "wiki_key": "roadmap-snapshot/2026-08-30_v0.9.0-release"
   }
  ],
  "sidebar": {
-  "render_hash": "0e33f0d4bca5",
+  "render_hash": "49d08c7e74b5",
   "source": "docs/.index/rendered/_Sidebar.md"
  },
  "version": 1

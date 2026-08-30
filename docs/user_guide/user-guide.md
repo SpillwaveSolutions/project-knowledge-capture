@@ -8,7 +8,7 @@ slug: user-guide
 
 # User Guide
 
-Project Knowledge Capture turns the reasoning behind your work — meetings, spikes, research, decisions — into a knowledge graph made of ordinary Markdown files in your repo. No server, no database, no account. Git is the storage.
+Project Knowledge Capture turns the reasoning behind your work — meetings, spikes, research, decisions — into a knowledge graph made of ordinary Markdown files in your repo. No server, no account. Git is the storage. A disposable SQLite index and optional ripgrep prefilter speed up search, pack, and validate; deleting them is always safe. See [Retrieval ladder](../designs/retrieval-ladder.md).
 
 This guide covers PKC **v0.4.1**.
 
@@ -83,9 +83,11 @@ Every ingest path scrubs secrets and PII **before** anything is written. See [Pr
 | Command | Gives you |
 |---|---|
 | `/pkc-context <concept>` | A progressive-disclosure pack: the concept plus its neighborhood |
-| `/pkc-search <query>` | Full-text search across concepts |
+| `/pkc-search <query>` | Full-text search (index → rg → scan) |
 | `/pkc-digest` | Weekly brief plus a needs-verification queue |
-| `/pkc-doctor` | Bundle health: conflicts, thin features, stale concepts, broken links |
+| `/pkc-doctor` | Bundle health + toolchain (ripgrep, FTS5, index) |
+| `/pkc-index` | Status / refresh / drop the disposable SQLite index |
+| `/pkc-setup` | Check toolchain; optionally install ripgrep after you consent |
 | `/pkc-release-notes` | Release notes derived from graph edges |
 
 ### Shape the graph
@@ -188,11 +190,13 @@ Epics and stories become `Feature` concepts; every item gets a `TicketLink`. Re-
 ## Health checks
 
 ```bash
-python3 scripts/pkc_doctor.py --bundle knowledge      # one-screen health
+python3 scripts/pkc_doctor.py --bundle knowledge      # one-screen health + toolchain
 python3 scripts/pkc_validate.py --bundle knowledge    # structure and links
+python3 scripts/pkc_index.py status --bundle knowledge
+python3 scripts/pkc_setup.py --check
 ```
 
-Doctor reports conflicting decisions, features with no supporting concepts, stale discoveries, unvalidated assumptions, and open questions blocking features. Run it weekly; it is the difference between a graph and a pile of files.
+Doctor reports conflicting decisions, features with no supporting concepts, stale discoveries, unvalidated assumptions, open questions blocking features, and whether search will use the index, ripgrep, or a full scan. Run it weekly; it is the difference between a graph and a pile of files. If rg is missing, `/pkc-setup` may install it after you pass `--yes`. Never install from a hook.
 
 ## Troubleshooting
 

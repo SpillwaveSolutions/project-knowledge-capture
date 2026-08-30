@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 0.9.0 — 2026-08-30
+
+Retrieval ladder: Git + Markdown stays source of truth. Accelerators are disposable.
+
 ### Added
 
 - **ripgrep accelerator** for search and pack ([#58](https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/58)). `pkc_search.py` uses `rg -l` as a
@@ -13,7 +17,7 @@
   edges are cached for the duration of one `pack()` call.
 - `/pkc-setup` skill + `scripts/pkc_setup.py` ([#59](https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/59)). Detects python / rg / SQLite FTS5.
   May install ripgrep only with `--yes`. Never from a hook.
-- `pkc_doctor.py` reports a **toolchain** section (rg found/missing, FTS5).
+- `pkc_doctor.py` reports a **toolchain** section (rg found/missing, FTS5, index).
 - **SQLite/FTS5 incremental index** ([#62](https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/62)). `scripts/pkc_index.py`
   writes `knowledge/.pkc/index.sqlite` (gitignored). Search, pack inbound, and
   validate self-heal via mtime+size on every call. LIKE on a stored haystack is
@@ -27,7 +31,6 @@
   the full-bundle rescan, not the language. Escalation is rg → SQLite FTS5
   index → okfcli, not a second runtime.
 - Retrieval ladder locked in [`docs/designs/retrieval-ladder.md`](docs/designs/retrieval-ladder.md).
-  Rung 2 (FTS5, ~1k concepts) is [#62](https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/62), now implemented.
   Git + Markdown stays source of truth; `**/.pkc/index.sqlite*` is gitignored.
 
 ## 0.8.1 — 2026-08-24
