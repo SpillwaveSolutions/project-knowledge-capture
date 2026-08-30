@@ -45,6 +45,8 @@ Plugin root: `${CLAUDE_PLUGIN_ROOT}`.
 ```bash
 python3 scripts/pkc_common.py init-bundle --repo . --bundle knowledge
 python3 scripts/pkc_pack.py features/x.md --repo . --hops 2
+python3 scripts/pkc_search.py JWT --bundle knowledge
+python3 scripts/pkc_index.py status --bundle knowledge
 python3 scripts/pkc_validate.py --bundle knowledge
 python3 scripts/pkc_action_items.py meetings/….md --repo .   # dry-run
 python3 tests/test_pkc.py

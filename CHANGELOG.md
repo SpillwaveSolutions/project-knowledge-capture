@@ -2,6 +2,34 @@
 
 ## Unreleased
 
+### Added
+
+- **ripgrep accelerator** for search and pack ([#58](https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/58)). `pkc_search.py` uses `rg -l` as a
+  candidate prefilter when `rg` is on PATH (or `PKC_RG_PATH` / `OKF_RG_PATH`).
+  Ranking stays in Python, so scores match a full scan. `--no-rg` forces the
+  linear walk. The `--rg` flag the docstring already promised now exists.
+- **rg-backed reverse index** in `pkc_pack.py`. Inbound/backlink discovery is
+  O(subgraph) when rg is present; otherwise the previous full scan. Parsed
+  edges are cached for the duration of one `pack()` call.
+- `/pkc-setup` skill + `scripts/pkc_setup.py` ([#59](https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/59)). Detects python / rg / SQLite FTS5.
+  May install ripgrep only with `--yes`. Never from a hook.
+- `pkc_doctor.py` reports a **toolchain** section (rg found/missing, FTS5).
+- **SQLite/FTS5 incremental index** ([#62](https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/62)). `scripts/pkc_index.py`
+  writes `knowledge/.pkc/index.sqlite` (gitignored). Search, pack inbound, and
+  validate self-heal via mtime+size on every call. LIKE on a stored haystack is
+  the default candidate prefilter so Python scores stay identical to a scan.
+  `--engine fts` is the FTS5 MATCH opt-in. `--no-index` / `PKC_NO_INDEX=1`
+  fall through to rg then scan. `/pkc-index` skill for status/refresh/drop.
+
+### Notes
+
+- Ruby rewrite: closed-won't-do ([#60](https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/60)). Dual implementations drift; the bottleneck is
+  the full-bundle rescan, not the language. Escalation is rg → SQLite FTS5
+  index → okfcli, not a second runtime.
+- Retrieval ladder locked in [`docs/designs/retrieval-ladder.md`](docs/designs/retrieval-ladder.md).
+  Rung 2 (FTS5, ~1k concepts) is [#62](https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/62), now implemented.
+  Git + Markdown stays source of truth; `**/.pkc/index.sqlite*` is gitignored.
+
 ## 0.8.1 — 2026-08-24
 
 - Noun-ownership migration guide:

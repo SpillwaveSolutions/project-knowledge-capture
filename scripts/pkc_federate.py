@@ -94,7 +94,8 @@ def federated_search(
     for r in local_and_remote(repo, bundle_override):
         if not r["exists"]:
             continue
-        for h in search_bundle(r["path"], query, limit=limit):
+        results, _engine = search_bundle(r["path"], query, limit=limit)
+        for h in results:
             hits.append({**h, "federation": r["name"], "bundle": str(r["path"])})
     hits.sort(key=lambda x: (-x["score"], x.get("federation", ""), x["title"]))
     return hits[:limit]

@@ -6,6 +6,7 @@ from __future__ import annotations
 import contextlib
 import hashlib
 import json
+import os
 import shutil
 import subprocess
 import re
@@ -1034,8 +1035,9 @@ from pkc_adr_import import import_dir  # noqa: E402
 
 class TestSearch(unittest.TestCase):
     def test_jwt_hits(self):
-        hits = search(ROOT / "sample-knowledge", "JWT", limit=10)
+        hits, engine = search(ROOT / "sample-knowledge", "JWT", limit=10)
         self.assertGreaterEqual(len(hits), 1)
+        self.assertIn(engine, {"index", "rg", "scan"})
         self.assertTrue(any("jwt" in h["title"].lower() or "jwt" in h["path"].lower() for h in hits))
 
 
@@ -1337,6 +1339,221 @@ class TestManifestVersions(unittest.TestCase):
                 continue
             found[rel] = node
         self.assertEqual(len(set(found.values())), 1, f"version drift: {found}")
+
+
+from pkc_common import find_rg, rg_list_files, toolchain_report  # noqa: E402
+from pkc_search import candidate_files, search as search_bundle  # noqa: E402
+from pkc_pack import pack as pack_bundle  # noqa: E402
+from pkc_setup import main as setup_main  # noqa: E402
+from pkc_doctor import doctor as doctor_bundle  # noqa: E402
+
+
+FAKE_RG = ROOT / "tests/fixtures/fake_rg.py"
+
+
+class TestRipgrepAccelerator(unittest.TestCase):
+    """rg is optional. Ranking with a fake rg must match a full scan."""
+
+    def setUp(self):
+        self._saved = os.environ.get("PKC_RG_PATH")
+        FAKE_RG.chmod(0o755)
+        os.environ["PKC_RG_PATH"] = str(FAKE_RG)
+
+    def tearDown(self):
+        if self._saved is None:
+            os.environ.pop("PKC_RG_PATH", None)
+        else:
+            os.environ["PKC_RG_PATH"] = self._saved
+
+    def test_find_rg_honors_env(self):
+        self.assertEqual(Path(find_rg()).resolve(), FAKE_RG.resolve())
+
+    def test_search_rg_matches_scan_ranking(self):
+        bundle = ROOT / "sample-knowledge"
+        scan, scan_engine = search_bundle(bundle, "JWT", limit=10, use_rg=False, use_index=False)
+        accel, accel_engine = search_bundle(bundle, "JWT", limit=10, use_rg=True, use_index=False)
+        self.assertGreaterEqual(len(scan), 1)
+        self.assertEqual([h["path"] for h in scan], [h["path"] for h in accel])
+        self.assertEqual([h["score"] for h in scan], [h["score"] for h in accel])
+        self.assertEqual(accel_engine, "rg")
+        self.assertEqual(scan_engine, "scan")
+
+    def test_search_and_terms_intersect(self):
+        bundle = ROOT / "sample-knowledge"
+        files, engine = candidate_files(
+            bundle, ["jwt", "zzzz-no-such-term"], use_rg=True, use_index=False
+        )
+        self.assertEqual(engine, "rg")
+        self.assertEqual(files, [])
+
+    def test_pack_rg_matches_scan_graph(self):
+        bundle = ROOT / "sample-knowledge"
+        seed = bundle / "features/user-authentication.md"
+        scan = pack_bundle(bundle, seed, hops=2, max_nodes=20, use_rg=False, use_index=False)
+        accel = pack_bundle(bundle, seed, hops=2, max_nodes=20, use_rg=True, use_index=False)
+        self.assertEqual(scan["node_count"], accel["node_count"])
+        self.assertEqual(
+            sorted(n["path"] for n in scan["nodes"]),
+            sorted(n["path"] for n in accel["nodes"]),
+        )
+        scan_edges = sorted((e["from"], e["to"], e["rel"]) for e in scan["edges"])
+        accel_edges = sorted((e["from"], e["to"], e["rel"]) for e in accel["edges"])
+        self.assertEqual(scan_edges, accel_edges)
+        self.assertEqual(accel["reverse_index"], "rg")
+        self.assertEqual(scan["reverse_index"], "scan")
+
+    def test_doctor_reports_toolchain(self):
+        report = doctor_bundle(ROOT / "sample-knowledge")
+        self.assertIn("toolchain", report)
+        self.assertTrue(report["toolchain"]["rg"]["found"])
+        self.assertIn("fts5", report["toolchain"]["sqlite"])
+        self.assertIn("index", report)
+        self.assertTrue(report["index"]["fts5"])
+
+    def test_setup_check_does_not_install(self):
+        rc = setup_main(["--check", "--json"])
+        self.assertEqual(rc, 0)
+
+    def test_setup_install_without_yes_exits_2(self):
+        # Point at a missing binary so install path runs, but --yes is off.
+        os.environ["PKC_RG_PATH"] = "/definitely/not/a/real/rg-binary"
+        # find_rg also checks shutil.which("rg") — this sandbox has none.
+        rc = setup_main(["--install-rg"])
+        self.assertEqual(rc, 2)
+
+
+class TestSqliteIndex(unittest.TestCase):
+    """Rung 2: incremental SQLite index is a disposable accelerator."""
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp())
+        (self.tmp / "index.md").write_text(
+            '---\nokf_version: "0.2"\ntitle: t\n---\n', encoding="utf-8"
+        )
+        (self.tmp / "log.md").write_text("# log\n", encoding="utf-8")
+        feat = self.tmp / "features"
+        feat.mkdir()
+        (feat / "index.md").write_text(
+            "---\ntype: Catalog\ntitle: Features\n---\n", encoding="utf-8"
+        )
+        (feat / "auth.md").write_text(
+            "---\n"
+            "type: Feature\n"
+            "title: JWT auth\n"
+            "description: login with JWT refresh\n"
+            "tags: [auth, jwt]\n"
+            "timestamp: 2026-01-01T00:00:00Z\n"
+            "links:\n"
+            "  - target: /decisions/use-jwt.md\n"
+            "    rel: decided_by\n"
+            "---\n"
+            "# JWT auth\n\nSee [use jwt](/decisions/use-jwt.md).\n",
+            encoding="utf-8",
+        )
+        dec = self.tmp / "decisions"
+        dec.mkdir()
+        (dec / "index.md").write_text(
+            "---\ntype: Catalog\ntitle: Decisions\n---\n", encoding="utf-8"
+        )
+        (dec / "use-jwt.md").write_text(
+            "---\n"
+            "type: DecisionRecord\n"
+            "title: Use JWT\n"
+            "description: signed tokens\n"
+            "timestamp: 2026-01-01T00:00:00Z\n"
+            "links:\n"
+            "  - target: /features/auth.md\n"
+            "    rel: decides\n"
+            "---\n"
+            "# Use JWT\n",
+            encoding="utf-8",
+        )
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def test_refresh_then_noop(self):
+        from pkc_index import refresh
+
+        first = refresh(self.tmp, force=True)
+        self.assertIsNotNone(first)
+        self.assertTrue(first.ok)
+        self.assertEqual(first.parsed, 2)
+        second = refresh(self.tmp)
+        self.assertEqual(second.parsed, 0)
+        self.assertEqual(second.unchanged, 2)
+
+    def test_search_index_matches_scan(self):
+        scan, scan_engine = search_bundle(
+            self.tmp, "JWT", use_index=False, use_rg=False
+        )
+        idx, idx_engine = search_bundle(
+            self.tmp, "JWT", use_index=True, use_rg=False
+        )
+        self.assertEqual(idx_engine, "index")
+        self.assertEqual(scan_engine, "scan")
+        self.assertGreaterEqual(len(scan), 1)
+        self.assertEqual([h["path"] for h in scan], [h["path"] for h in idx])
+        self.assertEqual([h["score"] for h in scan], [h["score"] for h in idx])
+
+    def test_pack_index_matches_scan(self):
+        seed = self.tmp / "features/auth.md"
+        scan = pack_bundle(
+            self.tmp, seed, hops=2, max_nodes=20, use_rg=False, use_index=False
+        )
+        idx = pack_bundle(
+            self.tmp, seed, hops=2, max_nodes=20, use_rg=False, use_index=True
+        )
+        self.assertEqual(idx["reverse_index"], "index")
+        self.assertEqual(scan["reverse_index"], "scan")
+        self.assertEqual(
+            sorted(n["path"] for n in scan["nodes"]),
+            sorted(n["path"] for n in idx["nodes"]),
+        )
+        self.assertEqual(
+            sorted((e["from"], e["to"], e["rel"]) for e in scan["edges"]),
+            sorted((e["from"], e["to"], e["rel"]) for e in idx["edges"]),
+        )
+
+    def test_validate_index_matches_scan(self):
+        err_s, warn_s = validate_bundle(self.tmp, use_index=False)
+        err_i, warn_i = validate_bundle(self.tmp, use_index=True)
+        self.assertEqual(err_s, err_i)
+        self.assertEqual(warn_s, warn_i)
+
+    def test_touch_reparses_one_file(self):
+        from pkc_index import refresh
+
+        refresh(self.tmp, force=True)
+        target = self.tmp / "features/auth.md"
+        target.write_text(target.read_text(encoding="utf-8") + "\nmore\n", encoding="utf-8")
+        stats = refresh(self.tmp)
+        self.assertEqual(stats.parsed, 1)
+        self.assertEqual(stats.unchanged, 1)
+
+    def test_delete_drops_row(self):
+        from pkc_index import refresh, status
+
+        refresh(self.tmp, force=True)
+        (self.tmp / "decisions/use-jwt.md").unlink()
+        stats = refresh(self.tmp)
+        self.assertEqual(stats.deleted, 1)
+        self.assertEqual(status(self.tmp)["nodes"], 1)
+
+    def test_schema_mismatch_rebuilds(self):
+        import sqlite3
+        from pkc_index import index_path, refresh
+
+        refresh(self.tmp, force=True)
+        con = sqlite3.connect(str(index_path(self.tmp)))
+        con.execute(
+            "INSERT OR REPLACE INTO meta(key, value) VALUES ('schema_version', '0')"
+        )
+        con.commit()
+        con.close()
+        stats = refresh(self.tmp)
+        self.assertTrue(stats.rebuilt)
+        self.assertEqual(stats.parsed, 2)
 
 
 def main() -> int:

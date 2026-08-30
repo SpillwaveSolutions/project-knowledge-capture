@@ -35,6 +35,7 @@ Create a knowledge root ready for capture and materialization.
    ```
 4. If the repo has WikiTicket data, offer **pkc-materialize**.
 5. Point the user at sample chain in this plugin’s `sample-knowledge/` for demos.
+6. Run **pkc-setup --check**. If ripgrep is missing, offer `/pkc-setup` (consent-gated). Do not install packages during init unless the user asks.
 
 ## Directory layout
 

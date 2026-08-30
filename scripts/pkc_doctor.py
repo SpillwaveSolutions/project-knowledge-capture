@@ -18,7 +18,9 @@ from pkc_common import (  # noqa: E402
     parse_frontmatter,
     parse_iso_date,
     resolve_knowledge_root,
+    toolchain_report,
 )
+from pkc_index import refresh as index_refresh, status as index_status  # noqa: E402
 
 MD_LINK = re.compile(r"\[([^\]]+)\]\((/[^)]+)\)")
 
@@ -68,6 +70,7 @@ def doctor(
 ) -> dict[str, Any]:
     now = _aware(now) or datetime.now(timezone.utc)
     nodes, edges = load_graph(bundle)
+    index_refresh(bundle)
     issues: list[dict[str, str]] = []
 
     for c in CATALOGS:
@@ -238,10 +241,29 @@ def doctor(
         "by_kind": dict(by_kind),
         "by_severity": dict(by_sev),
         "ok": by_sev.get("error", 0) == 0,
+        "toolchain": toolchain_report(),
+        "index": index_status(bundle),
     }
 
 
 def render_report(result: dict[str, Any]) -> str:
+    tc = result.get("toolchain") or {}
+    rg = tc.get("rg") or {}
+    sqlite = tc.get("sqlite") or {}
+    rg_line = (
+        f"found at `{rg['path']}`"
+        if rg.get("found")
+        else "missing — search/pack will full-scan. Run /pkc-setup to install."
+    )
+    fts = "yes" if sqlite.get("fts5") else "no"
+    idx = result.get("index") or {}
+    if idx.get("present"):
+        idx_line = (
+            f"present ({idx.get('nodes', 0)} nodes, {idx.get('edges', 0)} edges) "
+            f"at `{idx.get('path')}`"
+        )
+    else:
+        idx_line = "absent — search/pack/validate will use rg or a full scan"
     lines = [
         f"# PKC doctor — {result['bundle']}",
         "",
@@ -250,6 +272,13 @@ def render_report(result: dict[str, Any]) -> str:
         f"- Errors: {result['by_severity'].get('error', 0)}",
         f"- Warnings: {result['by_severity'].get('warn', 0)}",
         f"- Info: {result['by_severity'].get('info', 0)}",
+        "",
+        "## Toolchain",
+        "",
+        f"- Python: {tc.get('python') or '?'}",
+        f"- ripgrep: {rg_line}",
+        f"- SQLite FTS5: {fts} (stdlib)",
+        f"- Incremental index: {idx_line}",
         "",
     ]
     if not result["issues"]:

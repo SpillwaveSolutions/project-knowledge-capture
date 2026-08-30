@@ -55,3 +55,11 @@ screenshots/*.png
 # Isolation session bookkeeping
 .brain-sessions/
 .brain-worktrees/
+
+# Disposable retrieval index (docs/designs/retrieval-ladder.md). Git + Markdown
+# stay source of truth; deleting these files is always valid recovery.
+# Do not ignore the whole `.pkc/` directory — repo-level `.pkc/config.yml` lives there.
+**/.pkc/index.sqlite
+**/.pkc/index.sqlite-journal
+**/.pkc/index.sqlite-wal
+**/.pkc/index.sqlite-shm
