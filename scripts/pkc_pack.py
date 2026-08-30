@@ -98,10 +98,7 @@ def _inbound_via_rg(
     cache: dict[str, list[tuple[str, str, str]]] | None = None,
 ) -> list[tuple[str, str, str]] | None:
     """Files that mention `target`, parsed for real inbound edges. None = fall back."""
-    needles = [target]
-    if target.startswith("/"):
-        needles.append(target.lstrip("/"))
-    hits = rg_list_files(bundle, needles[:1], fixed_string=True, ignore_case=False)
+    hits = rg_list_files(bundle, [target], fixed_string=True, ignore_case=False)
     if hits is None:
         return None
     inbound: list[tuple[str, str, str]] = []

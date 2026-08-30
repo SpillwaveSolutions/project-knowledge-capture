@@ -226,7 +226,15 @@ def _hay(title: str, description: str, tags: str, body: str) -> str:
     return f"{title}\n{description}\n{tags}\n{body}".lower()
 
 
-def _upsert_node(con: sqlite3.Connection, bundle: Path, rel: str, path: Path) -> None:
+def _upsert_node(
+    con: sqlite3.Connection,
+    bundle: Path,
+    rel: str,
+    path: Path,
+    *,
+    is_new: bool = False,
+    sig: tuple[int, int] | None = None,
+) -> None:
     text = path.read_text(encoding="utf-8")
     fm, body = parse_frontmatter(text)
     title = str(fm.get("title") or path.stem)
@@ -238,7 +246,9 @@ def _upsert_node(con: sqlite3.Connection, bundle: Path, rel: str, path: Path) ->
     else:
         tags = str(tags_val)
     ctype = str(fm.get("type") or "Unknown")
-    mtime, size = _sig(path)
+    # Use the pre-scan signature so a write between read and stat cannot
+    # store a fresh mtime over the content we actually indexed.
+    mtime, size = sig if sig is not None else _sig(path)
     fm_json = json.dumps(fm, default=str, ensure_ascii=False)
     hay = _hay(title, description, tags, body)
     con.execute(
@@ -250,8 +260,14 @@ def _upsert_node(con: sqlite3.Connection, bundle: Path, rel: str, path: Path) ->
         """,
         (rel, ctype, title, description, status, tags, mtime, size, fm_json, body, hay),
     )
-    con.execute("DELETE FROM edges WHERE src = ?", (rel,))
-    con.execute("DELETE FROM fts WHERE path = ?", (rel,))
+    # FTS5 cannot look up by a plain column, so DELETE FROM fts WHERE path = ?
+    # scans the growing table once per file — O(N²) on a cold build. Skip both
+    # deletes for rows that cannot be present yet (fresh build, schema rebuild,
+    # or a path the pre-scan did not find stored). Incremental updates still
+    # delete so REPLACE does not leave a duplicate FTS row.
+    if not is_new:
+        con.execute("DELETE FROM edges WHERE src = ?", (rel,))
+        con.execute("DELETE FROM fts WHERE path = ?", (rel,))
     edges = extract_concept_edges(fm, body)
     if edges:
         con.executemany(
@@ -315,8 +331,9 @@ def refresh(bundle: Path, *, force: bool = False) -> RefreshStats | None:
             if not rebuilt and stored.get(rel) == sig:
                 stats.unchanged += 1
                 continue
+            is_new = rebuilt or stored.get(rel) is None
             try:
-                _upsert_node(con, bundle, rel, p)
+                _upsert_node(con, bundle, rel, p, is_new=is_new, sig=sig)
             except (OSError, UnicodeDecodeError):
                 continue
             stats.parsed += 1
