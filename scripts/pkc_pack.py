@@ -107,7 +107,10 @@ def _inbound_via_rg(
         if not is_concept_path(bundle, path):
             continue
         try:
-            src = "/" + path.relative_to(bundle).as_posix()
+            # rg_list_files resolves its hits, so a bundle reached through a
+            # symlink alias (macOS /var -> /private/var) makes relative_to
+            # raise and silently drop a real inbound edge. Canonicalize both.
+            src = "/" + path.resolve().relative_to(bundle.resolve()).as_posix()
         except ValueError:
             continue
         if src == target:
