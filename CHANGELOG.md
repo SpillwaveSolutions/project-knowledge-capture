@@ -2,6 +2,27 @@
 
 ## Unreleased
 
+## 0.9.3 — 2026-08-31
+
+Correctness patch for catalog rendering and the rg-backed reverse index. Both
+defects were found by porting the system-architecture-capture v0.5.4 fixes to
+the shared PKC code.
+
+### Fixed
+
+- Catalog rendering no longer crashes on a YAML scalar title. `title: 421`
+  parses as an int, and `_escape_link_label()` assumed a string, so one legacy
+  title aborted the refresh after capture had already written concepts. Both
+  `refresh_catalog_index()` and `ensure_catalog_index()` now share one label
+  helper, which also stops a falsy-but-real title (`0`, `false`) from falling
+  back to the file stem.
+  ([#72](https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/72))
+- The rg-backed inbound pack no longer drops matches when the bundle is
+  addressed through a symlink. `rg_list_files()` resolves its hits, so
+  `path.relative_to(bundle)` raised and the handler silently discarded a real
+  inbound edge while the pack still reported `reverse_index: rg`.
+  ([#73](https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/73))
+
 ## 0.9.2 — 2026-08-31
 
 Dry-run safety patch for WikiTicket materialization.

@@ -8,7 +8,7 @@ Works on **Claude Code**, **Grok Build**, **Codex**, **Agent Plugins 1.0**, **Gr
 |---|---|
 | **Plugin name** | `project-knowledge-capture` |
 | **Repo** | [SpillwaveSolutions/project-knowledge-capture](https://github.com/SpillwaveSolutions/project-knowledge-capture) |
-| **Version** | 0.9.2 |
+| **Version** | 0.9.3 |
 | **License** | MIT |
 | **Nouns this plugin owns** | Meeting, Experiment, Discovery, Assumption, Question, Feature, Requirement, Specification, Design, Release, CodeChange, Package, Risk, Acceptance, DecisionRecord, TicketLink, Epic, Story, Task, Subtask, Bug, Branch, Project, Playbook, Runbook, Reference |
 
