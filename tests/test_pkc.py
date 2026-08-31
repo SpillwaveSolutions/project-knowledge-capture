@@ -1517,14 +1517,23 @@ class TestRipgrepAccelerator(unittest.TestCase):
         self.assertEqual(scan["reverse_index"], "scan")
 
     def test_inbound_pack_survives_a_symlink_aliased_bundle(self):
-        """rg_list_files resolves its hits. mkdtemp hands back the /var alias
-        on macOS, so relative_to raised and the inbound edge was dropped —
-        while the pack still reported `reverse_index: rg`."""
+        """rg_list_files resolves its hits, so relative_to raised on an aliased
+        bundle and the inbound edge was dropped — while the pack still reported
+        `reverse_index: rg`.
+
+        The symlink is built here rather than leaned on: mkdtemp yields the
+        /var alias on macOS but a plain /tmp path on Linux, which made an
+        alias-dependent test inert on CI — the platform this must not regress on.
+        """
         tmp = Path(tempfile.mkdtemp())
         self.addCleanup(shutil.rmtree, tmp, True)
-        self.assertNotEqual(tmp, tmp.resolve(), "no path alias here; test is inert")
-        ensure_bundle(tmp)
-        features = tmp / "features"
+        real = tmp / "real"
+        real.mkdir()
+        alias = tmp / "alias"
+        alias.symlink_to(real, target_is_directory=True)
+        ensure_bundle(real)
+        self.assertNotEqual(alias.resolve(), alias)
+        features = alias / "features"
         features.mkdir(exist_ok=True)
         (features / "root.md").write_text(
             "---\ntype: Feature\ntitle: Root\n---\n\n# Root\n", encoding="utf-8"
@@ -1535,8 +1544,8 @@ class TestRipgrepAccelerator(unittest.TestCase):
             encoding="utf-8",
         )
         seed = features / "root.md"
-        scan = pack_bundle(tmp, seed, hops=1, max_nodes=8, use_rg=False, use_index=False)
-        accel = pack_bundle(tmp, seed, hops=1, max_nodes=8, use_rg=True, use_index=False)
+        scan = pack_bundle(alias, seed, hops=1, max_nodes=8, use_rg=False, use_index=False)
+        accel = pack_bundle(alias, seed, hops=1, max_nodes=8, use_rg=True, use_index=False)
         scan_paths = {n["path"] for n in scan["nodes"]}
         accel_paths = {n["path"] for n in accel["nodes"]}
         self.assertIn("/features/caller.md", scan_paths)
