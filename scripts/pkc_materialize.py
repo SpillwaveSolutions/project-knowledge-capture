@@ -124,6 +124,7 @@ def materialize_item(
     include: set[str],
     author: str,
     force: bool = False,
+    dry_run: bool = False,
 ) -> list[tuple[str, str, str]]:
     results: list[tuple[str, str, str]] = []
     fingerprint = item_fingerprint(item)
@@ -195,7 +196,9 @@ def materialize_item(
             body += f"- Worklog ULID: `{ulid}`\n"
         if external_id:
             body += f"- External: {external_system} `{external_id}`\n"
-        _, action = write_knowledge(bundle, feature_rel, fm, body, author=author)
+        _, action = write_knowledge(
+            bundle, feature_rel, fm, body, author=author, dry_run=dry_run
+        )
         results.append((feature_rel, action, "Feature"))
 
     trel: str | None = None
@@ -234,7 +237,9 @@ def materialize_item(
         if external_id:
             tbody += f"- System: {external_system}\n- ID: `{external_id}`\n"
         tbody += f"\n## Status\n\n`{status}` · level `{level}` · kind `{kind}`\n"
-        _, action = write_knowledge(bundle, trel, tfm, tbody, author=author)
+        _, action = write_knowledge(
+            bundle, trel, tfm, tbody, author=author, dry_run=dry_run
+        )
         results.append((trel, action, "TicketLink"))
 
     work_type = work_concept_type(level, kind)
@@ -299,7 +304,9 @@ def materialize_item(
             wbody += "\n" + body_src.strip() + "\n"
         if ulid:
             wbody += f"\n## Provenance\n\n- Worklog ULID: `{ulid}`\n"
-        _, action = write_knowledge(bundle, wrel, wfm, wbody, author=author)
+        _, action = write_knowledge(
+            bundle, wrel, wfm, wbody, author=author, dry_run=dry_run
+        )
         results.append((wrel, action, work_type))
 
     branch_name = item.get("branch")
@@ -332,7 +339,9 @@ def materialize_item(
             if force:
                 bfm["force"] = True
             bbody = f"# {branch_name}\n\nSource-control branch materialized from a work item.\n"
-            _, action = write_knowledge(bundle, brel, bfm, bbody, author=author)
+            _, action = write_knowledge(
+                bundle, brel, bfm, bbody, author=author, dry_run=dry_run
+            )
             results.append((brel, action, "Branch"))
 
     return results
@@ -345,6 +354,7 @@ def materialize_docs(
     include: set[str],
     author: str,
     force: bool = False,
+    dry_run: bool = False,
 ) -> list[tuple[str, str, str]]:
     results: list[tuple[str, str, str]] = []
     docs = repo / "docs"
@@ -356,28 +366,40 @@ def materialize_docs(
             for path in docs.glob(pattern):
                 if path.name.lower() in ("index.md", "readme.md"):
                     continue
-                results.extend(_doc_to_concept(path, bundle, "DecisionRecord", "decisions", force, author))
+                results.extend(
+                    _doc_to_concept(
+                        path, bundle, "DecisionRecord", "decisions", force, author, dry_run
+                    )
+                )
 
     if "designs" in include:
         for pattern in ("**/design*/**/*.md", "**/walkthrough*/**/*.md"):
             for path in docs.glob(pattern):
                 if path.name.lower() in ("index.md", "readme.md"):
                     continue
-                results.extend(_doc_to_concept(path, bundle, "Design", "designs", force, author))
+                results.extend(
+                    _doc_to_concept(path, bundle, "Design", "designs", force, author, dry_run)
+                )
 
     if "specs" in include:
         for pattern in ("**/plans/**/*.md", "**/plan*.md"):
             for path in docs.glob(pattern):
                 if path.name.lower() in ("index.md", "readme.md"):
                     continue
-                results.extend(_doc_to_concept(path, bundle, "Specification", "specs", force, author))
+                results.extend(
+                    _doc_to_concept(
+                        path, bundle, "Specification", "specs", force, author, dry_run
+                    )
+                )
 
     if "releases" in include:
         for pattern in ("**/releases/**/*.md",):
             for path in docs.glob(pattern):
                 if path.name.lower() in ("index.md", "readme.md"):
                     continue
-                results.extend(_doc_to_concept(path, bundle, "Release", "releases", force, author))
+                results.extend(
+                    _doc_to_concept(path, bundle, "Release", "releases", force, author, dry_run)
+                )
 
     # de-dupe by path (glob overlaps)
     seen: set[str] = set()
@@ -397,6 +419,7 @@ def _doc_to_concept(
     catalog: str,
     force: bool,
     author: str,
+    dry_run: bool,
 ) -> list[tuple[str, str, str]]:
     text = path.read_text(encoding="utf-8")
     body = text
@@ -427,7 +450,9 @@ def _doc_to_concept(
     if force:
         fm["force"] = True
     content_body = f"# {title}\n\n> Source: `{path.as_posix()}`\n\n{body.strip()}\n"
-    _, action = write_knowledge(bundle, rel, fm, content_body, author=author)
+    _, action = write_knowledge(
+        bundle, rel, fm, content_body, author=author, dry_run=dry_run
+    )
     return [(rel, action, concept_type)]
 
 
@@ -437,8 +462,27 @@ def _doc_to_concept(
 # index would say, so none of them justify rewriting one.
 WROTE = ("created", "updated")
 
+DRY_RUN_ACTIONS = {
+    "created": "would_create",
+    "updated": "would_update",
+    "skipped": "would_skip",
+    "exists": "would_exist",
+    "refused": "would_refuse",
+    "unchanged": "unchanged",
+}
 
-def catalogs_touched(report: list[dict[str, str]]) -> set[str]:
+
+def report_entry(
+    rel: str, action: str, kind: str, *, dry_run: bool
+) -> dict[str, Any]:
+    result: dict[str, Any] = {"path": rel, "action": action, "type": kind}
+    if dry_run:
+        result["action"] = DRY_RUN_ACTIONS.get(action, f"would_{action}")
+        result["planned"] = True
+    return result
+
+
+def catalogs_touched(report: list[dict[str, Any]]) -> set[str]:
     cats: set[str] = set()
     for r in report:
         if r["action"] not in WROTE:
@@ -477,7 +521,7 @@ def main(argv: list[str] | None = None) -> int:
     else:
         author = args.author or "dry-run"
 
-    report: list[dict[str, str]] = []
+    report: list[dict[str, Any]] = []
     if from_worklog:
         fold = load_fold(args.fold)
         for item in fold.get("items") or []:
@@ -486,15 +530,25 @@ def main(argv: list[str] | None = None) -> int:
             if item_status(item) == "cancelled" and not args.force:
                 continue
             for rel, action, kind in materialize_item(
-                bundle, item, include=include, author=author, force=args.force
+                bundle,
+                item,
+                include=include,
+                author=author,
+                force=args.force,
+                dry_run=args.dry_run,
             ):
-                report.append({"path": rel, "action": action, "type": kind})
+                report.append(report_entry(rel, action, kind, dry_run=args.dry_run))
 
     if args.from_docs:
         for rel, action, kind in materialize_docs(
-            repo, bundle, include=include, author=author, force=args.force
+            repo,
+            bundle,
+            include=include,
+            author=author,
+            force=args.force,
+            dry_run=args.dry_run,
         ):
-            report.append({"path": rel, "action": action, "type": kind})
+            report.append(report_entry(rel, action, kind, dry_run=args.dry_run))
 
     if not args.dry_run:
         for cat in sorted(catalogs_touched(report)):
@@ -515,21 +569,38 @@ def main(argv: list[str] | None = None) -> int:
             )
 
     if args.json:
-        print(json.dumps({"bundle": str(bundle), "results": report}, indent=2))
+        print(
+            json.dumps(
+                {"bundle": str(bundle), "dry_run": args.dry_run, "results": report},
+                indent=2,
+            )
+        )
     else:
         print(f"Bundle: {bundle}")
-        counts = {"created": 0, "updated": 0, "skipped": 0, "unchanged": 0, "refused": 0}
+        if args.dry_run:
+            print("Dry run: no changes applied")
+        counts: dict[str, int] = {}
         for r in report:
-            counts[r["action"]] = counts.get(r["action"], 0) + 1
-            print(f"  [{r['action']:9}] {r['type']:14} {r['path']}")
+            action = str(r["action"])
+            counts[action] = counts.get(action, 0) + 1
+            print(f"  [{action:13}] {r['type']:14} {r['path']}")
         # `unchanged` = short-circuited on fingerprint, never rendered.
         # `skipped`   = rendered, compared, found identical (or truth_state barrier).
         # The split is what lets CI prove incremental materialize actually works.
-        print(
-            f"Summary: {counts.get('created', 0)} created, "
-            f"{counts.get('updated', 0)} updated, {counts.get('skipped', 0)} skipped, "
-            f"{counts.get('unchanged', 0)} unchanged"
-        )
+        if args.dry_run:
+            print(
+                f"Summary: {counts.get('would_create', 0)} would create, "
+                f"{counts.get('would_update', 0)} would update, "
+                f"{counts.get('would_skip', 0)} would skip, "
+                f"{counts.get('unchanged', 0)} unchanged"
+            )
+        else:
+            print(
+                f"Summary: {counts.get('created', 0)} created, "
+                f"{counts.get('updated', 0)} updated, "
+                f"{counts.get('skipped', 0)} skipped, "
+                f"{counts.get('unchanged', 0)} unchanged"
+            )
     return 0
 
 

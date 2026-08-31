@@ -1,0 +1,16 @@
+---
+date: 2026-08-31
+slug: fix-issue-69-dry-run
+title: Fix issue #69 dry-run writes
+epic: 01M1CEEP1EG2793CSYT4AJC8K5
+items: [01M1CEEP1EJMGSW2DP0PZHMM0B, 01M1CEEP1E29BXX7PS90ZQ44R8, 01M1CEEP1EBGFT5DR8TJRGBC5M]
+---
+
+## Tasks
+
+- [ ] Reproduce dry-run filesystem mutations
+  Confirm concept, catalog, log, and write-event behavior before changing implementation.
+- [ ] Implement side-effect-free dry-run behavior
+  Report planned actions without creating, updating, or deleting bundle content.
+- [ ] Add and run regression coverage
+  Snapshot the target tree and verify all dry-run output modes leave it unchanged.
