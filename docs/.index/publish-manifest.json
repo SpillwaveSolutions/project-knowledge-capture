@@ -14,7 +14,7 @@
    "frozen": false,
    "page_name": "Index-Decisions",
    "render": "as-is",
-   "render_hash": "d3182fbfb022",
+   "render_hash": "1977aab0a1b1",
    "source": "docs/.index/rendered/decisions.md",
    "title": "Decisions Index",
    "truth_state": "current",
@@ -24,7 +24,7 @@
    "frozen": false,
    "page_name": "Index-Releases",
    "render": "as-is",
-   "render_hash": "30c73e162c4a",
+   "render_hash": "c0fd70008655",
    "source": "docs/.index/rendered/releases.md",
    "title": "Releases Index",
    "truth_state": "current",
@@ -44,7 +44,7 @@
    "frozen": false,
    "page_name": "Index-Traceability",
    "render": "as-is",
-   "render_hash": "42012751d5c7",
+   "render_hash": "c700253727d9",
    "source": "docs/.index/rendered/traceability.md",
    "title": "Traceability Index",
    "truth_state": "current",
@@ -129,6 +129,16 @@
    "title": "Release v0.9.0",
    "truth_state": "shipped",
    "wiki_key": "release/v0.9.0"
+  },
+  {
+   "frozen": false,
+   "page_name": "Release-v0.9.2",
+   "render": "as-is",
+   "render_hash": "165a0e528145",
+   "source": "docs/.index/rendered/releases/v0.9.2.md",
+   "title": "Release v0.9.2",
+   "truth_state": "shipped",
+   "wiki_key": "release/v0.9.2"
   },
   {
    "frozen": false,
@@ -471,6 +481,86 @@
    "wiki_key": "item/01M19SADGDHJPCXX5MK4A76ZE5"
   },
   {
+   "frozen": false,
+   "page_name": "Ticket-01M1CEEP1E29BXX7PS90ZQ44R8",
+   "render": "as-is",
+   "render_hash": "94f369a5d0b1",
+   "source": "docs/.index/rendered/tickets/01M1CEEP1E29BXX7PS90ZQ44R8.md",
+   "title": "Implement side-effect-free dry-run behavior",
+   "truth_state": "done",
+   "wiki_key": "item/01M1CEEP1E29BXX7PS90ZQ44R8"
+  },
+  {
+   "frozen": false,
+   "page_name": "Ticket-01M1CEEP1EBGFT5DR8TJRGBC5M",
+   "render": "as-is",
+   "render_hash": "a3932e597ba3",
+   "source": "docs/.index/rendered/tickets/01M1CEEP1EBGFT5DR8TJRGBC5M.md",
+   "title": "Add and run regression coverage",
+   "truth_state": "done",
+   "wiki_key": "item/01M1CEEP1EBGFT5DR8TJRGBC5M"
+  },
+  {
+   "frozen": false,
+   "page_name": "Ticket-01M1CEEP1EG2793CSYT4AJC8K5",
+   "render": "as-is",
+   "render_hash": "c418882a283c",
+   "source": "docs/.index/rendered/tickets/01M1CEEP1EG2793CSYT4AJC8K5.md",
+   "title": "Fix issue #69 dry-run writes",
+   "truth_state": "done",
+   "wiki_key": "item/01M1CEEP1EG2793CSYT4AJC8K5"
+  },
+  {
+   "frozen": false,
+   "page_name": "Ticket-01M1CEEP1EJMGSW2DP0PZHMM0B",
+   "render": "as-is",
+   "render_hash": "e6fbcbe530c4",
+   "source": "docs/.index/rendered/tickets/01M1CEEP1EJMGSW2DP0PZHMM0B.md",
+   "title": "Reproduce dry-run filesystem mutations",
+   "truth_state": "done",
+   "wiki_key": "item/01M1CEEP1EJMGSW2DP0PZHMM0B"
+  },
+  {
+   "frozen": false,
+   "page_name": "Ticket-01M1CGCYRY3PZ0SV77HV82Y9P0",
+   "render": "as-is",
+   "render_hash": "3c3da560a7c4",
+   "source": "docs/.index/rendered/tickets/01M1CGCYRY3PZ0SV77HV82Y9P0.md",
+   "title": "Stamp v0.9.2 metadata and changelog",
+   "truth_state": "done",
+   "wiki_key": "item/01M1CGCYRY3PZ0SV77HV82Y9P0"
+  },
+  {
+   "frozen": false,
+   "page_name": "Ticket-01M1CGCYRYK93N2FKN97ZQ4D82",
+   "render": "as-is",
+   "render_hash": "0d1741a2cc3e",
+   "source": "docs/.index/rendered/tickets/01M1CGCYRYK93N2FKN97ZQ4D82.md",
+   "title": "Prepare PKC v0.9.2 release",
+   "truth_state": "done",
+   "wiki_key": "item/01M1CGCYRYK93N2FKN97ZQ4D82"
+  },
+  {
+   "frozen": false,
+   "page_name": "Ticket-01M1CGCYRZD9P4BKCRDZJCHSRS",
+   "render": "as-is",
+   "render_hash": "110ceaeabc58",
+   "source": "docs/.index/rendered/tickets/01M1CGCYRZD9P4BKCRDZJCHSRS.md",
+   "title": "Validate and prepare the release pull request",
+   "truth_state": "done",
+   "wiki_key": "item/01M1CGCYRZD9P4BKCRDZJCHSRS"
+  },
+  {
+   "frozen": false,
+   "page_name": "Ticket-01M1CGCYRZK1AJ5X4D7FE2VTW3",
+   "render": "as-is",
+   "render_hash": "832b64e9c240",
+   "source": "docs/.index/rendered/tickets/01M1CGCYRZK1AJ5X4D7FE2VTW3.md",
+   "title": "Capture the frozen release roadmap and refresh wiki IA",
+   "truth_state": "done",
+   "wiki_key": "item/01M1CGCYRZK1AJ5X4D7FE2VTW3"
+  },
+  {
    "banner": "> **Current** \u2014 this is the living version; regenerated at 2026-08-06T18:42:39Z. Historical snapshots are linked from [[Index-Releases]].",
    "frozen": false,
    "page_name": "Code-Walkthrough",
@@ -559,11 +649,33 @@
    "wiki_key": "guide/worklog-spec"
   },
   {
-   "banner": "> **Current** \u2014 this is the living version; regenerated at 2026-08-30T16:52:55Z. Historical snapshots are linked from [[Index-Releases]].",
+   "banner": "> **Current** \u2014 the latest status report. Reports freeze once published; corrections appear in later reports.",
+   "frozen": true,
+   "page_name": "Plan-fix-issue-69-dry-run",
+   "render": "doc+banner",
+   "render_hash": "59e3ed7b344b",
+   "source": "docs/plans/2026-08-31-fix-issue-69-dry-run.md",
+   "title": "Fix issue #69 dry-run writes",
+   "truth_state": "current",
+   "wiki_key": "plan/2026-08-31-fix-issue-69-dry-run"
+  },
+  {
+   "banner": "> **Current** \u2014 the latest status report. Reports freeze once published; corrections appear in later reports.",
+   "frozen": true,
+   "page_name": "Plan-release-v0-9-2",
+   "render": "doc+banner",
+   "render_hash": "8dbcea9f3839",
+   "source": "docs/plans/2026-08-31-release-v0-9-2.md",
+   "title": "Prepare PKC v0.9.2 release",
+   "truth_state": "current",
+   "wiki_key": "plan/2026-08-31-release-v0-9-2"
+  },
+  {
+   "banner": "> **Current** \u2014 this is the living version; regenerated at 2026-08-31T18:15:44Z. Historical snapshots are linked from [[Index-Releases]].",
    "frozen": false,
    "page_name": "Roadmap",
    "render": "doc+banner",
-   "render_hash": "c4db7a807b6b",
+   "render_hash": "a01f336091f2",
    "source": "docs/roadmap.md",
    "title": "Roadmap",
    "truth_state": "current",
@@ -612,10 +724,21 @@
    "title": "Roadmap",
    "truth_state": "snapshot",
    "wiki_key": "roadmap-snapshot/2026-08-30_v0.9.0-release"
+  },
+  {
+   "banner": "> **Snapshot** of release v0.9.2 (2026-08-31) \u2014 frozen record. The current version is [[Roadmap]].",
+   "frozen": true,
+   "page_name": "Roadmap-2026-08-31_v0.9.2-release",
+   "render": "doc+banner",
+   "render_hash": "6a0af7ea0c60",
+   "source": "docs/roadmap/2026-08-31_v0.9.2-release.md",
+   "title": "Roadmap",
+   "truth_state": "snapshot",
+   "wiki_key": "roadmap-snapshot/2026-08-31_v0.9.2-release"
   }
  ],
  "sidebar": {
-  "render_hash": "49d08c7e74b5",
+  "render_hash": "329990a7866c",
   "source": "docs/.index/rendered/_Sidebar.md"
  },
  "version": 1

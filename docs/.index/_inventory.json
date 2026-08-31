@@ -96,12 +96,46 @@
    "wiki_key": "guide/worklog-spec"
   },
   {
+   "canonical_key": "plan/2026-08-31-fix-issue-69-dry-run",
+   "date": "2026-08-31",
+   "doc_type": "plan",
+   "epic": "01M1CEEP1EG2793CSYT4AJC8K5",
+   "items": [
+    "01M1CEEP1EJMGSW2DP0PZHMM0B",
+    "01M1CEEP1E29BXX7PS90ZQ44R8",
+    "01M1CEEP1EBGFT5DR8TJRGBC5M"
+   ],
+   "slug": "fix-issue-69-dry-run",
+   "source": "docs/plans/2026-08-31-fix-issue-69-dry-run.md",
+   "status": "completed",
+   "title": "Fix issue #69 dry-run writes",
+   "truth_state": "current",
+   "wiki_key": "plan/2026-08-31-fix-issue-69-dry-run"
+  },
+  {
+   "canonical_key": "plan/2026-08-31-release-v0-9-2",
+   "date": "2026-08-31",
+   "doc_type": "plan",
+   "epic": "01M1CGCYRYK93N2FKN97ZQ4D82",
+   "items": [
+    "01M1CGCYRY3PZ0SV77HV82Y9P0",
+    "01M1CGCYRZK1AJ5X4D7FE2VTW3",
+    "01M1CGCYRZD9P4BKCRDZJCHSRS"
+   ],
+   "slug": "release-v0-9-2",
+   "source": "docs/plans/2026-08-31-release-v0-9-2.md",
+   "status": "completed",
+   "title": "Prepare PKC v0.9.2 release",
+   "truth_state": "current",
+   "wiki_key": "plan/2026-08-31-release-v0-9-2"
+  },
+  {
    "canonical_key": "roadmap",
    "doc_type": "roadmap",
-   "generated_at": "2026-08-30T16:52:55Z",
+   "generated_at": "2026-08-31T18:15:44Z",
    "slug": "roadmap",
    "source": "docs/roadmap.md",
-   "source_hash": "8de8b50a",
+   "source_hash": "7cb55ba3",
    "title": "Roadmap",
    "truth_state": "current",
    "wiki": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Roadmap",
@@ -167,11 +201,27 @@
    "slug": "2026-08-30_v0.9.0-release",
    "source": "docs/roadmap/2026-08-30_v0.9.0-release.md",
    "source_hash": "f052d171",
+   "superseded_by": "roadmap-snapshot/2026-08-31_v0.9.2-release",
    "supersedes": "roadmap-snapshot/2026-08-07_v0.5.0-release",
    "title": "Roadmap",
    "truth_state": "snapshot",
    "wiki": "https://github.com/SpillwaveSolutions/project-knowledge-capture/wiki/Roadmap-2026-08-30_v0.9.0-release",
    "wiki_key": "roadmap-snapshot/2026-08-30_v0.9.0-release"
+  },
+  {
+   "canonical_key": "roadmap-snapshot/2026-08-31_v0.9.2-release",
+   "date": "2026-08-31",
+   "doc_type": "roadmap-snapshot",
+   "generated_at": "2026-08-31T18:15:09Z",
+   "name": "v0.9.2-release",
+   "release": "v0.9.2",
+   "slug": "2026-08-31_v0.9.2-release",
+   "source": "docs/roadmap/2026-08-31_v0.9.2-release.md",
+   "source_hash": "1e033454",
+   "supersedes": "roadmap-snapshot/2026-08-30_v0.9.0-release",
+   "title": "Roadmap",
+   "truth_state": "snapshot",
+   "wiki_key": "roadmap-snapshot/2026-08-31_v0.9.2-release"
   }
  ],
  "version": 1

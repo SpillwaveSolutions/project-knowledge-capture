@@ -2,6 +2,10 @@
 
 _What shipped, with the frozen evidence for each release. Generated; do not edit._
 
+## v0.9.2 — 2026-08-31
+
+- Roadmap snapshot: [[Roadmap-2026-08-31_v0.9.2-release]]
+
 ## v0.9.0 — 2026-08-30
 
 - Roadmap snapshot: [[Roadmap-2026-08-30_v0.9.0-release]]
