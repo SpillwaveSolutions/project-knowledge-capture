@@ -506,8 +506,25 @@ def write_concept(
     return path, "created"
 
 
-def _escape_link_label(label: str) -> str:
-    return label.replace("[", "\\[").replace("]", "\\]")
+def _escape_link_label(label: Any) -> str:
+    """Make a concept title safe to use as a Markdown link label.
+
+    YAML titles may be typed scalars (for example integers or booleans), so
+    normalize to text at the rendering boundary. Kept as one function so the
+    catalog renderers cannot drift apart on escaping.
+    """
+    return str(label).replace("[", "\\[").replace("]", "\\]")
+
+
+def _catalog_label(fm_c: dict[str, Any], path: Path) -> str:
+    """Pick and escape the label for one catalog entry.
+
+    Both renderers below call this, so the fallback rule cannot drift between
+    them. `or` alone would send a falsy-but-real title (`0`, `false`) to the
+    stem, so only a missing or empty title falls back.
+    """
+    title = fm_c.get("title")
+    return _escape_link_label(path.stem if title is None or title == "" else title)
 
 
 def ensure_catalog_index(bundle: Path, catalog: str, title: str | None = None) -> Path:
@@ -529,7 +546,7 @@ def ensure_catalog_index(bundle: Path, catalog: str, title: str | None = None) -
         if p.name == "index.md":
             continue
         fm_c, _ = parse_frontmatter(p.read_text(encoding="utf-8"))
-        label = _escape_link_label(fm_c.get("title") or p.stem)
+        label = _catalog_label(fm_c, p)
         body += f"- [{label}](/{catalog}/{p.name})\n"
     if body.endswith(":\n\n"):
         body += "_None yet._\n"
@@ -554,7 +571,7 @@ def refresh_catalog_index(bundle: Path, catalog: str) -> None:
         if p.name == "index.md":
             continue
         fm_c, _ = parse_frontmatter(p.read_text(encoding="utf-8"))
-        label = _escape_link_label(fm_c.get("title") or p.stem)
+        label = _catalog_label(fm_c, p)
         entries.append(f"- [{label}](/{catalog}/{p.name})")
     body += "\n".join(entries) + ("\n" if entries else "_None yet._\n")
     index.write_text(dump_frontmatter(fm) + "\n" + body, encoding="utf-8")

@@ -158,6 +158,33 @@ class TestCatalogIndex(unittest.TestCase):
         if lines:                       # ensure_catalog_index lists entries here
             self.assertIn(r"\[AREA\]", lines[0], f"label not escaped: {lines[0]!r}")
 
+    def test_yaml_scalar_titles_render_as_text(self):
+        """`title: 421` parses as an int. Both renderers used to call
+        str.replace on it and abort the whole catalog refresh."""
+        cases = {
+            "integer": ("421", "421"),
+            "boolean": ("false", "False"),
+            "date-like": ("2026-08-31", "2026-08-31"),
+            "zero": ("0", "0"),
+        }
+        for renderer in (refresh_catalog_index, ensure_catalog_index):
+            with self.subTest(renderer=renderer.__name__):
+                with tempfile.TemporaryDirectory() as td:
+                    bundle = Path(td)
+                    ensure_bundle(bundle)
+                    decisions = bundle / "decisions"
+                    decisions.mkdir(exist_ok=True)
+                    for slug, (yaml_title, _expected) in cases.items():
+                        (decisions / f"{slug}.md").write_text(
+                            f"---\ntype: Decision\ntitle: {yaml_title}\n---\n\n# {yaml_title}\n",
+                            encoding="utf-8",
+                        )
+                    (decisions / "index.md").unlink(missing_ok=True)
+                    renderer(bundle, "decisions")
+                    index = (decisions / "index.md").read_text(encoding="utf-8")
+                for slug, (_yaml_title, expected) in cases.items():
+                    self.assertIn(f"- [{expected}](/decisions/{slug}.md)", index)
+
     def test_refuses_a_catalog_this_plugin_does_not_declare(self):
         self.assertNotIn("lakehouses", CATALOGS)
         with tempfile.TemporaryDirectory() as td:
@@ -1488,6 +1515,33 @@ class TestRipgrepAccelerator(unittest.TestCase):
         self.assertEqual(scan_edges, accel_edges)
         self.assertEqual(accel["reverse_index"], "rg")
         self.assertEqual(scan["reverse_index"], "scan")
+
+    def test_inbound_pack_survives_a_symlink_aliased_bundle(self):
+        """rg_list_files resolves its hits. mkdtemp hands back the /var alias
+        on macOS, so relative_to raised and the inbound edge was dropped —
+        while the pack still reported `reverse_index: rg`."""
+        tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, tmp, True)
+        self.assertNotEqual(tmp, tmp.resolve(), "no path alias here; test is inert")
+        ensure_bundle(tmp)
+        features = tmp / "features"
+        features.mkdir(exist_ok=True)
+        (features / "root.md").write_text(
+            "---\ntype: Feature\ntitle: Root\n---\n\n# Root\n", encoding="utf-8"
+        )
+        (features / "caller.md").write_text(
+            "---\ntype: Feature\ntitle: Caller\nlinks:\n"
+            "  - target: /features/root.md\n    rel: relates_to\n---\n\n# Caller\n",
+            encoding="utf-8",
+        )
+        seed = features / "root.md"
+        scan = pack_bundle(tmp, seed, hops=1, max_nodes=8, use_rg=False, use_index=False)
+        accel = pack_bundle(tmp, seed, hops=1, max_nodes=8, use_rg=True, use_index=False)
+        scan_paths = {n["path"] for n in scan["nodes"]}
+        accel_paths = {n["path"] for n in accel["nodes"]}
+        self.assertIn("/features/caller.md", scan_paths)
+        self.assertEqual(scan_paths, accel_paths)
+        self.assertEqual(accel["reverse_index"], "rg")
 
     def test_doctor_reports_toolchain(self):
         report = doctor_bundle(ROOT / "sample-knowledge")
