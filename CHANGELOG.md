@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+## 0.9.2 — 2026-08-31
+
+Dry-run safety patch for WikiTicket materialization.
+
+### Fixed
+
+- `pkc_materialize.py --dry-run` now makes no changes to the target bundle:
+  concepts, catalog indexes, `log.md`, write events, and directories remain
+  byte-for-byte unchanged. JSON and text reports distinguish planned creates
+  and updates from applied actions.
+  ([#69](https://github.com/SpillwaveSolutions/project-knowledge-capture/issues/69))
+
 ## 0.9.1 — 2026-08-30
 
 Patch for the v0.9.0 retrieval ladder. Git + Markdown stays source of truth.

@@ -2,6 +2,50 @@
 
 _The evidence chain: plan → item → ticket → code → release, forward and backward. Generated from `docs/.index/_graph.json`; do not edit._
 
+### Capture the frozen release roadmap and refresh wiki IA
+`01M1CGCYRZK1AJ5X4D7FE2VTW3` · status: done
+- belongs-to: Prepare PKC v0.9.2 release
+- produced-by: [[Plan-release-v0-9-2]]
+
+### Validate and prepare the release pull request
+`01M1CGCYRZD9P4BKCRDZJCHSRS` · status: done
+- belongs-to: Prepare PKC v0.9.2 release
+- produced-by: [[Plan-release-v0-9-2]]
+
+### Prepare PKC v0.9.2 release
+`01M1CGCYRYK93N2FKN97ZQ4D82` · status: done
+- contains: Stamp v0.9.2 metadata and changelog
+- contains: Validate and prepare the release pull request
+- contains: Capture the frozen release roadmap and refresh wiki IA
+- produced-by: [[Plan-release-v0-9-2]]
+
+### Stamp v0.9.2 metadata and changelog
+`01M1CGCYRY3PZ0SV77HV82Y9P0` · status: done
+- belongs-to: Prepare PKC v0.9.2 release
+- produced-by: [[Plan-release-v0-9-2]]
+
+### Reproduce dry-run filesystem mutations
+`01M1CEEP1EJMGSW2DP0PZHMM0B` · status: done
+- belongs-to: Fix issue #69 dry-run writes
+- produced-by: [[Plan-fix-issue-69-dry-run]]
+
+### Fix issue #69 dry-run writes
+`01M1CEEP1EG2793CSYT4AJC8K5` · status: done
+- contains: Implement side-effect-free dry-run behavior
+- contains: Add and run regression coverage
+- contains: Reproduce dry-run filesystem mutations
+- produced-by: [[Plan-fix-issue-69-dry-run]]
+
+### Add and run regression coverage
+`01M1CEEP1EBGFT5DR8TJRGBC5M` · status: done
+- belongs-to: Fix issue #69 dry-run writes
+- produced-by: [[Plan-fix-issue-69-dry-run]]
+
+### Implement side-effect-free dry-run behavior
+`01M1CEEP1E29BXX7PS90ZQ44R8` · status: done
+- belongs-to: Fix issue #69 dry-run writes
+- produced-by: [[Plan-fix-issue-69-dry-run]]
+
 ### Publish v0.9.0 wiki pages
 `01M19SADGDHJPCXX5MK4A76ZE5` · status: done
 
