@@ -459,13 +459,14 @@ def write_concept(
     *,
     merge: bool = True,
     create_only: bool = False,
+    dry_run: bool = False,
 ) -> tuple[Path, str]:
     """Write a concept. Returns (path, action).
 
     action is one of "created", "updated", "skipped", "exists", "refused".
+    With ``dry_run=True``, compute the same action without changing the filesystem.
     """
     path = bundle / rel_path.lstrip("/")
-    path.parent.mkdir(parents=True, exist_ok=True)
     if "timestamp" not in frontmatter:
         frontmatter = {**frontmatter, "timestamp": utc_now()}
     if path.is_file():
@@ -489,15 +490,19 @@ def write_concept(
             content = dump_frontmatter(new_fm) + "\n" + (body.strip() or old_body).rstrip() + "\n"
             if content == existing:
                 return path, "skipped"
-            path.write_text(content, encoding="utf-8")
+            if not dry_run:
+                path.write_text(content, encoding="utf-8")
             return path, "updated"
         content = dump_frontmatter(frontmatter) + "\n" + body.rstrip() + "\n"
         if content == existing:
             return path, "skipped"
-        path.write_text(content, encoding="utf-8")
+        if not dry_run:
+            path.write_text(content, encoding="utf-8")
         return path, "updated"
     fm = {k: v for k, v in frontmatter.items() if k not in ("force", "stable_timestamp")}
-    path.write_text(dump_frontmatter(fm) + "\n" + body.rstrip() + "\n", encoding="utf-8")
+    if not dry_run:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(dump_frontmatter(fm) + "\n" + body.rstrip() + "\n", encoding="utf-8")
     return path, "created"
 
 
@@ -927,6 +932,7 @@ def write_knowledge(
     merge: bool = True,
     create_only: bool = False,
     emit_event: bool = True,
+    dry_run: bool = False,
 ) -> tuple[Path, str]:
     """Stamp author, write via write_concept, emit WriteEvent on created/updated.
 
@@ -936,9 +942,9 @@ def write_knowledge(
         resolve_author(author)
     fm = {**frontmatter, "author": author}
     path, action = write_concept(
-        bundle, rel_path, fm, body, merge=merge, create_only=create_only
+        bundle, rel_path, fm, body, merge=merge, create_only=create_only, dry_run=dry_run
     )
-    if emit_event and action in ("created", "updated"):
+    if not dry_run and emit_event and action in ("created", "updated"):
         emit_write_event(
             bundle,
             author=author,

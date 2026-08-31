@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import contextlib
 import hashlib
+import io
 import json
 import os
 import shutil
@@ -390,6 +391,91 @@ class TestMaterialize(unittest.TestCase):
         self.assertEqual(rc2, 0)
         features2 = [p for p in (self.bundle / "features").glob("*.md") if p.name != "index.md"]
         self.assertEqual(len(features2), 2)
+
+    def test_dry_run_leaves_existing_bundle_byte_for_byte_unchanged(self):
+        fold = self.tmp / "fold.json"
+        existing = {
+            "id": "01ARZ3NDEKTSV4RRFFQ69G5FAV",
+            "title": "Existing task",
+            "level": "task",
+            "kind": "ops",
+            "status": "todo",
+        }
+        fold.write_text(json.dumps({"items": [existing]}), encoding="utf-8")
+        self.assertEqual(
+            materialize_main(
+                [
+                    "--repo", str(self.tmp), "--bundle", "knowledge",
+                    "--fold", str(fold), "--include", "tickets", "--author", AUTHOR,
+                ]
+            ),
+            0,
+        )
+
+        def snapshot_tree():
+            return {
+                str(path.relative_to(self.tmp)): (
+                    "dir" if path.is_dir() else hashlib.sha256(path.read_bytes()).hexdigest()
+                )
+                for path in sorted(self.tmp.rglob("*"))
+            }
+
+        before = snapshot_tree()
+        self.assertTrue(any(path.endswith("/index.md") for path in before))
+        self.assertIn("knowledge/log.md", before)
+        self.assertTrue(any("knowledge/write-events/" in path for path in before))
+        self.assertTrue(any(path.endswith(".md") and "/tasks/" in path for path in before))
+
+        fold.write_text(
+            json.dumps(
+                {
+                    "items": [
+                        {**existing, "title": "Updated existing task"},
+                        {
+                            "id": "01ARZ3NDEKTSV4RRFFQ69G5FAW",
+                            "title": "Preview-only task",
+                            "level": "task",
+                            "kind": "ops",
+                            "status": "todo",
+                        },
+                    ]
+                }
+            ),
+            encoding="utf-8",
+        )
+        before = snapshot_tree()
+
+        json_out = io.StringIO()
+        with contextlib.redirect_stdout(json_out):
+            rc = materialize_main(
+                [
+                    "--repo", str(self.tmp), "--bundle", "knowledge",
+                    "--fold", str(fold), "--include", "tickets", "--author", AUTHOR,
+                    "--dry-run", "--json",
+                ]
+            )
+        self.assertEqual(rc, 0)
+        report = json.loads(json_out.getvalue())
+        self.assertTrue(report["dry_run"])
+        actions = {result["action"] for result in report["results"]}
+        self.assertIn("would_update", actions)
+        self.assertIn("would_create", actions)
+        self.assertTrue(all(result["planned"] for result in report["results"]))
+        self.assertEqual(before, snapshot_tree())
+
+        text_out = io.StringIO()
+        with contextlib.redirect_stdout(text_out):
+            rc = materialize_main(
+                [
+                    "--repo", str(self.tmp), "--bundle", "knowledge",
+                    "--fold", str(fold), "--include", "tickets", "--author", AUTHOR,
+                    "--dry-run",
+                ]
+            )
+        self.assertEqual(rc, 0)
+        self.assertIn("Dry run: no changes applied", text_out.getvalue())
+        self.assertIn("[would_create", text_out.getvalue())
+        self.assertEqual(before, snapshot_tree())
 
 
 class TestIncrementalMaterialize(unittest.TestCase):
