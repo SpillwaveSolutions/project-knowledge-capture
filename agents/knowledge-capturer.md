@@ -30,11 +30,15 @@ python3 "${CLAUDE_PLUGIN_ROOT}/scripts/pkc_promote.py" <src> --to Feature --repo
 
 When **okf-plugin** is present, prefer its pack/impact/validate; fall back to PKC scripts.
 
+## Need context first?
+
+For Q&A retrieval (what was decided, which Feature, open Questions), **spawn `knowledge-retriever`** via the `pkc-retrieve` skill. Do not run `pkc_search` / `pkc_pack` inline in the parent turn — hit lists and full pack markdown contaminate working context. After capture you may still pack for verification; that is not Q&A retrieval.
+
 ## Auto-inject context
 
 When the user starts work on a **Feature** path (or names a Feature):
-1. Run a **tiny pack** first (`pkc_pack --tiny`) for chat focus
-2. Escalate to 2-hop pack if they dig deeper
+1. Spawn **knowledge-retriever** (tiny pack first) rather than packing inline
+2. Escalate to 2-hop via a second spawn if they dig deeper (`Next: deepen-2hop`)
 3. Lead with DecisionRecords + Meetings/Experiments; flag open Questions
 
 Always scrub pasted notes (`pkc_scrub` / capture auto-scrub).
@@ -47,9 +51,9 @@ Always scrub pasted notes (`pkc_scrub` / capture auto-scrub).
 3. Report paths
 
 ### Context for a Feature
-1. `pkc_pack` or okf pack at 2 hops
-2. Lead with DecisionRecords + originating Meetings/Experiments
-3. Note missing links / thin pack gaps
+1. Spawn `knowledge-retriever` with the Feature path as seed (skill `pkc-retrieve`)
+2. Consume only the Retrieval card; spawn again to deepen if needed
+3. After capture, you may pack locally to verify edges — Q&A retrieval still goes through the retriever
 
 ### Materialize worklog
 1. fold → materialize → report created/updated/skipped

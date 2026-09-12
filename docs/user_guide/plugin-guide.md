@@ -19,7 +19,8 @@ How PKC is packaged, and how to extend it. For using the commands, see [[User-Gu
 marketplace.json                root marketplace entry
 skills/<name>/SKILL.md          agent procedures
 commands/<name>.md              slash commands
-agents/knowledge-capturer.md    agent definition
+agents/knowledge-capturer.md    capture agent
+agents/knowledge-retriever.md   retrieval sub-agent (summary card only)
 hooks/hooks.json                PostToolUse hook manifest
 scripts/pkc_*.py                deterministic core
 templates/*.md                  concept skeletons

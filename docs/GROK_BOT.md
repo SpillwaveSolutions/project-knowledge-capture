@@ -64,6 +64,8 @@ Default ContextPack: **2 hops / ~20 nodes**.
 
 Pack before answering or writing. Do not dump the entire tree.
 
+For Q&A retrieval, treat **knowledge-retriever** as a child Task (same card contract as Claude Code). The parent consumes only the Retrieval card — never search hit lists or full pack markdown. Skill: `pkc-retrieve`. Engine: `pkc_pack.py --summary`.
+
 ## Skill binding
 
 Grok Bot does not run `/plugin marketplace add`. Enable the relevant skills from this repo (`skills/*/SKILL.md`). Set identity and knowledge root. Report path + validation result, not a dumped graph.

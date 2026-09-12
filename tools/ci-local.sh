@@ -44,6 +44,25 @@ step "tiny <=8 nodes, 1 hop" bash -c "
   python3 -c \"import json;d=json.load(open('$TMP/tiny.json'));assert d['node_count']<=8 and d['hops']==1,d\""
 step "mermaid emits flowchart" bash -c "
   python3 scripts/pkc_pack.py features/user-authentication.md --bundle $BUNDLE --mermaid | grep -q flowchart"
+step "summary card, no mermaid" bash -c "
+  python3 scripts/pkc_pack.py features/user-authentication.md --bundle $BUNDLE --tiny --summary > $TMP/summary.md
+  python3 -c \"
+import pathlib
+t=pathlib.Path('$TMP/summary.md').read_text()
+assert '## Pack summary' in t, t[:400]
+assert 'flowchart' not in t
+assert '## Nodes (ranked)' not in t
+\""
+step "summary json fields" bash -c "
+  python3 scripts/pkc_pack.py features/user-authentication.md --bundle $BUNDLE --tiny --summary --json > $TMP/summary.json
+  python3 -c \"
+import json
+d=json.load(open('$TMP/summary.json'))
+assert d['node_count']<=8 and d['hops']==1, d
+assert d.get('summary_markdown','').startswith('## Pack summary')
+assert d.get('lead_nodes') and d.get('edge_count')==len(d['edges'])
+assert all(not n.get('body') for n in d['nodes'])
+\""
 
 echo "== ingestion fixtures =="
 step "action items" bash -c "

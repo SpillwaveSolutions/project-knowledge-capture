@@ -20,4 +20,6 @@ Ladder: SQLite index → ripgrep → full scan. Ranking stays in Python, so
 uses FTS5 MATCH (prefix tokens; not score-identical). Missing index or rg
 is not an error. See `/pkc-index` and `/pkc-setup`.
 
-After hits on a Feature, offer `/pkc-context --tiny`.
+After hits, the parent should spawn `/pkc-retrieve` rather than packing
+inline. Offer `/pkc-context --tiny` only when a deterministic pack is the
+goal (verification, mermaid), not Q&A retrieval.

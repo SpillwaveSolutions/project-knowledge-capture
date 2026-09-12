@@ -801,7 +801,14 @@ class TestSampleKnowledge(unittest.TestCase):
         self.assertIn(("originates_from", "/meetings/2026-08-03-auth-design.md"), rels)
 
 
-from pkc_pack import PackBudgetError, finalize_markdown, main as main_pack, pack, resolve_concept  # noqa: E402
+from pkc_pack import (  # noqa: E402
+    PackBudgetError,
+    finalize_markdown,
+    finalize_summary,
+    main as main_pack,
+    pack,
+    resolve_concept,
+)
 from pkc_validate import validate_bundle  # noqa: E402
 from pkc_action_items import extract_action_items  # noqa: E402
 
@@ -1137,6 +1144,160 @@ class TestPackTokenBudget(unittest.TestCase):
         finally:
             shutil.rmtree(tmp)
 
+
+class TestPackSummary(unittest.TestCase):
+    def test_summary_has_card_fields_not_mermaid_or_bodies(self):
+        bundle = ROOT / "sample-knowledge"
+        seed = resolve_concept(bundle, "features/user-authentication.md")
+        result = pack(bundle, seed, hops=1, max_nodes=8)
+        md, meta = finalize_summary(result)
+        self.assertIn("## Pack summary", md)
+        self.assertIn("/features/user-authentication.md", md)
+        self.assertIn("(`Feature`)", md)
+        self.assertIn("Engine:", md)
+        self.assertIn("Lead nodes:", md)
+        self.assertIn("Edges:", md)
+        self.assertNotIn("```mermaid", md)
+        self.assertNotIn("flowchart", md)
+        self.assertNotIn("## Nodes (ranked)", md)
+        self.assertNotIn("## Graph", md)
+        self.assertLessEqual(len(meta["lead_nodes"]), 8)
+        self.assertGreaterEqual(len(meta["lead_nodes"]), 1)
+        self.assertEqual(meta["edge_count"], len(result["edges"]))
+        self.assertLessEqual(meta["tokens"], meta["budget"])
+        self.assertIn("summary_markdown", meta)
+        self.assertNotIn("Shaped by", md)
+
+    def test_summary_seed_excerpt_optional(self):
+        bundle = ROOT / "sample-knowledge"
+        seed = resolve_concept(bundle, "features/user-authentication.md")
+        result = pack(bundle, seed, hops=1, max_nodes=8)
+        md, meta = finalize_summary(result, include_seed_excerpt=True)
+        self.assertIn("Seed excerpt:", md)
+        self.assertIn("Shaped by", md)
+        self.assertIn("seed_excerpt", meta)
+        off, _ = finalize_summary(result, include_seed_excerpt=False)
+        self.assertNotIn("Seed excerpt:", off)
+
+    def test_summary_cli_stdout(self):
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            rc = main_pack(
+                [
+                    "features/user-authentication.md",
+                    "--repo",
+                    str(ROOT),
+                    "--bundle",
+                    "sample-knowledge",
+                    "--tiny",
+                    "--summary",
+                ]
+            )
+        self.assertEqual(rc, 0)
+        out = buf.getvalue()
+        self.assertIn("## Pack summary", out)
+        self.assertNotIn("```mermaid", out)
+        self.assertNotIn("## Nodes (ranked)", out)
+
+    def test_summary_json_adds_fields_and_strips_bodies(self):
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            rc = main_pack(
+                [
+                    "features/user-authentication.md",
+                    "--repo",
+                    str(ROOT),
+                    "--bundle",
+                    "sample-knowledge",
+                    "--tiny",
+                    "--summary",
+                    "--json",
+                ]
+            )
+        self.assertEqual(rc, 0)
+        data = json.loads(buf.getvalue())
+        self.assertIn("summary_markdown", data)
+        self.assertIn("lead_nodes", data)
+        self.assertIn("edge_count", data)
+        self.assertEqual(data["edge_count"], len(data["edges"]))
+        self.assertIn("## Pack summary", data["summary_markdown"])
+        self.assertNotIn("```mermaid", data["summary_markdown"])
+        for n in data["nodes"]:
+            self.assertFalse(n.get("body"))
+
+    def test_summary_and_mermaid_exclusive(self):
+        err = io.StringIO()
+        with contextlib.redirect_stderr(err):
+            rc = main_pack(
+                [
+                    "features/user-authentication.md",
+                    "--repo",
+                    str(ROOT),
+                    "--bundle",
+                    "sample-knowledge",
+                    "--summary",
+                    "--mermaid",
+                ]
+            )
+        self.assertEqual(rc, 2)
+        self.assertIn("mutually exclusive", err.getvalue())
+
+    def test_summary_seed_excerpt_requires_summary(self):
+        err = io.StringIO()
+        with contextlib.redirect_stderr(err):
+            rc = main_pack(
+                [
+                    "features/user-authentication.md",
+                    "--repo",
+                    str(ROOT),
+                    "--bundle",
+                    "sample-knowledge",
+                    "--summary-seed-excerpt",
+                ]
+            )
+        self.assertEqual(rc, 2)
+        self.assertIn("requires --summary", err.getvalue())
+
+    def test_summary_over_budget_fails_closed(self):
+        bundle = ROOT / "sample-knowledge"
+        seed = resolve_concept(bundle, "features/user-authentication.md")
+        result = pack(bundle, seed, hops=1, max_nodes=8)
+        with self.assertRaises(PackBudgetError) as ctx:
+            finalize_summary(result, max_tokens=1)
+        self.assertGreater(ctx.exception.tokens, ctx.exception.budget)
+        err = io.StringIO()
+        with contextlib.redirect_stderr(err):
+            rc = main_pack(
+                [
+                    "features/user-authentication.md",
+                    "--repo",
+                    str(ROOT),
+                    "--bundle",
+                    "sample-knowledge",
+                    "--tiny",
+                    "--summary",
+                    "--max-tokens",
+                    "1",
+                ]
+            )
+        self.assertNotEqual(rc, 0)
+        self.assertIn("token budget", err.getvalue())
+
+
+class TestKnowledgeRetrieverContract(unittest.TestCase):
+    def test_agent_card_contract(self):
+        text = (ROOT / "agents/knowledge-retriever.md").read_text(encoding="utf-8")
+        self.assertIn("name: knowledge-retriever", text)
+        self.assertIn("## Retrieval card", text)
+        self.assertIn("retrieval-only", text.lower())
+        self.assertIn("Do **not** capture", text)
+        self.assertIn("Do **not** write knowledge nodes", text)
+
+    def test_skill_forces_parent_to_spawn(self):
+        text = (ROOT / "skills/pkc-retrieve/SKILL.md").read_text(encoding="utf-8")
+        self.assertIn("knowledge-retriever", text)
+        self.assertIn("Do **not** run `pkc_search.py`", text)
+        self.assertIn("architecture-retriever", text)
 
 
 from pkc_search import search  # noqa: E402

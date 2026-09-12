@@ -2,6 +2,27 @@
 
 ## Unreleased
 
+## 0.9.4 — 2026-09-12
+
+Retrieval isolation: a Claude-style sub-agent walks and scores the graph so
+hit lists and full pack markdown stay out of the parent working context.
+`pkc_search.py` / `pkc_pack.py` remain the deterministic engine.
+
+### Added
+
+- **knowledge-retriever** agent (`agents/knowledge-retriever.md`). Retrieval-only
+  child: search, score fit, pack (`--tiny` then optional 2-hop deepen), return a
+  Summary Card. Does not capture, write nodes, or open brain sessions.
+- **`/pkc-retrieve`** skill. Parent-facing: spawn `knowledge-retriever`; consume
+  only the card. Re-spawn to deepen or try an alternate seed. Orthogonal
+  architecture questions still fan out to SAC `architecture-retriever`.
+- **`pkc_pack.py --summary`**. Compact card-friendly markdown (seed, hops,
+  nodes, tokens/budget, reverse-index engine, 5–8 lead nodes, edge count).
+  Mutually exclusive with `--mermaid` for stdout shape. `--json` keeps the
+  structured result and adds `summary_markdown`, `lead_nodes`, `edge_count`.
+  `--summary-seed-excerpt` optionally adds a 2–3 sentence seed excerpt
+  (default off). Fail-closed token budget still applies.
+
 ## 0.9.3 — 2026-08-31
 
 Correctness patch for catalog rendering and the rg-backed reverse index. Both
