@@ -8,6 +8,7 @@ Usage:
   python3 scripts/pkc_pack.py features/user-authentication.md --bundle sample-knowledge --hops 2
   python3 scripts/pkc_pack.py features/user-authentication.md --tiny
   python3 scripts/pkc_pack.py features/user-authentication.md --mermaid
+  python3 scripts/pkc_pack.py features/user-authentication.md --tiny --summary
 """
 
 from __future__ import annotations
@@ -38,6 +39,8 @@ MD_LINK = re.compile(r"\[([^\]]+)\]\((/[^)]+)\)")
 
 DEFAULT_WINDOW_TOKENS = 128_000
 PACK_BUDGET_DENOMINATOR = 4
+SUMMARY_LEAD_LIMIT = 8
+_SENTENCE_SPLIT = re.compile(r"(?<=[.!?])\s+")
 
 
 class PackBudgetError(Exception):
@@ -473,6 +476,134 @@ def finalize_markdown(
     return md, meta
 
 
+def _one_line(text: str, max_chars: int = 140) -> str:
+    cleaned = " ".join(str(text or "").split())
+    if len(cleaned) <= max_chars:
+        return cleaned
+    return cleaned[: max_chars - 1].rstrip() + "…"
+
+
+def excerpt_sentences(text: str, *, count: int = 3, max_chars: int = 420) -> str:
+    """First 2–3 sentences of a body. Not a full pack dump."""
+    cleaned = " ".join((text or "").split())
+    if not cleaned:
+        return ""
+    parts = [p.strip() for p in _SENTENCE_SPLIT.split(cleaned) if p.strip()]
+    return _one_line(" ".join(parts[:count]), max_chars)
+
+
+def seed_node(result: dict[str, Any]) -> dict[str, Any] | None:
+    seed = result.get("seed")
+    for n in result.get("nodes") or []:
+        if n.get("path") == seed:
+            return n
+    return None
+
+
+def lead_nodes(
+    result: dict[str, Any], *, limit: int = SUMMARY_LEAD_LIMIT
+) -> list[dict[str, Any]]:
+    leads: list[dict[str, Any]] = []
+    for n in result.get("nodes") or []:
+        leads.append(
+            {
+                "title": n.get("title") or "",
+                "type": n.get("type") or "Unknown",
+                "path": n.get("path") or "",
+                "description": _one_line(n.get("description") or ""),
+                "depth": n.get("depth", 0),
+            }
+        )
+        if len(leads) >= limit:
+            break
+    return leads
+
+
+def render_summary(
+    result: dict[str, Any],
+    *,
+    tokens: int | None = None,
+    budget: int | None = None,
+    seed_excerpt: str | None = None,
+    lead: list[dict[str, Any]] | None = None,
+) -> str:
+    """Compact card-friendly markdown. No mermaid, no ranked bodies, no edge dump."""
+    seed = result["seed"]
+    node = seed_node(result)
+    seed_type = (node or {}).get("type") or "Unknown"
+    seed_title = (node or {}).get("title") or seed
+    leads = lead if lead is not None else lead_nodes(result)
+    edges = result.get("edges") or []
+    token_line = None
+    if tokens is not None and budget is not None:
+        token_line = f"- Tokens: **{tokens}/{budget}**"
+    lines = [
+        "## Pack summary",
+        f"- Seed: `{seed}` (`{seed_type}`) — {seed_title}",
+        f"- Hops: **{result['hops']}**",
+        f"- Nodes: **{result['node_count']}** (max {result['max_nodes']})",
+        token_line,
+        f"- Engine: **{result.get('reverse_index') or 'scan'}**",
+        f"- Edges: **{len(edges)}**",
+        "- Lead nodes:",
+    ]
+    lines = [ln for ln in lines if ln]
+    if leads:
+        for n in leads:
+            why = n.get("description") or "no description"
+            lines.append(f"  - {n['title']} · {n['type']} · `{n['path']}` — {why}")
+    else:
+        lines.append("  - none")
+    if seed_excerpt:
+        lines.append(f"- Seed excerpt: {seed_excerpt}")
+    lines.append(f"- Excluded: {result.get('excluded_note') or ''}")
+    lines.append("")
+    return "\n".join(lines)
+
+
+def finalize_summary(
+    result: dict[str, Any],
+    *,
+    max_tokens: str | int | None = None,
+    window_tokens: str | int | None = None,
+    include_seed_excerpt: bool = False,
+) -> tuple[str, dict[str, Any]]:
+    """Render a compact summary and fail closed if it exceeds the token budget."""
+    window, budget = resolve_pack_budget(max_tokens, window_tokens)
+    excerpt = ""
+    if include_seed_excerpt:
+        node = seed_node(result)
+        excerpt = excerpt_sentences((node or {}).get("body") or "")
+    leads = lead_nodes(result)
+    draft = render_summary(
+        result, tokens=0, budget=budget, seed_excerpt=excerpt or None, lead=leads
+    )
+    tokens = estimate_tokens(draft)
+    md = render_summary(
+        result, tokens=tokens, budget=budget, seed_excerpt=excerpt or None, lead=leads
+    )
+    tokens = estimate_tokens(md)
+    meta: dict[str, Any] = {
+        "tokens": tokens,
+        "budget": budget,
+        "window": window,
+        "edge_count": len(result.get("edges") or []),
+        "lead_nodes": leads,
+        "summary_markdown": md,
+    }
+    if excerpt:
+        meta["seed_excerpt"] = excerpt
+    if tokens > budget:
+        raise PackBudgetError(tokens, budget, window, [n["path"] for n in result["nodes"]])
+    return md, meta
+
+
+def _strip_node_bodies(result: dict[str, Any]) -> None:
+    for n in result.get("nodes") or []:
+        if isinstance(n, dict):
+            n["body"] = ""
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="PKC progressive disclosure pack")
     parser.add_argument("concept", help="Concept path (in-bundle or filesystem)")
@@ -488,6 +619,17 @@ def main(argv: list[str] | None = None) -> int:
         help="ADHD/chat mode: 1 hop, max 8 nodes",
     )
     parser.add_argument("--mermaid", action="store_true", help="Print mermaid only")
+    parser.add_argument(
+        "--summary",
+        action="store_true",
+        help="Print a compact card (seed, hops, leads, edge count). "
+        "Mutually exclusive with --mermaid for stdout shape",
+    )
+    parser.add_argument(
+        "--summary-seed-excerpt",
+        action="store_true",
+        help="With --summary, include a 2–3 sentence excerpt of the seed body",
+    )
     parser.add_argument("--write", default=None, help="Directory or file to write pack markdown")
     parser.add_argument("--json", action="store_true")
     parser.add_argument(
@@ -509,6 +651,12 @@ def main(argv: list[str] | None = None) -> int:
 
     hops = 1 if args.tiny else args.hops
     max_nodes = 8 if args.tiny else args.max_nodes
+    if args.summary and args.mermaid:
+        print("error: --summary and --mermaid are mutually exclusive", file=sys.stderr)
+        return 2
+    if args.summary_seed_excerpt and not args.summary:
+        print("error: --summary-seed-excerpt requires --summary", file=sys.stderr)
+        return 2
     if args.rg and args.no_rg:
         print("error: --rg and --no-rg are mutually exclusive", file=sys.stderr)
         return 2
@@ -538,12 +686,20 @@ def main(argv: list[str] | None = None) -> int:
                 raise PackBudgetError(tokens, budget, window, [n["path"] for n in result["nodes"]])
             print(diagram)
             return 0
-        md, meta = finalize_markdown(
-            result,
-            include_mermaid=True,
-            max_tokens=args.max_tokens,
-            window_tokens=args.window_tokens,
-        )
+        if args.summary:
+            md, meta = finalize_summary(
+                result,
+                max_tokens=args.max_tokens,
+                window_tokens=args.window_tokens,
+                include_seed_excerpt=args.summary_seed_excerpt,
+            )
+        else:
+            md, meta = finalize_markdown(
+                result,
+                include_mermaid=True,
+                max_tokens=args.max_tokens,
+                window_tokens=args.window_tokens,
+            )
     except PackBudgetError as exc:
         payload = {
             "error": "pack exceeds token budget",
@@ -563,6 +719,8 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     result.update(meta)
+    if args.summary:
+        _strip_node_bodies(result)
 
     if args.write:
         out = Path(args.write)

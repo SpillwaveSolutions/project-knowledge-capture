@@ -5,7 +5,7 @@ description: Build a progressive-disclosure context pack for a Feature (or any c
 
 # PKC Context Pack
 
-**Auto-inject rule:** When the user opens or starts work on a Feature path, run a pack first (tiny in chat; full 2-hop for deep work). Lead with DecisionRecords + originating Meetings/Experiments.
+**Auto-inject rule:** When the user opens or starts work on a Feature path, the parent should spawn `knowledge-retriever` (`/pkc-retrieve`) rather than packing inline. This skill is the pack procedure the retriever (and post-capture verification) runs. Lead with DecisionRecords + originating Meetings/Experiments.
 
 ```bash
 # Standard (2 hops, ~20 nodes)
@@ -16,6 +16,9 @@ python3 "${CLAUDE_PLUGIN_ROOT}/scripts/pkc_pack.py" features/<slug>.md --tiny
 
 # Mermaid only
 python3 "${CLAUDE_PLUGIN_ROOT}/scripts/pkc_pack.py" features/<slug>.md --mermaid
+
+# Compact card for a retriever sub-agent (no mermaid / ranked bodies)
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/pkc_pack.py" features/<slug>.md --tiny --summary --json
 ```
 
 Prefer okf-plugin pack when installed. Never invent edges.

@@ -8,7 +8,7 @@ Works on **Claude Code**, **Grok Build**, **Codex**, **Agent Plugins 1.0**, **Gr
 |---|---|
 | **Plugin name** | `project-knowledge-capture` |
 | **Repo** | [SpillwaveSolutions/project-knowledge-capture](https://github.com/SpillwaveSolutions/project-knowledge-capture) |
-| **Version** | 0.9.3 |
+| **Version** | 0.9.4 |
 | **License** | MIT |
 | **Nouns this plugin owns** | Meeting, Experiment, Discovery, Assumption, Question, Feature, Requirement, Specification, Design, Release, CodeChange, Package, Risk, Acceptance, DecisionRecord, TicketLink, Epic, Story, Task, Subtask, Bug, Branch, Project, Playbook, Runbook, Reference |
 
@@ -94,7 +94,7 @@ claude plugin install okf-graph-eng@okf-plugin-marketplace
 
 1. `/pkc-init` — scaffold `knowledge/`
 2. `/pkc-capture-meeting` — paste notes → Meeting + DecisionRecords
-3. `/pkc-context features/…` — progressive disclosure pack for a Feature
+3. `/pkc-retrieve` — spawn knowledge-retriever for Feature/Decision context (card only)
 4. `/pkc-materialize` — sync WikiTicket fold into OKF
 5. Run tests: `python3 tests/test_pkc.py`
 
@@ -117,6 +117,7 @@ python3 scripts/pkc_action_items.py meetings/2026-08-03-auth-design.md --bundle 
 | `pkc-promote` | Informal → Feature / Requirement / ADR |
 | `pkc-link` | Typed edges |
 | `pkc-context` | Progressive disclosure pack (`--tiny`, mermaid) |
+| `pkc-retrieve` | Spawn `knowledge-retriever`; parent consumes a summary card only |
 | `pkc-doctor` | Bundle health: conflicts, thin features, stale |
 | `pkc-capture-assumption` | Working hypothesis (weaker than ADR) |
 | `pkc-capture-question` | Open question that may block a Feature |
@@ -133,6 +134,7 @@ python3 scripts/pkc_action_items.py meetings/2026-08-03-auth-design.md --bundle 
 ### Agent
 
 - **knowledge-capturer** — capture, materialization, provenance
+- **knowledge-retriever** — search, score, pack; returns a Retrieval card only
 
 ### Hooks
 
@@ -146,7 +148,7 @@ Post-edit curation refreshes catalog indexes and runs a light validate when you 
 | `pkc_capture.py` | Meeting / experiment / discovery / decision |
 | `pkc_materialize.py` | Worklog fold + docs |
 | `pkc_link.py` / `pkc_promote.py` | Edges + promotion |
-| `pkc_pack.py` | Context packs (2-hop default) |
+| `pkc_pack.py` | Context packs (2-hop default; `--summary` card) |
 | `pkc_search.py` | Full-text search (index → rg → scan) |
 | `pkc_index.py` | Disposable SQLite/FTS5 incremental index |
 | `pkc_validate.py` | Structure + links |

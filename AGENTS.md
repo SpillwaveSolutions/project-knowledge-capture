@@ -17,9 +17,9 @@ Turn project reasoning into a durable OKF knowledge graph: capture informal know
 
 ## Component map
 
-- **Skills** — `skills/*/SKILL.md` (includes `pkc-context`)
+- **Skills** — `skills/*/SKILL.md` (includes `pkc-context`, `pkc-retrieve`)
 - **Commands** — `commands/*.md`
-- **Agent** — `agents/knowledge-capturer.md`
+- **Agents** — `agents/knowledge-capturer.md`, `agents/knowledge-retriever.md`
 - **Hooks** — `hooks/hooks.json` → `scripts/pkc-curate.sh` (PostToolUse), `scripts/pkc_auto_context.py` (UserPromptSubmit)
 - **Scripts** — `scripts/pkc_*.py`, `pkc-curate.sh`
 - **Sample** — `sample-knowledge/` (+ `packs/`)
@@ -37,14 +37,16 @@ Plugin root: `${CLAUDE_PLUGIN_ROOT}`.
    `Acceptance --satisfies--> Feature`, never the reverse.
 5. WikiTicket owns work **status** — use `bin/worklog`, never hand-edit jsonl.
 6. Default context pack: **2 hops**, ~**20 nodes** (`pkc_pack` or okf pack). Token budget is **1/4 window**, fail-closed. Bodies off unless that node is the pack root.
-7. After capture: catalogs + log.
-8. Run `python3 tests/test_pkc.py` and `pkc_validate` after script changes.
+7. **Retrieval isolation** — the parent must spawn `knowledge-retriever` (`/pkc-retrieve`) for Q&A / Feature-start context. Do not run `pkc_search` / `pkc_pack` inline in the parent turn. Consume only the Retrieval card.
+8. After capture: catalogs + log.
+9. Run `python3 tests/test_pkc.py` and `pkc_validate` after script changes.
 
 ## Common commands
 
 ```bash
 python3 scripts/pkc_common.py init-bundle --repo . --bundle knowledge
 python3 scripts/pkc_pack.py features/x.md --repo . --hops 2
+python3 scripts/pkc_pack.py features/x.md --repo . --tiny --summary --json
 python3 scripts/pkc_search.py JWT --bundle knowledge
 python3 scripts/pkc_index.py status --bundle knowledge
 python3 scripts/pkc_validate.py --bundle knowledge

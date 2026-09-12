@@ -83,6 +83,7 @@ Every ingest path scrubs secrets and PII **before** anything is written. See [Pr
 | Command | Gives you |
 |---|---|
 | `/pkc-context <concept>` | A progressive-disclosure pack: the concept plus its neighborhood |
+| `/pkc-retrieve <query or seed>` | Spawn knowledge-retriever; parent gets a summary card only |
 | `/pkc-search <query>` | Full-text search (index → rg → scan) |
 | `/pkc-digest` | Weekly brief plus a needs-verification queue |
 | `/pkc-doctor` | Bundle health + toolchain (ripgrep, FTS5, index) |
