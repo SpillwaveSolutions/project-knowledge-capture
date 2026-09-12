@@ -1290,8 +1290,8 @@ class TestKnowledgeRetrieverContract(unittest.TestCase):
         self.assertIn("name: knowledge-retriever", text)
         self.assertIn("## Retrieval card", text)
         self.assertIn("retrieval-only", text.lower())
-        self.assertIn("Do not capture", text)
-        self.assertIn("Do not write knowledge nodes", text)
+        self.assertIn("Do **not** capture", text)
+        self.assertIn("Do **not** write knowledge nodes", text)
 
     def test_skill_forces_parent_to_spawn(self):
         text = (ROOT / "skills/pkc-retrieve/SKILL.md").read_text(encoding="utf-8")
