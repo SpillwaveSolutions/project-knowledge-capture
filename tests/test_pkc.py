@@ -1676,6 +1676,29 @@ class TestRipgrepAccelerator(unittest.TestCase):
             self.assertEqual([h["path"] for h in hits], [h["path"] for h in scan])
             self.assertEqual([h["score"] for h in hits], [h["score"] for h in scan])
 
+    def test_symlinked_bundle_agrees_across_engines(self):
+        # Issue #85. rg prints resolved paths, so building the rel path against
+        # an unresolved bundle raised ValueError and search() died outright.
+        # /var -> /private/var on macOS does this to every tempfile bundle; a
+        # symlinked checkout or a bind mount is the same shape on Linux, which
+        # is why CI never saw it.
+        real = Path(tempfile.mkdtemp())
+        (real / "index.md").write_text('---\nokf_version: "0.2"\ntitle: t\n---\n', encoding="utf-8")
+        (real / "features").mkdir()
+        (real / "features" / "other.md").write_text(
+            "---\ntype: Feature\ntitle: Zebra crossing\n---\n\nplain\n", encoding="utf-8"
+        )
+        link = Path(tempfile.mkdtemp()) / "via-symlink"
+        link.symlink_to(real, target_is_directory=True)
+
+        scan, scan_engine = search_bundle(link, "zebra", use_rg=False, use_index=False)
+        accel, rg_engine = search_bundle(link, "zebra", use_rg=True, use_index=False)
+        indexed, idx_engine = search_bundle(link, "zebra", use_rg=False, use_index=True)
+        self.assertEqual((scan_engine, rg_engine, idx_engine), ("scan", "rg", "index"))
+        self.assertEqual([h["path"] for h in scan], ["/features/other.md"])
+        for hits in (accel, indexed):
+            self.assertEqual([h["path"] for h in hits], [h["path"] for h in scan])
+
     def test_search_rg_matches_scan_ranking(self):
         bundle = ROOT / "sample-knowledge"
         scan, scan_engine = search_bundle(bundle, "JWT", limit=10, use_rg=False, use_index=False)
