@@ -126,6 +126,13 @@ def search(
     if not terms:
         return [], "scan"
 
+    # rg yields resolved paths, so on a symlinked root the rel path built for
+    # each hit below raised ValueError against the caller's bundle (#85).
+    # /var -> /private/var on macOS, a symlinked checkout, a bind mount. Every
+    # engine derives its paths from the bundle it is handed, so resolving once
+    # here makes candidate_files and the loop below agree. One syscall, not one
+    # per file: _filter_rg_hits keeps its own guard for direct callers.
+    bundle = bundle.resolve()
     type_filter = {t.lower() for t in (types or []) if t}
     results: list[dict[str, Any]] = []
     files, engine = candidate_files(
