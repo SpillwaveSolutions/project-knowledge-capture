@@ -44,24 +44,10 @@ jobs:
             --bundle sample-knowledge --mermaid | grep -q flowchart
           python3 scripts/pkc_pack.py features/user-authentication.md \
             --bundle sample-knowledge --tiny --summary > /tmp/summary.md
-          python3 -c "
-import pathlib
-t=pathlib.Path('/tmp/summary.md').read_text()
-assert '## Pack summary' in t, t[:400]
-assert 'flowchart' not in t
-assert '## Nodes (ranked)' not in t
-"
+          python3 -c "import pathlib; t=pathlib.Path('/tmp/summary.md').read_text(); assert '## Pack summary' in t, t[:400]; assert 'flowchart' not in t; assert '## Nodes (ranked)' not in t"
           python3 scripts/pkc_pack.py features/user-authentication.md \
             --bundle sample-knowledge --tiny --summary --json > /tmp/summary.json
-          python3 -c "
-import json
-d=json.load(open('/tmp/summary.json'))
-assert d['node_count']<=8 and d['hops']==1, d
-assert d.get('summary_markdown','').startswith('## Pack summary')
-assert 'flowchart' not in d['summary_markdown']
-assert d.get('lead_nodes') and d.get('edge_count')==len(d['edges'])
-assert all(not n.get('body') for n in d['nodes'])
-"
+          python3 -c "import json; d=json.load(open('/tmp/summary.json')); assert d['node_count']<=8 and d['hops']==1, d; assert d.get('summary_markdown','').startswith('## Pack summary'); assert 'flowchart' not in d['summary_markdown']; assert d.get('lead_nodes') and d.get('edge_count')==len(d['edges']); assert all(not n.get('body') for n in d['nodes'])"
 
       - name: Action items + transcript scrub + PR fixture
         run: |

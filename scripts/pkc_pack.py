@@ -26,7 +26,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from pkc_common import (  # noqa: E402
     extract_concept_edges,
     find_rg,
-    is_concept_path,
+    is_concept_rel,
     iter_concepts,
     parse_frontmatter,
     resolve_knowledge_root,
@@ -106,16 +106,19 @@ def _inbound_via_rg(
         return None
     inbound: list[tuple[str, str, str]] = []
     seen: set[tuple[str, str, str]] = set()
+    # rg_list_files already returns resolved paths. A bundle reached through a
+    # symlink alias (macOS /var -> /private/var) would make relative_to raise
+    # and silently drop a real inbound edge, so resolve the bundle -- ONCE,
+    # never per hit -- and keep the concept-rule check on strings.
+    bundle_root = bundle.resolve()
     for path in hits:
-        if not is_concept_path(bundle, path):
-            continue
         try:
-            # rg_list_files resolves its hits, so a bundle reached through a
-            # symlink alias (macOS /var -> /private/var) makes relative_to
-            # raise and silently drop a real inbound edge. Canonicalize both.
-            src = "/" + path.resolve().relative_to(bundle.resolve()).as_posix()
+            rel = path.relative_to(bundle_root).as_posix()
         except ValueError:
             continue
+        if not is_concept_rel(rel):
+            continue
+        src = "/" + rel
         if src == target:
             continue
         for rel_type, tgt, label in extract_edges(bundle, path, cache=cache):

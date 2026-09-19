@@ -730,7 +730,13 @@ RG_DEFAULT_GLOBS = ["*.md", "!**/packs/**"]
 
 
 def find_rg(*, env_vars: tuple[str, ...] = RG_ENV_VARS) -> str | None:
-    """Return an rg binary path, or None. Override with PKC_RG_PATH / OKF_RG_PATH."""
+    """Return an rg binary path, or None.
+
+    Override with PKC_RG_PATH / OKF_RG_PATH / SECOND_BRAIN_RG_PATH. An override
+    that is set but unusable (missing, not executable, not on PATH) fails
+    closed: rg is disabled rather than silently found on PATH. Operators and
+    tests rely on that to turn rg off; research-graph uses the same rule.
+    """
     for var in env_vars:
         override = (os.environ.get(var) or "").strip()
         if not override:
@@ -741,6 +747,8 @@ def find_rg(*, env_vars: tuple[str, ...] = RG_ENV_VARS) -> str | None:
         found = shutil.which(override)
         if found:
             return found
+        # Explicit override that is not usable: fail closed.
+        return None
     return shutil.which("rg")
 
 

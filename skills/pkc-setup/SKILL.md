@@ -26,7 +26,7 @@ Ripgrep is an **accelerator**, not a dependency. Search and pack full-scan when 
    python3 "${CLAUDE_PLUGIN_ROOT}/scripts/pkc_setup.py" --install-rg --yes
    ```
    Without `--yes` the script prints the command and exits 2.
-5. Override path with `PKC_RG_PATH` / `OKF_RG_PATH` if rg is installed off PATH.
+5. Override path with `PKC_RG_PATH` / `OKF_RG_PATH` if rg is installed off PATH. An override that is set but unusable disables rg (fail closed); it never falls through to `PATH`.
 
 ## Never
 
