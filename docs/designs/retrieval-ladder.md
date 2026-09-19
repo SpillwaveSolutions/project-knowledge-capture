@@ -32,7 +32,7 @@ Three tiers, one behavior. `--no-rg` / `--no-index` force a lower rung.
 AND-intersects `rg -l` per term, then runs the existing Python scorer
 (`title×10 / description×5 / tags×4 / min(body,8)`) over only those
 candidates. Pack inbound discovery is `rg -lF` of the concept path.
-Override with `PKC_RG_PATH` / `OKF_RG_PATH`. Missing rg is not an error.
+Override with `PKC_RG_PATH` / `OKF_RG_PATH`. Missing rg is not an error. An override that is set but unusable fails closed (rg disabled), never falling through to `PATH` — the same rule as research-graph.
 
 **Why scores stay identical:** rg only decides which files get read.
 Over-selection is harmless (Python re-checks). It cannot under-select for

@@ -1643,6 +1643,34 @@ class TestRipgrepAccelerator(unittest.TestCase):
     def test_find_rg_honors_env(self):
         self.assertEqual(Path(find_rg()).resolve(), FAKE_RG.resolve())
 
+    def test_find_rg_fails_closed_on_unusable_override(self):
+        # A set-but-unusable override disables rg. It must not fall through to
+        # PATH: operators and tests set it to turn rg off (research-graph rule).
+        os.environ["PKC_RG_PATH"] = "/definitely/not/a/real/rg-binary"
+        self.assertIsNone(find_rg())
+
+    def test_titleless_stem_match_is_invisible_on_every_engine(self):
+        # Filenames are not content. A concept with no `title` whose filename
+        # matched the query used to be a scan and index hit but never an rg hit.
+        tmp = Path(tempfile.mkdtemp())
+        (tmp / "index.md").write_text('---\nokf_version: "0.2"\ntitle: t\n---\n', encoding="utf-8")
+        (tmp / "features").mkdir()
+        (tmp / "features" / "zebra-thing.md").write_text(
+            "---\ntype: Feature\ndescription: nothing relevant\n---\n\nbody about giraffes\n",
+            encoding="utf-8",
+        )
+        (tmp / "features" / "other.md").write_text(
+            "---\ntype: Feature\ntitle: Zebra crossing\n---\n\nplain\n", encoding="utf-8"
+        )
+        scan, scan_engine = search_bundle(tmp, "zebra", use_rg=False, use_index=False)
+        accel, rg_engine = search_bundle(tmp, "zebra", use_rg=True, use_index=False)
+        indexed, idx_engine = search_bundle(tmp, "zebra", use_rg=False, use_index=True)
+        self.assertEqual((scan_engine, rg_engine, idx_engine), ("scan", "rg", "index"))
+        self.assertEqual([h["path"] for h in scan], ["/features/other.md"])
+        for hits in (accel, indexed):
+            self.assertEqual([h["path"] for h in hits], [h["path"] for h in scan])
+            self.assertEqual([h["score"] for h in hits], [h["score"] for h in scan])
+
     def test_search_rg_matches_scan_ranking(self):
         bundle = ROOT / "sample-knowledge"
         scan, scan_engine = search_bundle(bundle, "JWT", limit=10, use_rg=False, use_index=False)

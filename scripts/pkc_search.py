@@ -145,7 +145,10 @@ def search(
         if type_filter and ctype.lower() not in type_filter:
             continue
 
-        hay_title = str(fm.get("title") or path.stem).lower()
+        # Filenames are not content: the stem never enters the haystack, so
+        # scan, rg, and the index agree on every hit. Display still falls
+        # back to the stem below.
+        hay_title = str(fm.get("title") or "").lower()
         hay_desc = str(fm.get("description") or "").lower()
         hay_tags = " ".join(str(t) for t in (fm.get("tags") or [])).lower()
         hay_body = body.lower()

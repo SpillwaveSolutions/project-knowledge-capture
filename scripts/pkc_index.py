@@ -43,7 +43,7 @@ from pkc_common import (  # noqa: E402
     toolchain_report,
 )
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2  # 2: hay excludes the filename stem (parity with scan/rg)
 INDEX_NAME = "index.sqlite"
 
 
@@ -250,7 +250,10 @@ def _upsert_node(
     # store a fresh mtime over the content we actually indexed.
     mtime, size = sig if sig is not None else _sig(path)
     fm_json = json.dumps(fm, default=str, ensure_ascii=False)
-    hay = _hay(title, description, tags, body)
+    # `title` keeps the stem fallback for display; the haystack must not,
+    # or the index finds hits the rg prefilter cannot (filenames are not
+    # content). Mirrors pkc_search.search().
+    hay = _hay(str(fm.get("title") or ""), description, tags, body)
     con.execute(
         """
         INSERT OR REPLACE INTO nodes(

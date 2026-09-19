@@ -2,6 +2,31 @@
 
 ## Unreleased
 
+### Fixed
+
+- **Search parity across engines** (#78). The filename stem no longer enters the
+  search haystack (`pkc_search.py`; `pkc_index.py` hay column). A titleless
+  concept whose filename matched the query was found by `scan` and the index
+  but invisible to the `rg` prefilter, breaking the "identical ranking across
+  rungs" contract. Filenames are not content. Index `SCHEMA_VERSION` → 2 so
+  existing indexes rebuild themselves. Display titles still fall back to the stem.
+- **`find_rg()` fails closed on an unusable override** (#79). `PKC_RG_PATH` /
+  `OKF_RG_PATH` / `SECOND_BRAIN_RG_PATH` pointing at a missing or
+  non-executable path now disables rg instead of silently falling through to
+  `PATH` — the semantics research-graph already uses, so one env var means one
+  thing across plugins.
+- **`_inbound_via_rg` resolves the bundle once**, not per hit, and applies the
+  concept rules on strings (`is_concept_rel`); `rg_list_files` already returns
+  resolved paths.
+
+### Changed
+
+- **Auto-context hook injects the summary card** (#80). `pkc_auto_context.py` emits
+  `pkc_pack --summary` (with a 2–3 sentence seed excerpt) instead of the
+  ranked-nodes pack markdown, so the parent never receives pack bodies —
+  consistent with the retrieval-isolation rule (`/pkc-retrieve`).
+- `agents/knowledge-retriever.md` step 6 no longer describes `--summary` as pending.
+
 ## 0.9.4 — 2026-09-12
 
 Retrieval isolation: a Claude-style sub-agent walks and scores the graph so

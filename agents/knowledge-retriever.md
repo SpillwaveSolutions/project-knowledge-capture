@@ -44,7 +44,7 @@ When **okf-plugin** is present, you may use its pack for the walk; still return 
 3. Score fit yourself from title/type/snippet. Pick one primary seed (DecisionRecord/Feature preferred for project questions).
 4. First pack with `--tiny` (1 hop / 8 nodes). Judge fit.
 5. If fit is low or the question needs depth, deepen: `--hops 2 --max-nodes 20`, or try one alternate seed from the top hits. Cap at 2 deepen steps.
-6. Prefer `--summary` once that flag exists. Until then, build the card yourself from pack JSON (`--json`) without pasting the mermaid or neighbor bodies.
+6. Use `--summary` (`--json` adds `summary_markdown`, `lead_nodes`, `edge_count` alongside the structured result). Never paste the mermaid or neighbor bodies.
 7. Hand the card back. Stop.
 
 ## Fit and Next
