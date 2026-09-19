@@ -61,3 +61,41 @@ _Nothing here._
 | 01M2XCVA | Search parity: keep the filename stem out of the haystack | story | P1 | todo | — |
 | 01M2XCVA | find_rg fails closed on an unusable override | task | P2 | todo | — |
 | 01M2XCVA | Auto-context hook injects the summary card, not pack bodies | story | P2 | todo | — |
+
+## Visual roadmap
+
+### Dependency graph
+
+```mermaid
+graph TD
+    01KZ75NQCMYGFYRCVJATEBVBRB["📦 MCP server mode"]
+    01KZ75R3EXEG4GVGRP2S9CCKZ4["📦 Expose pack over MCP"]
+    01KZ75R3M6BYQ643NKDCCSEEZC["📦 Expose validate over MCP"]
+    01KZ75R3S2X1G4PCTGMMSR8BWA["📦 Expose capture over MCP"]
+    01M0SZFFPWEVN9YX9D9RYZ1ZC1["📦 Own project-memory nouns inclu"]
+    01M2XCVATPVGXTMP55VA9SB0B1["🐛 Search parity keep the filenam"]
+    01M2XCVAWFZ005YCP1VDQX0GNV["🔧 find_rg fails closed on an unu"]
+    01M2XCVAY85DP4XJD8F2Y5CV6G["📦 Auto-context hook injects the"]
+    01KZ75NQCMYGFYRCVJATEBVBRB --> 01KZ75R3EXEG4GVGRP2S9CCKZ4
+    01KZ75NQCMYGFYRCVJATEBVBRB --> 01KZ75R3M6BYQ643NKDCCSEEZC
+    01KZ75NQCMYGFYRCVJATEBVBRB --> 01KZ75R3S2X1G4PCTGMMSR8BWA
+    classDef todo fill:#f4f4f4,stroke:#999999
+    class 01KZ75NQCMYGFYRCVJATEBVBRB,01KZ75R3EXEG4GVGRP2S9CCKZ4,01KZ75R3M6BYQ643NKDCCSEEZC,01KZ75R3S2X1G4PCTGMMSR8BWA,01M0SZFFPWEVN9YX9D9RYZ1ZC1,01M2XCVATPVGXTMP55VA9SB0B1,01M2XCVAWFZ005YCP1VDQX0GNV,01M2XCVAY85DP4XJD8F2Y5CV6G todo
+```
+
+### Hierarchy
+
+```mermaid
+graph TD
+    01KZ75NQCMYGFYRCVJATEBVBRB["📦 MCP server mode"]
+    01KZ75R3EXEG4GVGRP2S9CCKZ4["📦 Expose pack over MCP"]
+    01KZ75R3M6BYQ643NKDCCSEEZC["📦 Expose validate over MCP"]
+    01KZ75R3S2X1G4PCTGMMSR8BWA["📦 Expose capture over MCP"]
+    01M0SZFFPWEVN9YX9D9RYZ1ZC1["📦 Own project-memory nouns inclu"]
+    01M2XCVATPVGXTMP55VA9SB0B1["🐛 Search parity keep the filenam"]
+    01M2XCVAWFZ005YCP1VDQX0GNV["🔧 find_rg fails closed on an unu"]
+    01M2XCVAY85DP4XJD8F2Y5CV6G["📦 Auto-context hook injects the"]
+    01KZ75NQCMYGFYRCVJATEBVBRB --> 01KZ75R3EXEG4GVGRP2S9CCKZ4
+    01KZ75NQCMYGFYRCVJATEBVBRB --> 01KZ75R3M6BYQ643NKDCCSEEZC
+    01KZ75NQCMYGFYRCVJATEBVBRB --> 01KZ75R3S2X1G4PCTGMMSR8BWA
+```
