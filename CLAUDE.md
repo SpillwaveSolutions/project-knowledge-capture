@@ -100,7 +100,7 @@ Deterministic Python owns paths, frontmatter, idempotency, catalogs, and the log
 4. Default context pack: 2 hops / ~20 nodes; tiny pack: 1 hop / ≤8 nodes.
 5. Retrieval isolation: spawn `knowledge-retriever` (`/pkc-retrieve`) for Q&A context. Do not run `pkc_search` / `pkc_pack` inline in the parent turn.
 6. After any capture: refresh catalogs + append one line to `log.md`.
-7. Releases bump the version in **six** places: `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json`, `.grok-plugin/marketplace.json`, `marketplace.json`, `package.json`, and the README table — plus a `CHANGELOG.md` entry.
+7. Releases bump the version in **eight** places: `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json`, `.grok-plugin/marketplace.json`, `.codex-plugin/plugin.json`, `.cursor-plugin/plugin.json`, root `plugin.json`, `marketplace.json`, `package.json`, and the README table — plus a `CHANGELOG.md` entry. `TestManifestVersions` fails on any drift between the manifests.
 8. After script changes: `python3 tests/test_pkc.py` **and** `npm run validate`.
 9. Secrets/PII: capture paths run through `scrub_text()`; keep new ingestion paths (transcripts, PRs, threads) scrubbed by default.
 
