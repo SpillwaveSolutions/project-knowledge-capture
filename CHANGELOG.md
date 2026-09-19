@@ -177,9 +177,6 @@ Retrieval ladder: Git + Markdown stays source of truth. Accelerators are disposa
 ## 0.7.3 — 2026-08-17
 
 - **Cursor host.** `.cursor-plugin/plugin.json` (Cursor Plugins) plus `.cursor/rules/second-brain.mdc`. Docs: `docs/CURSOR.md`. `docs/GROK_BOT.md` now covers Grok Bot spawning Cursor cloud agents.
-
-## Unreleased
-
 - Host manifests (`.claude-plugin`, `.codex-plugin`, Grok marketplace)
   now match root `plugin.json` **0.7.2**. Claude Code was still labeled 0.7.1.
 

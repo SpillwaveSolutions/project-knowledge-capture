@@ -24,6 +24,12 @@ step() {
 BUNDLE=sample-knowledge
 TMP=$(mktemp -d); trap 'rm -rf "$TMP"' EXIT
 
+# #82: an unparseable workflow fails at startup with zero jobs, so CI reports
+# nothing and every PR still looks green. The workflow cannot check itself --
+# this is the only gate that runs before the push.
+echo "== workflows =="
+step "workflows parse" python3 -c "import glob,yaml; fs=sorted(glob.glob('.github/workflows/*.yml')); assert fs, 'no workflows found'; [yaml.safe_load(open(f)) for f in fs]"
+
 echo "== unit tests =="
 step "test_pkc.py" python3 tests/test_pkc.py
 step "test_isolation.py" python3 tests/test_isolation.py
