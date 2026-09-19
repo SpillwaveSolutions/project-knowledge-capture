@@ -2,8 +2,18 @@
 
 ## Unreleased
 
+## 0.9.5 — 2026-09-19
+
+Retrieval-ladder parity patch from the v0.9.4 review. Closes #78, #79, #80,
+#82 via #81.
+
 ### Fixed
 
+- **`ci.yml` parses again** (#82). The v0.9.4 `--summary` assertions embedded
+  multi-line `python3 -c` blocks at column 1 inside a `run: |` block; the
+  workflow failed at startup with zero jobs on every run since 2026-09-12, so
+  `test` and `okf-interop` had not executed in CI for a week. Collapsed to
+  single-line `python3 -c`; assertions unchanged.
 - **Search parity across engines** (#78). The filename stem no longer enters the
   search haystack (`pkc_search.py`; `pkc_index.py` hay column). A titleless
   concept whose filename matched the query was found by `scan` and the index
