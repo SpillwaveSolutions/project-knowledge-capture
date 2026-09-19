@@ -2,6 +2,36 @@
 
 ## Unreleased
 
+## 0.9.6 — 2026-09-19
+
+Symlinked-root patch. Closes #85.
+
+### Fixed
+
+- **Search works on a symlinked bundle root** (#85). `rg` prints resolved
+  paths, and `search()` built each hit's display path against the bundle the
+  caller passed, so a bundle that still held a symlink did not match and
+  `relative_to` raised. Search failed outright. The bundle is the root cause,
+  not the line that raised: every engine derives its paths from the bundle it
+  is handed, so `search()` now resolves it once. That is one syscall per call,
+  not one per file, which is the property `_filter_rg_hits` already protects.
+  `candidate_files` still takes the bundle as given, because callers expect
+  paths under the bundle they passed.
+
+  Not macOS-only. `/var` is a symlink to `/private/var` there, so every
+  temporary bundle reproduces it. A symlinked checkout or a container bind
+  mount is the same shape on Linux. CI has neither, which is why it shipped.
+
+### Changed
+
+- `tools/ci-local.sh` parses every `.github/workflows/*.yml` before it runs
+  anything else, and fails when the glob finds none. #82 was an unparseable
+  `ci.yml` that failed at startup with zero jobs, so `test` and `okf-interop`
+  did not run for a week while pull requests still looked green. A workflow
+  cannot check itself.
+- `CHANGELOG.md` no longer carries a second `## Unreleased` heading left over
+  from the 0.7.2 era. Its bullets moved into the 0.7.3 section they describe.
+
 ## 0.9.5 — 2026-09-19
 
 Retrieval-ladder parity patch from the v0.9.4 review. Closes #78, #79, #80,
