@@ -1470,6 +1470,11 @@ class TestAutoContext(unittest.TestCase):
         self.assertIn("User authentication", text)
         self.assertIn("Use JWT", text)  # one hop out
         self.assertIn("features/user-authentication.md", text)
+        # A summary card, not the ranked pack: the parent never receives
+        # neighbor bodies or a mermaid graph (retrieval-isolation rule).
+        self.assertIn("## Pack summary", text)
+        self.assertNotIn("## Nodes (ranked)", text)
+        self.assertNotIn("flowchart", text)
 
     # -- the hook itself ------------------------------------------------
     def test_hook_emits_additional_context(self):

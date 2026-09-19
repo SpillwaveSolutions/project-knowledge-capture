@@ -33,7 +33,7 @@ from pkc_common import (  # noqa: E402
     parse_frontmatter,
     resolve_knowledge_root,
 )
-from pkc_pack import finalize_markdown, pack  # noqa: E402
+from pkc_pack import finalize_summary, pack  # noqa: E402
 
 # `\b` before `features` matches whether the prompt wrote `features/x`,
 # `/features/x`, or `` `features/x` ``. The slug class is greedy so it swallows
@@ -100,13 +100,16 @@ def build_injection(
     hops: int = TINY_HOPS,
     max_nodes: int = TINY_MAX_NODES,
 ) -> str:
-    """Render the tiny pack for `rel` as Markdown.
+    """Render the tiny pack for `rel` as a summary card.
 
-    No mermaid: a diagram costs tokens the model cannot act on any better than
-    the edge list it already gets.
+    The card (seed, hops/nodes/tokens, lead nodes, a 2-3 sentence seed
+    excerpt) is the same shape the knowledge-retriever returns. The parent
+    never receives ranked pack bodies or a mermaid graph -- that is the
+    retrieval-isolation rule, and a hook that injects on every Feature
+    mention is the one place it would otherwise be broken automatically.
     """
     result = pack(bundle, bundle / rel.lstrip("/"), hops=hops, max_nodes=max_nodes)
-    md, _meta = finalize_markdown(result, include_mermaid=False)
+    md, _meta = finalize_summary(result, include_seed_excerpt=True)
     return md
 
 
