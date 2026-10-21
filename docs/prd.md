@@ -478,6 +478,31 @@ Phase 4 – Hardening & docs
 	•	End-to-end tests / golden knowledge bundles.
 	•	Optional hooks (post-capture curation).
 
+## 4.8 PRD narrative types (v0.10)
+
+A PRD journey is not free-form text inside a Feature. PKC stores it as first-class concepts so story mapping can follow typed edges.
+
+| Type | Role | Directory |
+|------|------|-----------|
+| Persona | Who uses the product, and their goal and pain | `personas/` |
+| UserJourney | Ordered path one persona takes to one goal | `journeys/` |
+| JourneyStage | One large step. Becomes a Feature, and an Epic when it is in scope | `journey-stages/` |
+| Scenario | One concrete path through a stage | `scenarios/` |
+| UserStory | One product step for one persona. Distinct from the work-plane Story | `user-stories/` |
+
+Mapping, and nothing else:
+
+- Journey stage `realized_by` a Feature. The Feature `derived_from` the stage.
+- In-scope stage `derived_from` an Epic (edge sits on the Epic).
+- UserStory `implements_step` the stage, `traces_to` a Requirement, and `maps_to` a work Story.
+- Work Story `child_of` the Epic and `implements` the Feature.
+- Scenario `illustrates` the stage and `realized_by` the UserStory nodes on that stage.
+
+`/pkc-capture-prd` reads a JSON journey section and writes this graph. Packs stay at 2 hops: a Feature pack includes the stage, and from the stage the journey, persona, scenario, and user story.
+
+These nodes name a user, an outcome, and a check. They do not name a component, a vendor, or a task.
+
+
 7. Success Criteria
 	•	A Meeting can be captured and produces valid OKF concepts that appear in impact analysis.
 	•	WikiTicket work items and designs can be materialized into the knowledge graph without manual rewriting.

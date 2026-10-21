@@ -2,6 +2,23 @@
 
 ## Unreleased
 
+## 0.10.0 — 2026-10-21
+
+PRD narrative layer. A journey section can be stored and linked through to the backlog.
+
+### Added
+
+- Product-plane types: `Persona`, `UserJourney`, `JourneyStage`, `Scenario`, `UserStory`.
+  `UserStory` is not the WikiTicket `Story`.
+- Relations: `for_persona`, `covers`, `stage_of`, `realized_by`, `derived_from`,
+  `illustrates`, `has_scenario`, `implements_step`, `traces_to`, `golden_thread_for`.
+  `maps_to` now also links a UserStory to its work Story.
+- `pkc_capture.py prd --file <json>` and the `pkc-capture-prd` skill. Stages
+  become Features. In-scope stages become Epics. Steps become UserStories and
+  work Stories. `--no-backlog` skips the work plane.
+- Templates, JSON Schemas, sample journey on the auth bundle, and a 2-hop pack
+  path from a Feature to the journey that produced it.
+
 ## 0.9.6 — 2026-09-19
 
 Symlinked-root patch. Closes #85.

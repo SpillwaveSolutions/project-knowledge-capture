@@ -56,7 +56,7 @@ Every knowledge write requires `--author` or `SECOND_BRAIN_IDENTITY`. The write 
 
 **Forbidden:** silent raw dumps into the knowledge tree without type, provenance, or validation.
 
-**Required:** type ownership. This pack may write the types in `schemas/okf-concepts/registry.json` (Meeting, Experiment, Discovery, DecisionRecord, Assumption, Question, Feature, Requirement, Specification, Design, Release, CodeChange, Risk, Acceptance, TicketLink, Epic, Story, Task, Subtask, Bug, Branch, ContextPack, Project, Catalog). Refuse nouns owned by another ContentPack.
+**Required:** type ownership. This pack may write the types in `schemas/okf-concepts/registry.json` (Meeting, Experiment, Discovery, DecisionRecord, Assumption, Question, Feature, Requirement, Specification, Design, Release, CodeChange, Risk, Acceptance, TicketLink, Epic, Story, Task, Subtask, Bug, Branch, ContextPack, Project, Catalog, Persona, UserJourney, JourneyStage, Scenario, UserStory). Refuse nouns owned by another ContentPack.
 
 ## Progressive disclosure
 

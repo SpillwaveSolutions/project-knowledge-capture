@@ -42,6 +42,11 @@ CATALOGS = (
     "risks",
     "acceptance",
     "write-events",
+    "personas",
+    "journeys",
+    "journey-stages",
+    "scenarios",
+    "user-stories",
 )
 
 TYPE_TO_DIR = {
@@ -71,6 +76,11 @@ TYPE_TO_DIR = {
     "ContextPack": "packs",
     "Project": "projects",
     "WriteEvent": "write-events",
+    "Persona": "personas",
+    "UserJourney": "journeys",
+    "JourneyStage": "journey-stages",
+    "Scenario": "scenarios",
+    "UserStory": "user-stories",
 }
 
 DEFAULT_RELATIONS = (
@@ -107,6 +117,16 @@ DEFAULT_RELATIONS = (
     "affects",
     "reproduces_in",
     "fixed_in",
+    "for_persona",
+    "stage_of",
+    "covers",
+    "realized_by",
+    "derived_from",
+    "implements_step",
+    "traces_to",
+    "has_scenario",
+    "golden_thread_for",
+    "illustrates",
 )
 
 SECRET_PATTERNS: list[tuple[re.Pattern[str], str]] = [

@@ -88,3 +88,27 @@ inverse edge only when the source genuinely asserts it. `capture_acceptance`
 still writes `Feature --verified_by--> Acceptance` because the Feature does
 assert it — `satisfies` and `verified_by` are two claims, not one claim stated
 twice.
+
+## v0.10 relations — PRD narrative
+
+| rel | Direction | Meaning |
+|-----|-----------|---------|
+| `for_persona` | UserJourney / JourneyStage / UserStory → Persona | Who walks this path |
+| `covers` | UserJourney → JourneyStage | The journey contains the stage |
+| `stage_of` | JourneyStage → UserJourney | The stage belongs to the journey |
+| `realized_by` | JourneyStage → Feature, Scenario → UserStory | What delivers this step |
+| `derived_from` | Feature or Epic → JourneyStage | Backlog node came from this stage |
+| `illustrates` | Scenario → JourneyStage | A concrete path through the stage |
+| `has_scenario` | UserJourney → Scenario | The journey owns this scenario |
+| `implements_step` | UserStory → JourneyStage | The product story covers this step |
+| `traces_to` | UserStory → Requirement | Requirement that supplies the content |
+| `maps_to` | UserStory → Story | Product story to the work-plane story |
+| `golden_thread_for` | UserJourney → Release | This journey is the release backbone |
+
+`covers` and `stage_of` are two claims. `realized_by` and `derived_from` are
+two claims. A 2-hop pack of a Feature reaches the stage (both directions), then
+the journey, persona, scenario, and user story.
+
+UserStory is the product slice. Story remains the WikiTicket work item.
+Do not put technology names on these nodes.
+

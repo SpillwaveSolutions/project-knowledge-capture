@@ -35,6 +35,13 @@ Complete **institutional memory chain** for authentication:
 - [Code](/code/index.md)
 - [Packages](/packages/index.md)
 - [Tickets](/tickets/index.md)
+- [Personas](/personas/index.md)
+- [Journeys](/journeys/index.md)
+- [Journey stages](/journey-stages/index.md)
+- [Scenarios](/scenarios/index.md)
+- [User stories](/user-stories/index.md)
+- [Epics](/epics/index.md)
+- [Stories](/stories/index.md)
 
 ## Change log
 

@@ -25,6 +25,7 @@ from pkc_common import (  # noqa: E402
     utc_now,
     write_knowledge,
 )
+from pkc_prd import capture_prd, load_spec  # noqa: E402
 
 
 def _scrub(notes: str) -> str:
@@ -602,6 +603,10 @@ def main(argv: list[str] | None = None) -> int:
     ac.add_argument("--for", dest="satisfies", default=None)
     ac.add_argument("--verified-by", dest="verified_by", action="append", default=[])
 
+    prd = sub.add_parser("prd")
+    prd.add_argument("--file", required=True, help="JSON PRD journey section")
+    prd.add_argument("--no-backlog", action="store_true", help="Do not write Epic or work Story nodes")
+
     args = parser.parse_args(argv)
     repo = Path(args.repo).resolve()
     bundle = resolve_knowledge_root(repo, args.bundle)
@@ -675,6 +680,14 @@ def main(argv: list[str] | None = None) -> int:
             criterion=args.criterion,
             satisfies=args.satisfies,
             verified_by=args.verified_by,
+        )
+    elif args.kind == "prd":
+        spec = load_spec(Path(args.file))
+        results = capture_prd(
+            bundle,
+            author=author,
+            spec=spec,
+            materialize_backlog=not args.no_backlog,
         )
     elif args.kind == "assumption":
         results = capture_assumption(

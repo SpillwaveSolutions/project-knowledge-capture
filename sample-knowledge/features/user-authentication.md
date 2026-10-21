@@ -30,6 +30,8 @@ links:
     rel: related_to
   - target: /acceptance/session-expires-within-15-minutes.md
     rel: verified_by
+  - target: /journey-stages/establish-a-session.md
+    rel: derived_from
 ---
 
 # User authentication
@@ -42,3 +44,4 @@ Shaped by [Use JWT for session management](/decisions/use-jwt-for-session.md).
 ## Related
 
 - [Session Expires Within 15 Minutes](/acceptance/session-expires-within-15-minutes.md) (`verified_by`)
+- [Establish A Session](/journey-stages/establish-a-session.md) (`derived_from`)

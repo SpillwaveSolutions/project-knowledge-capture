@@ -1,0 +1,48 @@
+{
+  "personas": [
+    {
+      "title": "Operator",
+      "role": "operator",
+      "goals": ["Finish the task and end the session"],
+      "pain_points": ["Sessions that never expire"]
+    }
+  ],
+  "journeys": [
+    {
+      "title": "Finish a signed-in task",
+      "persona": "Operator",
+      "goal": "The task is done and the session can end",
+      "trigger": "The operator opens the product",
+      "end_state": "The task is done and the session is closed",
+      "golden_thread": true,
+      "stages": [
+        {
+          "title": "Establish a session",
+          "outcome": "The operator has a session that will expire",
+          "success_metric": "Time to a usable session",
+          "feature": "User authentication",
+          "in_scope": true,
+          "scenarios": [
+            {
+              "title": "Session reaches its limit",
+              "preconditions": "A session was issued",
+              "steps": ["Wait past the limit", "Try the next action"],
+              "success_outcome": "The next action is refused"
+            }
+          ],
+          "stories": [
+            {
+              "title": "Session expires on its own",
+              "capability": "have the session expire",
+              "outcome": "a stolen token stops working",
+              "priority": "must",
+              "acceptance": ["An access token is rejected after the limit"],
+              "requirement": "Secure session tokens",
+              "requirement_ids": ["FR-001"]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
