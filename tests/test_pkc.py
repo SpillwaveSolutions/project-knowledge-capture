@@ -2030,6 +2030,106 @@ class TestSqliteIndex(unittest.TestCase):
         self.assertTrue(any(r.endswith("/auth.md") for r in rels))
 
 
+class TestPrdJourney(unittest.TestCase):
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp())
+        ensure_bundle(self.tmp, "Test")
+        self.spec = json.loads(
+            (ROOT / "tests/fixtures/prd-journey.json").read_text(encoding="utf-8")
+        )
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp)
+
+    def test_types_and_relations_are_known(self):
+        from pkc_common import DEFAULT_RELATIONS
+
+        self.assertEqual(path_for_type("Persona", "operator"), "personas/operator.md")
+        self.assertEqual(path_for_type("UserJourney", "x"), "journeys/x.md")
+        self.assertEqual(path_for_type("JourneyStage", "x"), "journey-stages/x.md")
+        self.assertEqual(path_for_type("Scenario", "x"), "scenarios/x.md")
+        self.assertEqual(path_for_type("UserStory", "x"), "user-stories/x.md")
+        for rel in (
+            "for_persona",
+            "covers",
+            "stage_of",
+            "realized_by",
+            "derived_from",
+            "implements_step",
+            "traces_to",
+            "has_scenario",
+            "golden_thread_for",
+            "illustrates",
+        ):
+            self.assertIn(rel, DEFAULT_RELATIONS)
+
+    def test_prd_links_journey_to_feature_epic_and_story(self):
+        from pkc_prd import capture_prd
+
+        first = capture_prd(self.tmp, author=AUTHOR, spec=self.spec)
+        self.assertTrue(any(action == "created" for _, action in first))
+        second = capture_prd(self.tmp, author=AUTHOR, spec=self.spec)
+        self.assertTrue(second)
+        self.assertTrue(all(action == "skipped" for _, action in second), second)
+
+        def links(rel_path):
+            fm, _ = parse_frontmatter((self.tmp / rel_path).read_text(encoding="utf-8"))
+            return fm["type"], {(item["rel"], item["target"]) for item in fm.get("links") or []}
+
+        typ, rels = links("journeys/finish-a-signed-in-task.md")
+        self.assertEqual(typ, "UserJourney")
+        self.assertIn(("for_persona", "/personas/operator.md"), rels)
+        self.assertIn(("covers", "/journey-stages/establish-a-session.md"), rels)
+        self.assertIn(("has_scenario", "/scenarios/session-reaches-its-limit.md"), rels)
+
+        typ, rels = links("journey-stages/establish-a-session.md")
+        self.assertEqual(typ, "JourneyStage")
+        self.assertIn(("realized_by", "/features/user-authentication.md"), rels)
+        self.assertIn(("stage_of", "/journeys/finish-a-signed-in-task.md"), rels)
+
+        typ, rels = links("features/user-authentication.md")
+        self.assertEqual(typ, "Feature")
+        self.assertIn(("derived_from", "/journey-stages/establish-a-session.md"), rels)
+
+        typ, rels = links("user-stories/session-expires-on-its-own.md")
+        self.assertEqual(typ, "UserStory")
+        self.assertIn(("implements_step", "/journey-stages/establish-a-session.md"), rels)
+        self.assertIn(("traces_to", "/requirements/secure-session-tokens.md"), rels)
+        self.assertIn(("maps_to", "/stories/session-expires-on-its-own.md"), rels)
+
+        typ, rels = links("epics/establish-a-session.md")
+        self.assertEqual(typ, "Epic")
+        self.assertIn(("derived_from", "/journey-stages/establish-a-session.md"), rels)
+
+        typ, rels = links("stories/session-expires-on-its-own.md")
+        self.assertEqual(typ, "Story")
+        self.assertIn(("child_of", "/epics/establish-a-session.md"), rels)
+        self.assertIn(("implements", "/features/user-authentication.md"), rels)
+
+        typ, rels = links("scenarios/session-reaches-its-limit.md")
+        self.assertEqual(typ, "Scenario")
+        self.assertIn(("illustrates", "/journey-stages/establish-a-session.md"), rels)
+        self.assertIn(("realized_by", "/user-stories/session-expires-on-its-own.md"), rels)
+
+        errors, _ = validate_bundle(self.tmp)
+        self.assertEqual(errors, [], errors)
+
+        seed = resolve_concept(self.tmp, "features/user-authentication.md")
+        packed = pack(self.tmp, seed, hops=2, max_nodes=20)
+        types = {node["type"] for node in packed["nodes"]}
+        for expected in ("Feature", "JourneyStage", "UserJourney", "Persona", "Scenario", "UserStory", "Epic", "Story"):
+            self.assertIn(expected, types, types)
+
+    def test_sample_feature_pack_includes_the_journey(self):
+        bundle = ROOT / "sample-knowledge"
+        seed = resolve_concept(bundle, "features/user-authentication.md")
+        packed = pack(bundle, seed, hops=2, max_nodes=60)
+        types = {node["type"] for node in packed["nodes"]}
+        self.assertIn("UserJourney", types)
+        self.assertIn("UserStory", types)
+        self.assertIn("DecisionRecord", types)
+
+
 def main() -> int:
     suite = unittest.defaultTestLoader.loadTestsFromModule(sys.modules[__name__])
     result = unittest.TextTestRunner(verbosity=2).run(suite)

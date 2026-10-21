@@ -8,9 +8,9 @@ Works on **Claude Code**, **Grok Build**, **Codex**, **Agent Plugins 1.0**, **Gr
 |---|---|
 | **Plugin name** | `project-knowledge-capture` |
 | **Repo** | [SpillwaveSolutions/project-knowledge-capture](https://github.com/SpillwaveSolutions/project-knowledge-capture) |
-| **Version** | 0.9.5 |
+| **Version** | 0.10.0 |
 | **License** | MIT |
-| **Nouns this plugin owns** | Meeting, Experiment, Discovery, Assumption, Question, Feature, Requirement, Specification, Design, Release, CodeChange, Package, Risk, Acceptance, DecisionRecord, TicketLink, Epic, Story, Task, Subtask, Bug, Branch, Project, Playbook, Runbook, Reference |
+| **Nouns this plugin owns** | Meeting, Experiment, Discovery, Assumption, Question, Feature, Requirement, Specification, Design, Release, CodeChange, Package, Risk, Acceptance, DecisionRecord, TicketLink, Epic, Story, Task, Subtask, Bug, Branch, Project, Playbook, Runbook, Reference, Persona, UserJourney, JourneyStage, Scenario, UserStory |
 
 ## Multi-host
 
@@ -120,6 +120,7 @@ python3 scripts/pkc_action_items.py meetings/2026-08-03-auth-design.md --bundle 
 | `pkc-retrieve` | Spawn `knowledge-retriever`; parent consumes a summary card only |
 | `pkc-doctor` | Bundle health: conflicts, thin features, stale |
 | `pkc-capture-assumption` | Working hypothesis (weaker than ADR) |
+| `pkc-capture-prd` | PRD journey → persona, journey, stage, scenario, user story, epic |
 | `pkc-capture-question` | Open question that may block a Feature |
 | `pkc-capture-transcript` | Fireflies/Otter/Granola/plain → Meeting |
 | `pkc-capture-pr` | GitHub PR → CodeChange |
@@ -145,7 +146,7 @@ Post-edit curation refreshes catalog indexes and runs a light validate when you 
 | Script | Role |
 |--------|------|
 | `pkc_common.py` | Frontmatter, catalogs, bundle init |
-| `pkc_capture.py` | Meeting / experiment / discovery / decision |
+| `pkc_capture.py` | Meeting / experiment / discovery / decision / PRD journey |
 | `pkc_materialize.py` | Worklog fold + docs |
 | `pkc_link.py` / `pkc_promote.py` | Edges + promotion |
 | `pkc_pack.py` | Context packs (2-hop default; `--summary` card) |

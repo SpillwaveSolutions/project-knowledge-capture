@@ -64,6 +64,7 @@ You get a `Meeting` concept, a separate `DecisionRecord` for each decision found
 | `/pkc-capture-question` | An open question that blocks a feature until answered |
 | `pkc_capture.py risk` | Something that could go wrong, and what holds it back |
 | `pkc_capture.py acceptance` | One checkable condition for calling a feature done |
+| `/pkc-capture-prd` | A PRD journey section: personas, journeys, stages, scenarios, and the stories they map to |
 
 Assumptions and questions matter more than they look. They are the two things teams carry in their heads and lose when someone leaves.
 
