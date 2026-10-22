@@ -86,6 +86,21 @@
       "type": "string",
       "description": "Branch name string. Prefer a typed link to a Branch concept (rel on_branch)."
     },
+    "sprint": {
+      "description": "Optional iteration label. There is no Sprint concept. Older stories omit this.",
+      "type": [
+        "string",
+        "integer",
+        "null"
+      ]
+    },
+    "release": {
+      "description": "Optional release version or title. Prefer a typed link to a Release concept.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "links": {
       "type": "array",
       "items": {

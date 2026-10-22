@@ -44,6 +44,15 @@
     "schema_version": {
       "type": "integer"
     },
+    "outcome": {
+      "type": "string"
+    },
+    "success_metric": {
+      "type": "string"
+    },
+    "order": {
+      "type": "integer"
+    },
     "links": {
       "type": "array",
       "items": {

@@ -44,6 +44,27 @@
     "schema_version": {
       "type": "integer"
     },
+    "role": {
+      "type": "string"
+    },
+    "goals": {
+      "type": [
+        "array",
+        "string"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "pain_points": {
+      "type": [
+        "array",
+        "string"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
     "links": {
       "type": "array",
       "items": {
