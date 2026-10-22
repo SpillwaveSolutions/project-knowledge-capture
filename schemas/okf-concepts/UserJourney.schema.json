@@ -44,6 +44,18 @@
     "schema_version": {
       "type": "integer"
     },
+    "goal": {
+      "type": "string"
+    },
+    "trigger": {
+      "type": "string"
+    },
+    "end_state": {
+      "type": "string"
+    },
+    "golden_thread": {
+      "type": "boolean"
+    },
     "links": {
       "type": "array",
       "items": {

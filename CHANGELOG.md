@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+## 0.10.1 — 2026-10-21
+
+Every registry concept now has a JSON Schema. New fields are optional, so documents written by 0.10.0 still validate.
+
+### Added
+
+- Schema files for `Acceptance`, `Assumption`, `Design`, `Discovery`, `Experiment`, `Package`, `Question`, `Requirement`, `Specification`, and `Release`.
+- `Release` declares optional `version`, `tag`, and `date`. There is still no Sprint type.
+- `Story` declares optional `sprint` and `release`. `sprint` is a label. Prefer a typed link to a `Release` instead of the `release` string.
+- `UserStory` declares the fields capture already wrote: `persona`, `capability`, `outcome`, `priority`, `acceptance_criteria`, `requirement_ids`.
+- `Persona`, `JourneyStage`, `UserJourney`, and `Scenario` declare the optional fields their templates and the PRD capture already used.
+- `tests/test_concept_schemas.py` fails if a registry concept has no schema, or if any field other than `type` and `title` is required.
+
 ## 0.10.0 — 2026-10-21
 
 PRD narrative layer. A journey section can be stored and linked through to the backlog.

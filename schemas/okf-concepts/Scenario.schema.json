@@ -44,6 +44,18 @@
     "schema_version": {
       "type": "integer"
     },
+    "preconditions": {
+      "type": "string"
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "success_outcome": {
+      "type": "string"
+    },
     "links": {
       "type": "array",
       "items": {

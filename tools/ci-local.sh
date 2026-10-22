@@ -33,6 +33,7 @@ step "workflows parse" python3 -c "import glob,yaml; fs=sorted(glob.glob('.githu
 echo "== unit tests =="
 step "test_pkc.py" python3 tests/test_pkc.py
 step "test_isolation.py" python3 tests/test_isolation.py
+step "test_concept_schemas.py" python3 tests/test_concept_schemas.py
 
 echo "== compile =="
 step "py_compile all scripts" bash -c 'python3 -m py_compile scripts/pkc_*.py scripts/brain_session.py'
