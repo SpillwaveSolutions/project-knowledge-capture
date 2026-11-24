@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "node scripts/serve-preview.mjs",
     "start": "node scripts/serve-preview.mjs",
-    "test": "python3 tests/test_pkc.py && python3 tests/test_isolation.py && python3 tests/test_concept_schemas.py",
+    "test": "python3 tests/test_pkc.py && python3 tests/test_isolation.py && python3 tests/test_concept_schemas.py && python3 tests/test_source_recall.py",
     "validate": "python3 scripts/pkc_validate.py --bundle sample-knowledge",
     "doctor": "python3 scripts/pkc_doctor.py --bundle sample-knowledge",
     "search": "python3 scripts/pkc_search.py",

@@ -11,10 +11,10 @@ One tree, two hosts: Claude Code (`.claude-plugin/`) and Grok Build (`.grok-plug
 ## Commands
 
 ```bash
-python3 tests/test_pkc.py                    # full suite (stdlib unittest, no pytest)
-python3 tests/test_pkc.py TestSlugify        # one test class
-python3 tests/test_pkc.py TestSlugify.test_basic
-npm test                                     # same as tests/test_pkc.py
+python3 tests/test_pkc.py                    # main unittest module; runs the whole module
+python3 -m unittest discover -s tests -p test_pkc.py -k TestSlugify
+python3 -m unittest discover -s tests -p test_pkc.py -k TestSlugify.test_basic
+npm test                                     # main, isolation, concept schema and source recall suites
 npm run typecheck                            # py_compile over every script
 npm run validate                             # pkc_validate on sample-knowledge
 npm run doctor                               # pkc_doctor on sample-knowledge

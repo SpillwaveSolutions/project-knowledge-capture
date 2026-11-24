@@ -19,6 +19,7 @@ jobs:
       - name: Unit tests
         run: python3 tests/test_pkc.py
       - run: python3 tests/test_isolation.py
+      - run: python3 tests/test_source_recall.py
 
       # Glob, not a list. The hand-maintained list drifted: it was missing
       # digest, release_notes, thread, federate, and adr_import, all of which
