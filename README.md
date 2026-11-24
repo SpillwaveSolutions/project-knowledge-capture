@@ -96,7 +96,7 @@ claude plugin install okf-graph-eng@okf-plugin-marketplace
 2. `/pkc-capture-meeting` — paste notes → Meeting + DecisionRecords
 3. `/pkc-retrieve` — spawn knowledge-retriever for Feature/Decision context (card only)
 4. `/pkc-materialize` — sync WikiTicket fold into OKF
-5. Run tests: `python3 tests/test_pkc.py`
+5. Run the Python suites with `npm test` (Node 20+), or run the capture-to-citation regression directly with `python3 tests/test_source_recall.py`. The latter exercises SQLite FTS5 with a temporary bundle.
 
 ```bash
 python3 scripts/pkc_validate.py --bundle sample-knowledge
