@@ -23,13 +23,14 @@ class SourceRecallTests(unittest.TestCase):
             ensure_bundle(bundle)
 
             def capture(label, value):
-                source = sources / f"{label}.txt"
+                source = sources / f"{label}-{value}.txt"
                 fact = f"The {label} relay archives amber samples for {value} evenings."
                 source.write_text(fact + "\n", encoding="utf-8")
+                title = "East relay retention" if label == "east" else "West relay schedule"
                 capture_decision(
-                    bundle, author="fixture", title=f"{label.title()} relay retention",
+                    bundle, author="fixture", title=title,
                     context=f"Source file: sources/{source.name}",
-                    decision=source.read_text(encoding="utf-8").strip(), consequences="Record retention.",
+                    decision=source.read_text(encoding="utf-8").strip(), consequences="Record the retention period.",
                 )
 
             capture("east", 12)
@@ -41,22 +42,26 @@ class SourceRecallTests(unittest.TestCase):
                 errors, _ = validate_bundle(bundle)
                 self.assertEqual(errors, [])
                 expected_path = "decisions/east-relay-retention.md"
-                for query in ("east relay retention", "amber samples east", "east archives evenings"):
+                for query in ("east relay retention", "amber samples east", "east archives evenings", "amber retention"):
                     with self.subTest(query=query, expected=expected):
                         hits, _ = search(bundle, query, types=["DecisionRecord"], limit=3)
                         paths = [hit["path"].lstrip("/") for hit in hits]
-                        self.assertIn(expected_path, paths[:3], paths)
-                        hit = next(row for row in hits if row["path"].lstrip("/") == expected_path)
+                        self.assertEqual(paths[:1], [expected_path], paths)
+                        if query == "amber retention":
+                            self.assertEqual(paths[1:], ["decisions/west-relay-schedule.md"])
+                            self.assertGreater(hits[0]["score"], hits[1]["score"])
+                        hit = hits[0]
                         node = (bundle / hit["path"].lstrip("/")).read_text(encoding="utf-8")
                         source_ref = next(line for line in node.splitlines() if line.startswith("Source file: "))
                         cited = root / source_ref.removeprefix("Source file: ")
-                        self.assertEqual(cited.resolve(), (sources / "east.txt").resolve())
+                        self.assertEqual(cited.resolve(), (sources / f"east-{expected}.txt").resolve())
                         fact = f"The east relay archives amber samples for {expected} evenings."
                         self.assertEqual(cited.read_text(encoding="utf-8").strip(), fact)
                         self.assertIn(fact, node)
                         self.assertNotIn("81 evenings", node)
                         if expected == 37:
                             self.assertNotIn("12 evenings", node)
+                            self.assertIn("12 evenings", (sources / "east-12.txt").read_text(encoding="utf-8"))
                 self.assertEqual(search(bundle, "ultraviolet glacier", limit=3)[0], [])
 
 
